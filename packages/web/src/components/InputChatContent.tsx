@@ -14,7 +14,7 @@ import {
 } from 'react-icons/pi';
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
-import { FileLimit } from 'generative-ai-use-cases-jp';
+import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -102,7 +102,7 @@ const InputChatContent: React.FC<Props> = (props) => {
 
   const disabledSend = useMemo(() => {
     return (
-      props.content === '' ||
+      props.content.trim() === '' ||
       props.disabled ||
       uploading ||
       errorMessages.length > 0

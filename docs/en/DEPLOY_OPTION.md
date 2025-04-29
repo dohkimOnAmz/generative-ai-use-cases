@@ -103,6 +103,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 After making changes, redeploy with `npm run cdk:deploy` to apply the changes. Data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for Kendra data source. (Note that files starting with `logs` will not be synchronized.)
 
+> [!NOTE]
+> By default, the Amazon Bedrock User Guide (Japanese) and Amazon Nova User Guide (English) are stored in `/packages/cdk/rag-docs/docs` as sample data.
+
 Next, perform Kendra Data source Sync with the following steps:
 
 1. Open the [Amazon Kendra console](https://console.aws.amazon.com/kendra/home)
@@ -232,7 +235,12 @@ After making changes, redeploy with `npm run cdk:deploy` to apply the changes. T
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
-During deployment, data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for Knowledge Base data source. (Note that files starting with `logs` will not be synchronized.) After deployment is complete, follow these steps to sync the Knowledge Base Data source:
+During deployment, data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for Knowledge Base data source. (Note that files starting with `logs` will not be synchronized.)
+
+> [!NOTE]
+> By default, the Amazon Bedrock User Guide (Japanese) and Amazon Nova User Guide (English) are stored in `/packages/cdk/rag-docs/docs` as sample data.
+
+After deployment is complete, follow these steps to sync the Knowledge Base Data source:
 
 1. Open the [Knowledge Base console](https://console.aws.amazon.com/bedrock/home#/knowledge-bases)
 2. Click on generative-ai-use-cases-jp
@@ -649,6 +657,8 @@ As of 2025/03, the multimodal models are:
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"us.mistral.pixtral-large-2502-v1:0",
+"eu.mistral.pixtral-large-2502-v1:0",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
 "us.amazon.nova-pro-v1:0",
@@ -815,6 +825,8 @@ This solution supports the following text generation models:
 "mistral.mistral-large-2407-v1:0",
 "mistral.mistral-large-2402-v1:0",
 "mistral.mistral-small-2402-v1:0",
+"us.mistral.pixtral-large-2502-v1:0",
+"eu.mistral.pixtral-large-2502-v1:0",
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
@@ -853,6 +865,7 @@ This solution supports the following video generation models:
 
 ```
 "amazon.nova-reel-v1:0",
+"amazon.nova-reel-v1:1",
 "luma.ray-v2:0"
 ```
 
@@ -896,6 +909,7 @@ const envs: Record<string, Partial<StackInput>> = {
       { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
       { modelId: 'us.meta.llama3-3-70b-instruct-v1:0', region: 'us-east-1' },
       { modelId: 'us.meta.llama3-2-90b-instruct-v1:0', region: 'us-east-1' },
+      { modelId: 'us.mistral.pixtral-large-2502-v1:0', region: 'us-east-1' },
     ],
     imageGenerationModelIds: [
       'amazon.nova-canvas-v1:0',
@@ -941,6 +955,10 @@ const envs: Record<string, Partial<StackInput>> = {
       },
       {
         "modelId": "us.meta.llama3-2-90b-instruct-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.mistral.pixtral-large-2502-v1:0",
         "region": "us-east-1"
       }
     ],
@@ -991,6 +1009,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'meta.llama3-8b-instruct-v1:0',
       'cohere.command-r-plus-v1:0',
       'cohere.command-r-v1:0',
+      'us.mistral.pixtral-large-2502-v1:0',
       'mistral.mistral-large-2402-v1:0',
     ],
     imageGenerationModelIds: [
@@ -999,7 +1018,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'amazon.titan-image-generator-v1',
       'stability.stable-diffusion-xl-v1',
     ],
-    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:1'],
   },
 };
 ```
@@ -1031,7 +1050,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
-    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:1"]
   }
 }
 ```

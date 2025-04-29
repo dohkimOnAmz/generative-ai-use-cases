@@ -103,6 +103,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。)
 
+> [!NOTE]
+> デフォルトでは、Amazon Bedrock ユーザーガイド (日本語) と Amazon Nova ユーザーガイド (英語) がサンプルデータとして `/packages/cdk/rag-docs/docs` に格納されています。
+
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
@@ -234,7 +237,12 @@ const envs: Record<string, Partial<StackInput>> = {
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
-デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。) デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。)
+
+> [!NOTE]
+> デフォルトでは、Amazon Bedrock ユーザーガイド (日本語) と Amazon Nova ユーザーガイド (英語) が、サンプルデータとして `/packages/cdk/rag-docs/docs` に格納されています。
+
+デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
 1. generative-ai-use-cases-jp をクリック
@@ -664,6 +672,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"us.mistral.pixtral-large-2502-v1:0",
+"eu.mistral.pixtral-large-2502-v1:0",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
 "us.amazon.nova-pro-v1:0",
@@ -830,6 +840,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "mistral.mistral-large-2407-v1:0",
 "mistral.mistral-large-2402-v1:0",
 "mistral.mistral-small-2402-v1:0",
+"us.mistral.pixtral-large-2502-v1:0",
+"eu.mistral.pixtral-large-2502-v1:0",
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
@@ -868,6 +880,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ```
 "amazon.nova-reel-v1:0",
+"amazon.nova-reel-v1:1",
 "luma.ray-v2:0"
 ```
 
@@ -910,6 +923,7 @@ const envs: Record<string, Partial<StackInput>> = {
       { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
       { modelId: 'us.meta.llama3-3-70b-instruct-v1:0', region: 'us-east-1' },
       { modelId: 'us.meta.llama3-2-90b-instruct-v1:0', region: 'us-east-1' },
+      { modelId: 'us.mistral.pixtral-large-2502-v1:0', region: 'us-east-1' },
     ],
     imageGenerationModelIds: [
       'amazon.nova-canvas-v1:0',
@@ -1013,7 +1027,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'amazon.titan-image-generator-v1',
       'stability.stable-diffusion-xl-v1',
     ],
-    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:1'],
   },
 };
 ```
@@ -1045,7 +1059,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
-    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:1"]
   }
 }
 ```

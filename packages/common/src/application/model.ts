@@ -1,4 +1,4 @@
-import { FeatureFlags } from 'generative-ai-use-cases-jp';
+import { FeatureFlags } from 'generative-ai-use-cases';
 
 // Manage Model Feature
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference-supported-models-features.html
@@ -137,6 +137,8 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'mistral.mistral-small-2402-v1:0': MODEL_FEATURE.TEXT_ONLY,
   'mistral.mistral-large-2402-v1:0': MODEL_FEATURE.TEXT_DOC,
   'mistral.mistral-large-2407-v1:0': MODEL_FEATURE.TEXT_DOC,
+  'us.mistral.pixtral-large-2502-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'eu.mistral.pixtral-large-2502-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   // Cohere
   'cohere.command-r-v1:0': MODEL_FEATURE.TEXT_DOC,
   'cohere.command-r-plus-v1:0': MODEL_FEATURE.TEXT_DOC,
@@ -161,6 +163,7 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // === Video ===
 
   'amazon.nova-reel-v1:0': MODEL_FEATURE.VIDEO_GEN,
+  'amazon.nova-reel-v1:1': MODEL_FEATURE.VIDEO_GEN,
   'luma.ray-v2:0': MODEL_FEATURE.VIDEO_GEN,
 
   // === Embedding ===

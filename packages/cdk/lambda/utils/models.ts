@@ -16,7 +16,7 @@ import {
   AmazonGeneralImageParams,
   AmazonAdvancedImageParams,
   StreamingChunk,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   ConverseCommandInput,
   ConverseCommandOutput,
@@ -25,7 +25,7 @@ import {
   ConversationRole,
   ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
-import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
+import { modelFeatureFlags } from '@generative-ai-use-cases/common';
 
 // Default Models
 
@@ -719,6 +719,41 @@ const createBodyVideoNovaReel = (params: GenerateVideoParams) => {
   };
 };
 
+const createBodyVideoNovaReelV11 = (params: GenerateVideoParams) => {
+  if (params.taskType === 'TEXT_VIDEO') {
+    return {
+      taskType: 'TEXT_VIDEO',
+      textToVideoParams: {
+        text: params.prompt,
+        images: params.images,
+      },
+      videoGenerationConfig: {
+        durationSeconds: params.durationSeconds,
+        fps: params.fps,
+        dimension: params.dimension,
+        seed: params.seed,
+      },
+    };
+  } else if (params.taskType === 'MULTI_SHOT_AUTOMATED') {
+    return {
+      taskType: 'MULTI_SHOT_AUTOMATED',
+      multiShotAutomatedParams: {
+        text: params.prompt,
+      },
+      videoGenerationConfig: {
+        durationSeconds: params.durationSeconds,
+        fps: params.fps,
+        dimension: params.dimension,
+        seed: params.seed,
+      },
+    };
+  } else if (params.taskType === 'MULTI_SHOT_MANUAL') {
+    throw new Error('Not implemented yet');
+  } else {
+    throw new Error(`Unknown task type ${params.taskType}`);
+  }
+};
+
 const createBodyVideoLumaRayV2 = (params: GenerateVideoParams) => {
   return {
     prompt: params.prompt,
@@ -1077,6 +1112,22 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'us.mistral.pixtral-large-2502-v1:0': {
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'eu.mistral.pixtral-large-2502-v1:0': {
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'cohere.command-r-v1:0': {
     defaultParams: COMMANDR_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -1260,6 +1311,9 @@ export const BEDROCK_VIDEO_GEN_MODELS: {
 } = {
   'amazon.nova-reel-v1:0': {
     createBodyVideo: createBodyVideoNovaReel,
+  },
+  'amazon.nova-reel-v1:1': {
+    createBodyVideo: createBodyVideoNovaReelV11,
   },
   'luma.ray-v2:0': {
     createBodyVideo: createBodyVideoLumaRayV2,

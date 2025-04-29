@@ -20,40 +20,36 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import {
-  Agent,
-  AgentMap,
-  ModelConfiguration,
-} from 'generative-ai-use-cases-jp';
+import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
   BEDROCK_RERANKING_MODELS,
   BEDROCK_TEXT_MODELS,
-} from '@generative-ai-use-cases-jp/common';
+} from '@generative-ai-use-cases/common';
 
 export interface BackendApiProps {
   // Context Params
-  modelRegion: string;
-  modelIds: ModelConfiguration[];
-  imageGenerationModelIds: ModelConfiguration[];
-  videoGenerationModelIds: ModelConfiguration[];
-  videoBucketRegionMap: Record<string, string>;
-  endpointNames: string[];
-  queryDecompositionEnabled: boolean;
-  rerankingModelId?: string | null;
-  customAgents: Agent[];
-  crossAccountBedrockRoleArn?: string | null;
+  readonly modelRegion: string;
+  readonly modelIds: ModelConfiguration[];
+  readonly imageGenerationModelIds: ModelConfiguration[];
+  readonly videoGenerationModelIds: ModelConfiguration[];
+  readonly videoBucketRegionMap: Record<string, string>;
+  readonly endpointNames: string[];
+  readonly queryDecompositionEnabled: boolean;
+  readonly rerankingModelId?: string | null;
+  readonly customAgents: Agent[];
+  readonly crossAccountBedrockRoleArn?: string | null;
 
   // Resource
-  userPool: UserPool;
-  idPool: IdentityPool;
-  userPoolClient: UserPoolClient;
-  table: Table;
-  knowledgeBaseId?: string;
-  agents?: Agent[];
-  guardrailIdentify?: string;
-  guardrailVersion?: string;
+  readonly userPool: UserPool;
+  readonly idPool: IdentityPool;
+  readonly userPoolClient: UserPoolClient;
+  readonly table: Table;
+  readonly knowledgeBaseId?: string;
+  readonly agents?: Agent[];
+  readonly guardrailIdentify?: string;
+  readonly guardrailVersion?: string;
 }
 
 export class Api extends Construct {
@@ -288,10 +284,11 @@ export class Api extends Construct {
     }
     table.grantWriteData(generateVideoFunction);
 
-    const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
+    const copyVideoJob = new NodejsFunction(this, 'CopyVideoJob', {
       runtime: Runtime.NODEJS_LATEST,
-      entry: './lambda/listVideoJobs.ts',
+      entry: './lambda/copyVideoJob.ts',
       timeout: Duration.minutes(15),
+      memorySize: 512,
       environment: {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
@@ -308,7 +305,7 @@ export class Api extends Construct {
     });
     for (const region of Object.keys(props.videoBucketRegionMap)) {
       const bucketName = props.videoBucketRegionMap[region];
-      listVideoJobs.role?.addToPrincipalPolicy(
+      copyVideoJob.role?.addToPrincipalPolicy(
         new PolicyStatement({
           effect: Effect.ALLOW,
           actions: ['s3:GetObject', 's3:DeleteObject', 's3:ListBucket'],
@@ -319,8 +316,30 @@ export class Api extends Construct {
         })
       );
     }
-    fileBucket.grantWrite(listVideoJobs);
+    fileBucket.grantWrite(copyVideoJob);
+    table.grantWriteData(copyVideoJob);
+
+    const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
+      runtime: Runtime.NODEJS_LATEST,
+      entry: './lambda/listVideoJobs.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_REGION: modelRegion,
+        MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        BUCKET_NAME: fileBucket.bucketName,
+        TABLE_NAME: table.tableName,
+        COPY_VIDEO_JOB_FUNCTION_ARN: copyVideoJob.functionArn,
+      },
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
+    });
     table.grantReadWriteData(listVideoJobs);
+    copyVideoJob.grantInvoke(listVideoJobs);
 
     const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
       runtime: Runtime.NODEJS_LATEST,
@@ -655,6 +674,7 @@ export class Api extends Construct {
         allowMethods: Cors.ALL_METHODS,
       },
       cloudWatchRole: true,
+      defaultMethodOptions: commonAuthorizerProps,
     });
 
     api.addGatewayResponse('Api4XX', {
