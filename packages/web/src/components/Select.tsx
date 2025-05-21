@@ -69,7 +69,7 @@ const Select: React.FC<Props> = (props) => {
       <Listbox value={props.value} onChange={props.onChange}>
         <div className="relative">
           <Listbox.Button
-            className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
+            className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-center focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit min-w-64'}`}>
             <span className="line-clamp-1">
               {props.value && (
                 <OptionContent value={props.value} label={selectedLabel} />
@@ -93,7 +93,7 @@ const Select: React.FC<Props> = (props) => {
           leave="transition ease-in duration-100"
           leaveFrom="opacity-100"
           leaveTo="opacity-0">
-          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-fit min-w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
             {props.options.map((option, idx) => (
               <Listbox.Option
                 key={idx}
