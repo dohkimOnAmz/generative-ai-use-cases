@@ -1,8 +1,9 @@
 import boto3
 import json
 import uvicorn
+import os
 from strands.models import BedrockModel
-from strands import Agent
+from strands import Agent, tool
 from strands.tools.mcp import MCPClient
 from mcp import stdio_client, StdioServerParameters
 from fastapi import FastAPI, Response, status
@@ -20,6 +21,11 @@ UV_ENV = {
     'XDG_CACHE_HOME': '/tmp/.cache',
     'XDG_DATA_HOME': '/tmp/.local/share',
 }
+
+FIXED_SYSTEM_PROMPT = """## About File Output
+
+You are running on AWS Lambda. Therefore, when writing files, always write them under `/tmp`. Also, users cannot directly access files written under `/tmp`. So when submitting these files to users, always upload them to S3 using the `upload_file_to_s3_and_retrieve_s3_url` tool and provide the S3 URL.
+"""
 
 def stream_chunk(text, trace):
     return json.dumps({ 'text': text, 'trace': trace}, ensure_ascii=False) + '\n'
@@ -63,6 +69,24 @@ def extract_tool_result(event):
                 if 'text' in t:
                     res += t['text']
     return res
+
+@tool
+def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
+    """Upload the file at /tmp/* and retrieve the s3 path
+
+    Args:
+        filepath: The path to the uploading file
+    """
+    bucket = os.environ['FILE_BUCKET']
+    region = os.environ['AWS_REGION']
+
+    filename = os.path.basename(filepath)
+    key = f'mcp/{filename}'
+
+    s3 = boto3.client('s3')
+    s3.upload_file(filepath, bucket, key)
+
+    return f'https://{bucket}.s3.{region}.amazonaws.com/{key}'
 
 app = FastAPI()
 
@@ -154,10 +178,10 @@ async def streaming(request: StreamingRequest):
         )
 
         agent = Agent(
-            system_prompt=request.systemPrompt,
+            system_prompt=f'{request.systemPrompt}\n{FIXED_SYSTEM_PROMPT}',
             messages=convert_unrecorded_message_to_strands_messages(request.messages),
             model=bedrock_model,
-            tools=app.mcp_tools,
+            tools=app.mcp_tools + [upload_file_to_s3_and_retrieve_s3_url],
             callback_handler=None,
         )
 
