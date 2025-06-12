@@ -5,17 +5,16 @@ WORKDIR /var/task
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
 
 ENV UV_NO_CACHE=1
-ENV UV_NO_MANAGED_PYTHON=1
-ENV UV_PYTHON=/usr/local/bin/python
 ENV UV_INSTALL_DIR=/usr/local/bin
+ENV UV_TOOL_DIR=/opt/tool
+ENV UV_TOOL_BIN_DIR=/opt/tool/bin
 
-RUN apt-get update -y && apt-get install curl nodejs npm -y
+RUN apt-get update -y && apt-get install curl jq nodejs npm -y
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-COPY pyproject.toml .python-version uv.lock ./
+COPY pyproject.toml .python-version uv.lock app.py mcp.json pre-install.sh ./
 
 RUN uv sync
-
-COPY app.py mcp.json ./
+RUN ./pre-install.sh
 
 CMD ["uv", "run", "app.py"]

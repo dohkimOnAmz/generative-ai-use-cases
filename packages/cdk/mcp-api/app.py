@@ -1,6 +1,7 @@
 import boto3
 import json
 import uvicorn
+import subprocess
 from strands.models import BedrockModel
 from strands import Agent
 from strands.tools.mcp import MCPClient
@@ -12,14 +13,15 @@ from typing import List
 
 UV_ENV = {
     'UV_NO_CACHE': '1',
+    'UV_PYTHON': '/usr/local/bin/python',
     'UV_TOOL_DIR': '/tmp/tool',
-    'HOME': '/tmp',
-    'TMPDIR': '/tmp',
+    'UV_TOOL_BIN_DIR': '/tmp/tool/bin',
     'npm_config_cache': '/tmp/.npm',
-    'XDG_CONFIG_HOME': '/tmp/.config',
-    'XDG_CACHE_HOME': '/tmp/.cache',
-    'XDG_DATA_HOME': '/tmp/.local/share',
 }
+
+def copy_tools():
+    subprocess.run(['cp', '-r', '/opt/tool', '/tmp/.'], check=True)
+    subprocess.run(['chmod', '-R', '777', '/tmp/tool'], check=True)
 
 def stream_chunk(text, trace):
     return json.dumps({ 'text': text, 'trace': trace}, ensure_ascii=False) + '\n'
@@ -90,6 +92,10 @@ class StreamingRequest(BaseModel):
 def convert_unrecorded_message_to_strands_messages(messages: List[UnrecordedMessage]):
     return list(map(lambda m: { 'role': m.role, 'content': [{ 'text': m.content }] }, messages))
 
+# Since the @latest suffix causes installation to run every time, we explicitly remove it as a version.
+def remove_at_latest_suffix(args: [str]):
+    return list(map(lambda x: x.removesuffix('@latest'), args))
+
 def safe_parse_mcp_json():
     res = []
 
@@ -106,7 +112,7 @@ def safe_parse_mcp_json():
             server = mcp_servers[server_name]
             res.append({
                 'command': server['command'],
-                'args': server['args'] if 'args' in server else [],
+                'args': remove_at_latest_suffix(server['args'] if 'args' in server else []),
                 'env': server['env'] if 'env' in server else {},
             })
 
@@ -186,4 +192,5 @@ async def streaming(request: StreamingRequest):
     )
 
 if __name__ == '__main__':
+    copy_tools()
     uvicorn.run(app, host='0.0.0.0', port=8080)
