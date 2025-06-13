@@ -30,7 +30,7 @@ WORKSPACE_DIR = '/tmp/ws'
 FIXED_SYSTEM_PROMPT = f"""## About File Output
 - You are running on AWS Lambda. Therefore, when writing files, always write them under `{WORKSPACE_DIR}`.
 - Similarly, if you need a workspace, please use the `{WORKSPACE_DIR}` directory. Do not ask the user about their current workspace. It's always `{WORKSPACE_DIR}`.
-- Also, users cannot directly access files written under `{WORKSPACE_DIR}`. So when submitting these files to users, *always upload them to S3 using the `upload_file_to_s3_and_retrieve_s3_url` tool and provide the S3 URL*.
+- Also, users cannot directly access files written under `{WORKSPACE_DIR}`. So when submitting these files to users, *always upload them to S3 using the `upload_file_to_s3_and_retrieve_s3_url` tool and provide the S3 URL*. The S3 URL must be included in the final output.
 """
 
 def stream_chunk(text, trace):
@@ -93,6 +93,9 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
     """
     bucket = os.environ['FILE_BUCKET']
     region = os.environ['AWS_REGION']
+
+    if not filepath.startswith(WORKSPACE_DIR):
+        raise ValueError(f'{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}.')
 
     filename = os.path.basename(filepath)
     key = f'mcp/{filename}'
