@@ -20,6 +20,7 @@ UV_ENV = {
     'UV_TOOL_DIR': '/tmp/.uv/tool',
     'UV_TOOL_BIN_DIR': '/tmp/.uv/tool/bin',
     'npm_config_cache': '/tmp/.npm',
+    'AWS_REGION': os.environ['AWS_REGION'],
     'AWS_ACCESS_KEY_ID': os.environ['AWS_ACCESS_KEY_ID'],
     'AWS_SECRET_ACCESS_KEY': os.environ['AWS_SECRET_ACCESS_KEY'],
     'AWS_SESSION_TOKEN': os.environ['AWS_SESSION_TOKEN'],
