@@ -13,6 +13,7 @@ from fastapi import FastAPI, Response, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List
+from uuid import uuid4
 
 UV_ENV = {
     'UV_NO_CACHE': '1',
@@ -77,6 +78,9 @@ def extract_tool_result(event):
                     res += t['text']
     return res
 
+def create_session_id():
+    return str(uuid4())
+
 def create_ws_directory():
     logging.info('Create ws directory')
     pathlib.Path(WORKSPACE_DIR).mkdir(exist_ok=True)
@@ -92,6 +96,8 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
     Args:
         filepath: The path to the uploading file
     """
+    global session_id
+
     bucket = os.environ['FILE_BUCKET']
     region = os.environ['AWS_REGION']
 
@@ -99,7 +105,7 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
         raise ValueError(f'{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}.')
 
     filename = os.path.basename(filepath)
-    key = f'mcp/{filename}'
+    key = f'mcp/{session_id}/{filename}'
 
     s3 = boto3.client('s3')
     s3.upload_file(filepath, bucket, key)
@@ -186,6 +192,12 @@ async def streaming(request: StreamingRequest):
         load_mcp_tools()
 
     async def generate():
+        global session_id
+
+        session_id = create_session_id()
+
+        logging.info(f'New session {session_id}')
+
         create_ws_directory()
 
         session = boto3.Session(
