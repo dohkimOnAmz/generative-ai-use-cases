@@ -27,7 +27,7 @@ export class McpApi extends Construct {
       code: DockerImageCode.fromImageAsset('./mcp-api'),
       memorySize: 1024,
       timeout: Duration.minutes(15),
-      architecture: Architecture.ARM_64,
+      architecture: Architecture.X86_64,
       environment: {
         AWS_LWA_INVOKE_MODE: 'RESPONSE_STREAM',
         FILE_BUCKET: props.fileBucket.bucketName,
