@@ -8,6 +8,11 @@ export interface ModelInferenceProfilesStackProps extends StackProps {
 }
 
 export class ModelInferenceProfilesStack extends Stack {
+  private inferenceProfiles: Record<
+    string,
+    bedrock.CfnApplicationInferenceProfile
+  > = {};
+
   constructor(
     scope: Construct,
     id: string,
@@ -29,13 +34,13 @@ export class ModelInferenceProfilesStack extends Stack {
       ) {
         const model = bedrock.FoundationModel.fromFoundationModelId(
           this,
-          'Model',
+          `Model${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
             modelId: modelId.modelId,
           }
         );
 
-        new bedrock.CfnApplicationInferenceProfile(
+        const inferenceProfile = new bedrock.CfnApplicationInferenceProfile(
           this,
           `applicationInferenceProfile${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
@@ -51,6 +56,7 @@ export class ModelInferenceProfilesStack extends Stack {
             ],
           }
         );
+        this.inferenceProfiles[modelId.modelId] = inferenceProfile;
       }
     });
 
@@ -68,13 +74,13 @@ export class ModelInferenceProfilesStack extends Stack {
       ) {
         const model = bedrock.FoundationModel.fromFoundationModelId(
           this,
-          'Model',
+          `Model${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
             modelId: modelId.modelId,
           }
         );
 
-        new bedrock.CfnApplicationInferenceProfile(
+        const inferenceProfile = new bedrock.CfnApplicationInferenceProfile(
           this,
           `applicationInferenceProfile${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
@@ -90,6 +96,7 @@ export class ModelInferenceProfilesStack extends Stack {
             ],
           }
         );
+        this.inferenceProfiles[modelId.modelId] = inferenceProfile;
       }
     });
 
@@ -107,13 +114,13 @@ export class ModelInferenceProfilesStack extends Stack {
       ) {
         const model = bedrock.FoundationModel.fromFoundationModelId(
           this,
-          'Model',
+          `Model${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
             modelId: modelId.modelId,
           }
         );
 
-        new bedrock.CfnApplicationInferenceProfile(
+        const inferenceProfile = new bedrock.CfnApplicationInferenceProfile(
           this,
           `applicationInferenceProfile${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
@@ -129,6 +136,7 @@ export class ModelInferenceProfilesStack extends Stack {
             ],
           }
         );
+        this.inferenceProfiles[modelId.modelId] = inferenceProfile;
       }
     });
 
@@ -146,13 +154,13 @@ export class ModelInferenceProfilesStack extends Stack {
       ) {
         const model = bedrock.FoundationModel.fromFoundationModelId(
           this,
-          'Model',
+          `Model${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
             modelId: modelId.modelId,
           }
         );
 
-        new bedrock.CfnApplicationInferenceProfile(
+        const inferenceProfile = new bedrock.CfnApplicationInferenceProfile(
           this,
           `applicationInferenceProfile${modelId.modelId.replace(/[.:]/g, '-')}`,
           {
@@ -168,7 +176,19 @@ export class ModelInferenceProfilesStack extends Stack {
             ],
           }
         );
+        this.inferenceProfiles[modelId.modelId] = inferenceProfile;
       }
     });
+  }
+
+  getInferenceProfileId(modelId: string): string {
+    const inferenceProfile = this.inferenceProfiles[modelId];
+    if (inferenceProfile) {
+      return inferenceProfile.attrInferenceProfileId;
+    }
+    // For cross-region models, return the original modelId
+    else {
+      return modelId;
+    }
   }
 }

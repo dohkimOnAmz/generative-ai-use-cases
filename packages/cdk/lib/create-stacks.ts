@@ -106,14 +106,18 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
   }
 
   const modelRegions = [
-    ...new Set(params.modelIds.map((model) => model.region)),
-    ...new Set(params.imageGenerationModelIds.map((model) => model.region)),
-    ...new Set(params.videoGenerationModelIds.map((model) => model.region)),
-    ...new Set(params.speechToSpeechModelIds.map((model) => model.region)),
+    ...new Set([
+      ...params.modelIds.map((model) => model.region),
+      ...params.imageGenerationModelIds.map((model) => model.region),
+      ...params.videoGenerationModelIds.map((model) => model.region),
+      ...params.speechToSpeechModelIds.map((model) => model.region),
+    ]),
   ];
 
+  const inferenceProfileStacks: Record<string, ModelInferenceProfilesStack> =
+    {};
   for (const region of modelRegions) {
-    new ModelInferenceProfilesStack(
+    inferenceProfileStacks[region] = new ModelInferenceProfilesStack(
       app,
       `ModelInferenceProfilesStack${params.env}${region}`,
       {
@@ -126,6 +130,42 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       }
     );
   }
+
+  // Create modelIds data with inference profile IDs
+  const modelIds = {
+    modelIds: params.modelIds.map((model) => ({
+      modelId: model.modelId,
+      region: model.region,
+      inferenceProfileId:
+        inferenceProfileStacks[model.region]?.getInferenceProfileId(
+          model.modelId
+        ) || '',
+    })),
+    imageGenerationModelIds: params.imageGenerationModelIds.map((model) => ({
+      modelId: model.modelId,
+      region: model.region,
+      inferenceProfileId:
+        inferenceProfileStacks[model.region]?.getInferenceProfileId(
+          model.modelId
+        ) || '',
+    })),
+    videoGenerationModelIds: params.videoGenerationModelIds.map((model) => ({
+      modelId: model.modelId,
+      region: model.region,
+      inferenceProfileId:
+        inferenceProfileStacks[model.region]?.getInferenceProfileId(
+          model.modelId
+        ) || '',
+    })),
+    speechToSpeechModelIds: params.speechToSpeechModelIds.map((model) => ({
+      modelId: model.modelId,
+      region: model.region,
+      inferenceProfileId:
+        inferenceProfileStacks[model.region]?.getInferenceProfileId(
+          model.modelId
+        ) || '',
+    })),
+  };
 
   // GenU Stack
   const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
@@ -188,5 +228,6 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     guardrail,
     generativeAiUseCasesStack,
     dashboardStack,
+    modelIds,
   };
 };
