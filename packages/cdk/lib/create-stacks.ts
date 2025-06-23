@@ -107,6 +107,9 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
 
   const modelRegions = [
     ...new Set(params.modelIds.map((model) => model.region)),
+    ...new Set(params.imageGenerationModelIds.map((model) => model.region)),
+    ...new Set(params.videoGenerationModelIds.map((model) => model.region)),
+    ...new Set(params.speechToSpeechModelIds.map((model) => model.region)),
   ];
 
   for (const region of modelRegions) {
