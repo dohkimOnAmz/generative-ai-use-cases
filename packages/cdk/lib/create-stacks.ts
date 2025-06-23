@@ -8,6 +8,7 @@ import { RagKnowledgeBaseStack } from './rag-knowledge-base-stack';
 import { GuardrailStack } from './guardrail-stack';
 import { ProcessedStackInput } from './stack-input';
 import { VideoTmpBucketStack } from './video-tmp-bucket-stack';
+import { ModelInferenceProfilesStack } from './inference-profiles-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -102,6 +103,25 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     );
 
     videoBucketRegionMap[region] = videoTmpBucketStack.bucketName;
+  }
+
+  const modelRegions = [
+    ...new Set(params.modelIds.map((model) => model.region)),
+  ];
+
+  for (const region of modelRegions) {
+    new ModelInferenceProfilesStack(
+      app,
+      `ModelInferenceProfilesStack${params.env}${region}`,
+      {
+        env: {
+          account: params.account,
+          region,
+        },
+        params,
+        crossRegionReferences: true,
+      }
+    );
   }
 
   // GenU Stack
