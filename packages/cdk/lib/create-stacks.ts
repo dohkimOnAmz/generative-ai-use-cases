@@ -109,20 +109,50 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
   const modelRegions = [
     ...new Set(params.modelIds.map((model) => model.region)),
   ];
-  // const modelRegionMap: Record<string, string> = {};
+  const inferenceProfileStacks: Record<
+    string,
+    ApplicationInferenceProfileStack
+  > = {};
   for (const region of modelRegions) {
-    // const applicationInferenceProfileStack = new ApplicationInferenceProfileStack(
-    new ApplicationInferenceProfileStack(
-      app,
-      `ApplicationInferenceProfileStack${params.env}${region}`,
-      {
-        env: {
-          account: params.account,
-          region,
-        },
-        params,
-      }
-    );
+    const applicationInferenceProfileStack =
+      new ApplicationInferenceProfileStack(
+        app,
+        `ApplicationInferenceProfileStack${params.env}${region}`,
+        {
+          env: {
+            account: params.account,
+            region,
+          },
+          params,
+        }
+      );
+    inferenceProfileStacks[region] = applicationInferenceProfileStack;
+  }
+
+  // Set inference profile ARNs to model IDs
+  for (const modelId of params.modelIds) {
+    const stack = inferenceProfileStacks[modelId.region];
+    if (stack && stack.inferenceProfileArns[modelId.modelId]) {
+      modelId.inferenceProfileArn = stack.inferenceProfileArns[modelId.modelId];
+    }
+  }
+  for (const modelId of params.imageGenerationModelIds) {
+    const stack = inferenceProfileStacks[modelId.region];
+    if (stack && stack.inferenceProfileArns[modelId.modelId]) {
+      modelId.inferenceProfileArn = stack.inferenceProfileArns[modelId.modelId];
+    }
+  }
+  for (const modelId of params.videoGenerationModelIds) {
+    const stack = inferenceProfileStacks[modelId.region];
+    if (stack && stack.inferenceProfileArns[modelId.modelId]) {
+      modelId.inferenceProfileArn = stack.inferenceProfileArns[modelId.modelId];
+    }
+  }
+  for (const modelId of params.speechToSpeechModelIds) {
+    const stack = inferenceProfileStacks[modelId.region];
+    if (stack && stack.inferenceProfileArns[modelId.modelId]) {
+      modelId.inferenceProfileArn = stack.inferenceProfileArns[modelId.modelId];
+    }
   }
 
   // GenU Stack

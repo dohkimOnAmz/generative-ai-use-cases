@@ -175,24 +175,28 @@ export const processedStackInputSchema = stackInputSchema.extend({
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   imageGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   videoGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   speechToSpeechModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
 });
