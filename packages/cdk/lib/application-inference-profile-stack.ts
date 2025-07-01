@@ -46,12 +46,7 @@ export class ApplicationInferenceProfileStack extends Stack {
             modelSource: {
               copyFrom: model.modelArn,
             },
-            tags: [
-              {
-                key: 'Name',
-                value: 'GenU',
-              },
-            ],
+            tags: [params.tag],
           }
         );
       }

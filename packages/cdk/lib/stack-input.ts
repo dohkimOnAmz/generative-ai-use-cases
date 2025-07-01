@@ -162,6 +162,11 @@ export const stackInputSchema = z.object({
   hostedZoneId: z.string().nullish(),
   // Dashboard
   dashboard: z.boolean().default(false),
+  // Tag
+  tag: z.object({
+    key: z.string(),
+    value: z.string(),
+  }),
 });
 
 // schema after conversion
