@@ -15,6 +15,7 @@ import {
   Model,
 } from 'generative-ai-use-cases';
 import { initBedrockRuntimeClient } from './utils/bedrockClient';
+import { getInferenceProfileArn } from './utils/models';
 
 Object.assign(global, { WebSocket: require('ws') });
 
@@ -516,9 +517,11 @@ export const handler = async (event: { channelId: string; model: Model }) => {
 
     console.log('Async iterator created');
 
+    const modelIdOrArn =
+      getInferenceProfileArn(event.model.modelId) || event.model.modelId;
     const response = await bedrockRuntimeClient.send(
       new InvokeModelWithBidirectionalStreamCommand({
-        modelId: event.model.modelId,
+        modelId: modelIdOrArn,
         body: asyncIterator,
       })
     );
