@@ -168,8 +168,8 @@ def make_mcp_client(server):
                 command=server['command'],
                 args=server['args'],
                 env={
-                    **server['env'],
                     **UV_ENV,
+                    **server['env'],
                 },
             )
         )
