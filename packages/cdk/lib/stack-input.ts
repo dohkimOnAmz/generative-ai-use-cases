@@ -164,8 +164,8 @@ export const stackInputSchema = z.object({
   dashboard: z.boolean().default(false),
   // Tag
   tag: z.object({
-    key: z.string(),
-    value: z.string(),
+    key: z.string().optional(),
+    value: z.string().optional(),
   }),
 });
 
