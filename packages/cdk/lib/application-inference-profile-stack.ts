@@ -49,7 +49,6 @@ export class ApplicationInferenceProfileStack extends Stack {
               modelSource: {
                 copyFrom: model.modelArn,
               },
-              tags: [params.tag],
             }
           );
           this.inferenceProfileArns[modelId.modelId] =

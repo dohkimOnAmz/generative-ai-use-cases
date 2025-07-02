@@ -6,4 +6,5 @@ import { createStacks } from '../lib/create-stacks';
 
 const app = new cdk.App();
 const params = getParams(app);
+cdk.Tags.of(app).add(params.tag.key, params.tag.value);
 createStacks(app, params);
