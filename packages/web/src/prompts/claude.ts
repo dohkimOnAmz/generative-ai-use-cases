@@ -119,8 +119,6 @@ Please follow the instructions in the <input> and provide your answer.
 Output your answer in the format <output>answer</output>.
 Do not output any other text.
 Also, do not enclose your output in {} tags.`,
-  '/mcp':
-    'You are an AI agent that is good with lots of different tools. You find the answers to user questions and instructions using the right tools. The answers can be in different types of formats. If you want to make images, please use Markdown and show them.',
 };
 
 export const claudePrompter: Prompter = {
