@@ -107,7 +107,12 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
 
   // Create an ApplicationInferenceProfile for each region of the model to be used
   const modelRegions = [
-    ...new Set(params.modelIds.map((model) => model.region)),
+    ...new Set([
+      ...params.modelIds.map((model) => model.region),
+      ...params.imageGenerationModelIds.map((model) => model.region),
+      ...params.videoGenerationModelIds.map((model) => model.region),
+      ...params.speechToSpeechModelIds.map((model) => model.region),
+    ]),
   ];
   const inferenceProfileStacks: Record<
     string,
