@@ -357,8 +357,23 @@ const mergeConverseInferenceParams = (
 
 // Get inference profile ARN from modelId
 export const getInferenceProfileArn = (modelId: string): string | undefined => {
-  const modelConfig = modelIds.find((config) => config.modelId === modelId);
-  return modelConfig?.inferenceProfileArn;
+  const textModelConfig = modelIds.find((config) => config.modelId === modelId);
+  if (textModelConfig?.inferenceProfileArn) {
+    return textModelConfig.inferenceProfileArn;
+  }
+  const imageModelConfig = imageGenerationModels.find(
+    (config) => config.modelId === modelId
+  );
+  if (imageModelConfig?.inferenceProfileArn) {
+    return imageModelConfig.inferenceProfileArn;
+  }
+  const videoModelConfig = videoGenerationModels.find(
+    (config) => config.modelId === modelId
+  );
+  if (videoModelConfig?.inferenceProfileArn) {
+    return videoModelConfig.inferenceProfileArn;
+  }
+  return undefined;
 };
 
 // API call, extract string from output, etc.
