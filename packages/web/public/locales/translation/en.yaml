@@ -667,6 +667,14 @@ meetingMinutes:
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_success: Meeting minutes generated successfully
+  language: Language
+  language_auto: Auto Detect
+  language_chinese: Chinese
+  language_english: English
+  language_japanese: Japanese
+  language_korean: Korean
+  language_thai: Thai
+  language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
   model: Model

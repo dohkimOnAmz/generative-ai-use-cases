@@ -457,6 +457,14 @@ meetingMinutes:
   generating: 正在生成会议纪要...
   generation_error: 会议纪要生成失败。请重试。
   generation_success: 会议纪要生成成功
+  language: 语言
+  language_auto: 自动检测
+  language_chinese: 中文
+  language_english: 英语
+  language_japanese: 日语
+  language_korean: 韩语
+  language_thai: 泰语
+  language_vietnamese: 越南语
   last_generated: 最后生成时间 {{time}}
   minutes_placeholder: 生成后会议纪要将显示在这里
   model: 模型

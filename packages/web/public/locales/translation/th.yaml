@@ -567,6 +567,14 @@ meetingMinutes:
   generating: กำลังสร้างรายงานการประชุม...
   generation_error: ไม่สามารถสร้างรายงานการประชุมได้ กรุณาลองอีกครั้ง
   generation_success: สร้างรายงานการประชุมสำเร็จ
+  language: ภาษา
+  language_auto: ตรวจจับอัตโนมัติ
+  language_chinese: จีน
+  language_english: อังกฤษ
+  language_japanese: ญี่ปุ่น
+  language_korean: เกาหลี
+  language_thai: ไทย
+  language_vietnamese: เวียดนาม
   last_generated: สร้างล่าสุดเมื่อ {{time}}
   minutes_placeholder: รายงานการประชุมจะปรากฏที่นี่หลังจากสร้าง
   model: โมเดล

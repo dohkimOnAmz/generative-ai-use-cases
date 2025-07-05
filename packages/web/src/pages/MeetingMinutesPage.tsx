@@ -32,6 +32,7 @@ import Markdown from '../components/Markdown';
 import { useNavigate } from 'react-router-dom';
 import queryString from 'query-string';
 import { MeetingMinutesStyle } from '../hooks/useMeetingMinutes';
+import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
 
 type StateType = {
   content: Transcript[];
@@ -58,6 +59,8 @@ type StateType = {
   setCustomPrompt: (s: string) => void;
   autoGenerateSessionTimestamp: number | null;
   setAutoGenerateSessionTimestamp: (timestamp: number | null) => void;
+  languageCode: string;
+  setLanguageCode: (s: string) => void;
 };
 
 const useMeetingMinutesState = create<StateType>((set) => {
@@ -74,6 +77,7 @@ const useMeetingMinutesState = create<StateType>((set) => {
     generationFrequency: 5,
     customPrompt: '',
     autoGenerateSessionTimestamp: null,
+    languageCode: 'auto', // Default to auto-detection
     setContent: (s: Transcript[]) => {
       set(() => ({
         content: s,
@@ -134,6 +138,11 @@ const useMeetingMinutesState = create<StateType>((set) => {
         autoGenerateSessionTimestamp: timestamp,
       }));
     },
+    setLanguageCode: (s: string) => {
+      set(() => ({
+        languageCode: s,
+      }));
+    },
   };
 });
 
@@ -174,6 +183,8 @@ const MeetingMinutesPage: React.FC = () => {
     setCustomPrompt,
     autoGenerateSessionTimestamp,
     setAutoGenerateSessionTimestamp,
+    languageCode,
+    setLanguageCode,
   } = useMeetingMinutesState();
   const ref = useRef<HTMLInputElement>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -181,6 +192,20 @@ const MeetingMinutesPage: React.FC = () => {
 
   // Countdown state for auto-generation timer
   const [countdownSeconds, setCountdownSeconds] = useState(0);
+
+  // Language options for transcription
+  const languageOptions = useMemo(
+    () => [
+      { value: 'auto', label: t('meetingMinutes.language_auto') },
+      { value: 'ja-JP', label: t('meetingMinutes.language_japanese') },
+      { value: 'en-US', label: t('meetingMinutes.language_english') },
+      { value: 'zh-CN', label: t('meetingMinutes.language_chinese') },
+      { value: 'ko-KR', label: t('meetingMinutes.language_korean') },
+      { value: 'th-TH', label: t('meetingMinutes.language_thai') },
+      { value: 'vi-VN', label: t('meetingMinutes.language_vietnamese') },
+    ],
+    [t]
+  );
 
   // Model selection state
   const { modelIds: availableModels, modelDisplayName } = MODELS;
@@ -320,9 +345,11 @@ const MeetingMinutesPage: React.FC = () => {
     // Don't clear existing transcripts - append instead
     stopTranscription();
     clearTranscripts();
-    transcribe(speakerLabel, maxSpeakers);
+    const langCode = languageCode === 'auto' ? undefined : languageCode;
+    transcribe(speakerLabel, maxSpeakers, langCode);
   }, [
     loading,
+    languageCode,
     speakerLabel,
     maxSpeakers,
     stopTranscription,
@@ -341,14 +368,11 @@ const MeetingMinutesPage: React.FC = () => {
   }, [setContent, stopTranscription, clear, clearTranscripts]);
 
   const onClickExecStartTranscription = useCallback(() => {
-    if (ref.current) {
-      ref.current.value = '';
-    }
-    setContent([]);
-    clear();
-    clearTranscripts();
-    startTranscription(undefined, speakerLabel);
-  }, [speakerLabel, clear, clearTranscripts, setContent, startTranscription]);
+    // Don't clear existing content - append new transcriptions
+    const langCode =
+      languageCode === 'auto' ? undefined : (languageCode as LanguageCode);
+    startTranscription(langCode, speakerLabel);
+  }, [languageCode, speakerLabel, startTranscription]);
 
   // Manual generation handler
   const handleManualGeneration = useCallback(() => {
@@ -461,6 +485,18 @@ const MeetingMinutesPage: React.FC = () => {
                       {t('transcribe.supported_files')}
                     </p>
                   </div>
+                </div>
+
+                {/* Language Selection */}
+                <div className="mb-4 px-2">
+                  <label className="mb-2 block font-bold">
+                    {t('meetingMinutes.language')}
+                  </label>
+                  <Select
+                    value={languageCode}
+                    onChange={(value) => setLanguageCode(value)}
+                    options={languageOptions}
+                  />
                 </div>
 
                 {/* Speaker Recognition Parameters */}
@@ -657,7 +693,7 @@ const MeetingMinutesPage: React.FC = () => {
           {/* Split view for transcript and generated minutes */}
           <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Transcript Panel */}
-            <div className="rounded border border-black/30 p-1.5">
+            <div>
               <div className="mb-2 flex items-center justify-between">
                 <div className="font-bold">
                   {t('meetingMinutes.transcript')}
@@ -671,33 +707,28 @@ const MeetingMinutesPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              {content.length > 0 && (
-                <div>
-                  {content.map((transcript, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      {transcript.speakerLabel && (
-                        <div className="min-w-20">
-                          {speakerMapping[transcript.speakerLabel] ||
-                            transcript.speakerLabel}
-                        </div>
-                      )}
-                      <div className="grow">{transcript.transcript}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {!loading && formattedOutput == '' && (
-                <div className="text-gray-500">
-                  {t('transcribe.result_placeholder')}
-                </div>
-              )}
+              <Textarea
+                value={formattedOutput}
+                onChange={(value) => {
+                  // Parse the textarea content back into transcript format
+                  const lines = value.split('\n');
+                  const newContent = lines.map((line) => ({
+                    speakerLabel: undefined,
+                    transcript: line,
+                  }));
+                  setContent(newContent);
+                }}
+                placeholder={t('transcribe.result_placeholder')}
+                rows={10}
+                className="min-h-48"
+              />
               {loading && (
                 <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
               )}
             </div>
 
             {/* Generated Minutes Panel */}
-            <div className="rounded border border-black/30 p-1.5">
+            <div>
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="font-bold">
@@ -729,12 +760,14 @@ const MeetingMinutesPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              <Markdown>{generatedMinutes}</Markdown>
-              {!minutesLoading && generatedMinutes === '' && (
-                <div className="text-gray-500">
-                  {t('meetingMinutes.minutes_placeholder')}
-                </div>
-              )}
+              <div className="min-h-48 rounded border border-black/30 p-1.5">
+                <Markdown>{generatedMinutes}</Markdown>
+                {!minutesLoading && generatedMinutes === '' && (
+                  <div className="text-gray-500">
+                    {t('meetingMinutes.minutes_placeholder')}
+                  </div>
+                )}
+              </div>
               {minutesLoading && (
                 <div className="flex items-center gap-2">
                   <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
