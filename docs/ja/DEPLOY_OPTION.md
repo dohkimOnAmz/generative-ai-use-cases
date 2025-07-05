@@ -1784,8 +1784,7 @@ GenU ではコスト管理等に使うためのタグをサポートしていま
 `parameter.ts` での設定方法
 
 ```typescript
-  ...
-  dev: {
+    ...
     tag: {
       key: 'Name',
       value: 'GenU',
