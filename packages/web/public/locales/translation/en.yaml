@@ -662,7 +662,7 @@ meetingMinutes:
   frequency_1min: Every 1 minute
   frequency_5min: Every 5 minutes
   generate: Generate
-  generate_minutes_header: Generate Minutes
+  generate_minutes_header: Generate Meeting Minutes
   generated_minutes: Generated Minutes
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.

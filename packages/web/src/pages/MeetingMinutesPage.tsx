@@ -20,6 +20,7 @@ import {
   PiStopCircleBold,
   PiMicrophoneBold,
   PiPencilLine,
+  PiPaperclip,
 } from 'react-icons/pi';
 import Switch from '../components/Switch';
 import RangeSlider from '../components/RangeSlider';
@@ -217,6 +218,11 @@ const MeetingMinutesPage: React.FC = () => {
 
   // Screen Audio enable/disable state
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
+
+  // Input method selection state
+  const [inputMethod, setInputMethod] = useState<'microphone' | 'file'>(
+    'microphone'
+  );
 
   // Time-series segments management
   const [timeSeriesSegments, setTimeSeriesSegments] = useState<
@@ -612,82 +618,94 @@ const MeetingMinutesPage: React.FC = () => {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Left Column - Record & Transcribe */}
             <div>
-              {/* Header */}
-              <div className="mb-4 border-b pb-2">
-                <h2 className="text-lg font-semibold">
-                  {t('meetingMinutes.record_transcribe')}
-                </h2>
-              </div>
-
               {/* Audio Input Controls */}
               <div className="mb-4">
-                <div className="mb-2 flex justify-start text-sm text-gray-500">
-                  {t('transcribe.select_input_method')}
+                {/* Tab Headers */}
+                <div className="mb-4 flex border-b border-gray-200">
+                  <button
+                    className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                      inputMethod === 'microphone'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setInputMethod('microphone')}>
+                    <PiMicrophoneBold className="mr-2 h-4 w-4" />
+                    {t('transcribe.mic_input')}
+                  </button>
+                  <button
+                    className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                      inputMethod === 'file'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setInputMethod('file')}>
+                    <PiPaperclip className="mr-2 h-4 w-4" />
+                    {t('transcribe.file_upload')}
+                  </button>
                 </div>
-                <div className="mb-4 flex flex-col justify-center lg:flex-row">
-                  <div className="basis-full p-2 lg:basis-3/5 xl:basis-1/2">
-                    <label className="mb-2 block font-bold">
-                      {t('transcribe.mic_input')}
-                    </label>
-                    <div className="flex justify-center">
-                      {isRecording ? (
-                        <Button
-                          className="h-10 w-full"
-                          onClick={() => {
-                            stopMicTranscription();
-                            stopScreenTranscription();
-                          }}
-                          disabled={disabledMicExec}>
-                          <PiStopCircleBold className="mr-2 h-5 w-5" />
-                          {t('transcribe.stop_recording')}
-                        </Button>
-                      ) : (
-                        <Button
-                          className="h-10 w-full"
-                          disabled={disabledMicExec}
-                          onClick={() => {
-                            if (!disabledMicExec) {
-                              onClickExecStartTranscription();
-                            }
-                          }}
-                          outlined={true}>
-                          <PiMicrophoneBold className="mr-2 h-5 w-5" />
-                          {t('transcribe.start_recording')}
-                        </Button>
+
+                {/* Tab Content */}
+                <div className="mb-4">
+                  {inputMethod === 'microphone' && (
+                    <div className="p-2">
+                      <div className="flex justify-center">
+                        {isRecording ? (
+                          <Button
+                            className="h-10 w-full"
+                            onClick={() => {
+                              stopMicTranscription();
+                              stopScreenTranscription();
+                            }}
+                            disabled={disabledMicExec}>
+                            <PiStopCircleBold className="mr-2 h-5 w-5" />
+                            {t('transcribe.stop_recording')}
+                          </Button>
+                        ) : (
+                          <Button
+                            className="h-10 w-full"
+                            disabled={disabledMicExec}
+                            onClick={() => {
+                              if (!disabledMicExec) {
+                                onClickExecStartTranscription();
+                              }
+                            }}
+                            outlined={true}>
+                            <PiMicrophoneBold className="mr-2 h-5 w-5" />
+                            {t('transcribe.start_recording')}
+                          </Button>
+                        )}
+                      </div>
+                      {isScreenAudioSupported && (
+                        <div className="ml-0.5 mt-2">
+                          <Switch
+                            label={t('transcribe.screen_audio')}
+                            checked={enableScreenAudio}
+                            onSwitch={setEnableScreenAudio}
+                          />
+                        </div>
                       )}
                     </div>
-                    {isScreenAudioSupported && (
-                      <div className="ml-0.5 mt-2">
-                        <Switch
-                          label={t('transcribe.screen_audio')}
-                          checked={enableScreenAudio}
-                          onSwitch={setEnableScreenAudio}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="basis-full p-2 lg:basis-3/5 xl:basis-1/2">
-                    <label
-                      className="mb-2 block font-bold"
-                      htmlFor="file_input">
-                      {t('transcribe.file_upload')}
-                    </label>
-                    <input
-                      className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
-                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
-                file:px-4 file:py-2.5 file:text-white focus:outline-none"
-                      onChange={onChangeFile}
-                      aria-describedby="file_input_help"
-                      id="file_input"
-                      type="file"
-                      accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
-                      ref={ref}></input>
-                    <p
-                      className="ml-0.5 mt-1 text-xs text-gray-500"
-                      id="file_input_help">
-                      {t('transcribe.supported_files')}
-                    </p>
-                  </div>
+                  )}
+
+                  {inputMethod === 'file' && (
+                    <div className="p-2">
+                      <input
+                        className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+                  text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+                  file:px-4 file:py-2.5 file:text-white focus:outline-none"
+                        onChange={onChangeFile}
+                        aria-describedby="file_input_help"
+                        id="file_input"
+                        type="file"
+                        accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
+                        ref={ref}></input>
+                      <p
+                        className="ml-0.5 mt-1 text-xs text-gray-500"
+                        id="file_input_help">
+                        {t('transcribe.supported_files')}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Language Selection */}
@@ -752,9 +770,11 @@ const MeetingMinutesPage: React.FC = () => {
                     onClick={onClickClear}>
                     {t('common.clear')}
                   </Button>
-                  <Button disabled={disabledExec} onClick={onClickExec}>
-                    {t('meetingMinutes.speech_recognition')}
-                  </Button>
+                  {inputMethod === 'file' && (
+                    <Button disabled={disabledExec} onClick={onClickExec}>
+                      {t('meetingMinutes.speech_recognition')}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

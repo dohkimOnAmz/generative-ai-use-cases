@@ -523,7 +523,7 @@ meetingMinutes:
   frequency_1min: 1分ごと
   frequency_5min: 5分ごと
   generate: 生成
-  generate_minutes_header: 議事録生成
+  generate_minutes_header: 議事録を生成
   generated_minutes: 生成された議事録
   generating: 議事録生成中...
   generation_error: 議事録の生成に失敗しました。再試行してください。
