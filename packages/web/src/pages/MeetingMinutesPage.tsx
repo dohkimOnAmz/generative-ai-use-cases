@@ -963,7 +963,7 @@ const MeetingMinutesPage: React.FC = () => {
                 }}
                 placeholder={t('transcribe.result_placeholder')}
                 rows={10}
-                className="min-h-48 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
+                className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
               />
               {loading && (
                 <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
@@ -1003,7 +1003,7 @@ const MeetingMinutesPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="min-h-48 rounded border border-black/30 p-1.5">
+              <div className="min-h-96 rounded border border-black/30 p-1.5">
                 <Markdown>{generatedMinutes}</Markdown>
                 {!minutesLoading && generatedMinutes === '' && (
                   <div className="text-gray-500">
