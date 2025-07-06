@@ -18,7 +18,7 @@ import { initBedrockRuntimeClient } from './utils/bedrockClient';
 
 Object.assign(global, { WebSocket: require('ws') });
 
-const MODEL_REGION = process.env.MODEL_REGION || 'us-east-1';
+const MODEL_REGION = process.env.MODEL_REGION as string;
 
 const MAX_AUDIO_INPUT_QUEUE_SIZE = 200;
 const MIN_AUDIO_OUTPUT_QUEUE_SIZE = 10;
@@ -414,18 +414,7 @@ export const handler = async (event: { channelId: string; model: Model }) => {
   let channel: EventsChannel | null = null;
 
   try {
-    console.log(
-      'speechToSpeechTask received event:',
-      JSON.stringify(event, null, 2)
-    );
-
-    if (!event.model) {
-      throw new Error('Model is undefined in event payload');
-    }
-
-    if (!event.model.modelId) {
-      throw new Error('Model.modelId is undefined in event payload');
-    }
+    console.log('event', event);
 
     // Speech-to-Speech Inference Profile Arn handling
     // NOTE: InvokeModelWithBidirectionalStreamCommand currently does not support Inference Profile Arn.
@@ -550,11 +539,6 @@ export const handler = async (event: { channelId: string; model: Model }) => {
     const asyncIterator = createAsyncIterator();
 
     console.log('Async iterator created');
-
-    console.log(
-      'DEBUG: Using modelId for Bedrock Bidirectional Stream API:',
-      modelIdOrArn
-    );
 
     const response = await bedrockRuntimeClient.send(
       new InvokeModelWithBidirectionalStreamCommand({
