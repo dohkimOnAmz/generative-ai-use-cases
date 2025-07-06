@@ -503,8 +503,13 @@ const MeetingMinutesPage: React.FC = () => {
   const isRecording = micRecording || screenRecording;
 
   const disableClearExec = useMemo(() => {
-    return (!file && content.length === 0) || loading || isRecording;
-  }, [content, file, loading, isRecording]);
+    const hasData =
+      file ||
+      content.length > 0 ||
+      formattedOutput.trim() !== '' ||
+      directInputText.trim() !== '';
+    return !hasData || loading || isRecording;
+  }, [content, file, formattedOutput, directInputText, loading, isRecording]);
 
   const disabledMicExec = useMemo(() => {
     return loading;
