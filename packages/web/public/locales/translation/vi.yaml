@@ -694,6 +694,7 @@ transcribe:
   result_placeholder: Kết quả nhận dạng giọng nói sẽ được hiển thị ở đây
   screen_audio: Âm thanh màn hình
   screen_audio_error: 'Lỗi âm thanh màn hình:'
+  screen_audio_notice: 'Khi bắt đầu ghi âm, hãy chọn "Toàn bộ màn hình" và bật "Chia sẻ âm thanh hệ thống". Chrome và Edge hoạt động. Firefox không hoạt động.'
   select_input_method: Vui lòng chọn từ đầu vào microphone hoặc tải lên tệp
   speaker_names: Tên người nói (phân cách bằng dấu phẩy)
   speaker_recognition: Nhận dạng người nói

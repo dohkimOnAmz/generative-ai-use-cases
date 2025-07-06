@@ -710,6 +710,7 @@ transcribe:
   result_placeholder: ข้อความที่แปลงจากเสียงของคุณ
   screen_audio: เสียงหน้าจอ
   screen_audio_error: 'ข้อผิดพลาดเสียงหน้าจอ:'
+  screen_audio_notice: 'เมื่อเริ่มการบันทึก ให้เลือก "หน้าจอทั้งหมด" และเปิดใช้งาน "แชร์เสียงระบบด้วย" Chrome และ Edge ใช้งานได้ Firefox ใช้งานไม่ได้'
   select_input_method: โปรดเลือกจากอินพุตไมโครโฟนหรืออัปโหลดไฟล์
   speaker_names: ชื่อผู้พูด (คั่นด้วยเครื่องหมายจุลภาค)
   speaker_recognition: การแยกแยะผู้พูด

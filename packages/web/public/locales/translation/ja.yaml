@@ -680,6 +680,7 @@ transcribe:
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
   screen_audio_error: 'スクリーン音声エラー:'
+  screen_audio_notice: 録音開始時に、「画面全体」を選択し、「システム音声も共有する」を ON にしてください。Chrome と Edge は動作します。Firefox は動作しません。
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
   speaker_recognition: 話者認識

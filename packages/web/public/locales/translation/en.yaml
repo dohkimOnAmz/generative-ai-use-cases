@@ -842,6 +842,7 @@ transcribe:
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
   screen_audio_error: 'Screen Audio Error:'
+  screen_audio_notice: 'When starting recording, select "Entire Screen" and enable "Share system audio". Chrome and Edge work. Firefox does not work.'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
   speaker_recognition: Speaker recognition

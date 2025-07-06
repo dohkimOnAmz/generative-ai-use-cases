@@ -706,6 +706,11 @@ const MeetingMinutesPage: React.FC = () => {
                             checked={enableScreenAudio}
                             onSwitch={setEnableScreenAudio}
                           />
+                          {enableScreenAudio && (
+                            <div className="mt-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+                              {t('transcribe.screen_audio_notice')}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
