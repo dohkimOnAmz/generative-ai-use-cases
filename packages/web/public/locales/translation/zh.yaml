@@ -579,6 +579,8 @@ transcribe:
   max_speakers_help: 要识别的最大发言人数
   mic_input: 麦克风输入
   result_placeholder: 语音识别结果将显示在这里
+  screen_audio: 屏幕音频
+  screen_audio_error: 屏幕音频错误：
   select_input_method: 请选择麦克风输入或文件上传
   speaker_names: 发言人姓名（逗号分隔）
   speaker_recognition: 说话人识别

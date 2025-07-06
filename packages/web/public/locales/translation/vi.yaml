@@ -689,6 +689,8 @@ transcribe:
   max_speakers_help: Số lượng người nói tối đa được nhận dạng
   mic_input: Đầu vào microphone
   result_placeholder: Kết quả nhận dạng giọng nói sẽ được hiển thị ở đây
+  screen_audio: Âm thanh màn hình
+  screen_audio_error: 'Lỗi âm thanh màn hình:'
   select_input_method: Vui lòng chọn từ đầu vào microphone hoặc tải lên tệp
   speaker_names: Tên người nói (phân cách bằng dấu phẩy)
   speaker_recognition: Nhận dạng người nói

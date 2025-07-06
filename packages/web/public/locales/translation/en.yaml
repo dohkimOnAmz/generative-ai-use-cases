@@ -837,6 +837,8 @@ transcribe:
   max_speakers_help: Maximum number of speakers to recognize
   mic_input: Microphone Input
   result_placeholder: Speech recognition results will be displayed here
+  screen_audio: Screen Audio
+  screen_audio_error: 'Screen Audio Error:'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
   speaker_recognition: Speaker recognition

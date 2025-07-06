@@ -31,8 +31,10 @@ const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
 const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
 const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
-const useMicrophone = () => {
-  const [micStream, setMicStream] = useState<MicrophoneStream | undefined>();
+const useScreenAudio = () => {
+  const [screenStream, setScreenStream] = useState<
+    MicrophoneStream | undefined
+  >();
   const [recording, setRecording] = useState(false);
   const [rawTranscripts, setRawTranscripts] = useState<
     {
@@ -46,8 +48,18 @@ const useMicrophone = () => {
   const [language, setLanguage] = useState<string>('ja-JP');
   const [transcribeClient, setTranscribeClient] =
     useState<TranscribeStreamingClient>();
+  const [isSupported, setIsSupported] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  const transcriptMic = useMemo(() => {
+  // Check browser support
+  useEffect(() => {
+    const supported =
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getDisplayMedia === 'function';
+    setIsSupported(supported);
+  }, []);
+
+  const transcriptScreen = useMemo(() => {
     const transcripts: Transcript[] = rawTranscripts.flatMap(
       (t) => t.transcripts
     );
@@ -102,7 +114,7 @@ const useMicrophone = () => {
   }, [transcribeClient]);
 
   const startStream = async (
-    mic: MicrophoneStream,
+    stream: MicrophoneStream,
     languageCode?: LanguageCode,
     speakerLabel: boolean = false
   ) => {
@@ -114,7 +126,7 @@ const useMicrophone = () => {
     }
 
     const audioStream = async function* () {
-      for await (const chunk of mic as unknown as Buffer[]) {
+      for await (const chunk of stream as unknown as Buffer[]) {
         yield {
           AudioEvent: {
             AudioChunk: pcmEncodeChunk(chunk),
@@ -184,10 +196,9 @@ const useMicrophone = () => {
                 const tmp = update(prev, {
                   $push: [
                     {
-                      resultId:
-                        result.ResultId ?? `mic-${Date.now()}-${Math.random()}`,
-                      startTime: result.StartTime ?? 0,
-                      endTime: result.EndTime ?? 0,
+                      resultId: result.ResultId || '',
+                      startTime: result.StartTime || 0,
+                      endTime: result.EndTime || 0,
                       isPartial: result.IsPartial ?? false,
                       transcripts,
                     },
@@ -202,11 +213,9 @@ const useMicrophone = () => {
                       prev.length - 1,
                       1,
                       {
-                        resultId:
-                          result.ResultId ??
-                          `mic-${Date.now()}-${Math.random()}`,
-                        startTime: result.StartTime ?? 0,
-                        endTime: result.EndTime ?? 0,
+                        resultId: result.ResultId || '',
+                        startTime: result.StartTime || 0,
+                        endTime: result.EndTime || 0,
                         isPartial: result.IsPartial ?? false,
                         transcripts,
                       },
@@ -220,7 +229,8 @@ const useMicrophone = () => {
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error('Screen audio transcription error:', error);
+      setError('Screen audio transcription failed');
       stopTranscription();
     } finally {
       stopTranscription();
@@ -232,47 +242,80 @@ const useMicrophone = () => {
     languageCode?: LanguageCode,
     speakerLabel?: boolean
   ) => {
-    const mic = new MicrophoneStream();
-    try {
-      setMicStream(mic);
-      mic.setStream(
-        await window.navigator.mediaDevices.getUserMedia({
-          video: false,
-          audio: true,
-        })
-      );
+    if (!isSupported) {
+      setError('Screen audio capture is not supported in this browser');
+      return;
+    }
 
+    const stream = new MicrophoneStream();
+    try {
+      setError('');
+      setScreenStream(stream);
+
+      // Request screen audio capture
+      // Note: Most browsers require video to be true when capturing audio
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      });
+
+      // Extract only the audio track
+      const audioTracks = displayStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No audio track available in screen capture');
+      }
+
+      // Create a new MediaStream with only audio
+      const audioOnlyStream = new MediaStream(audioTracks);
+
+      // Stop the video track to save resources
+      const videoTracks = displayStream.getVideoTracks();
+      videoTracks.forEach((track) => track.stop());
+
+      stream.setStream(audioOnlyStream);
       setRecording(true);
-      await startStream(mic, languageCode, speakerLabel);
+      await startStream(stream, languageCode, speakerLabel);
     } catch (e) {
-      console.log(e);
+      console.log('Screen audio capture error:', e);
+      if (e instanceof Error) {
+        if (e.name === 'NotAllowedError') {
+          setError('Screen audio access was denied');
+        } else if (e.name === 'NotSupportedError') {
+          setError('Screen audio capture is not supported');
+        } else {
+          setError('Failed to start screen audio capture');
+        }
+      }
     } finally {
-      mic.stop();
+      stream.stop();
       setRecording(false);
-      setMicStream(undefined);
+      setScreenStream(undefined);
     }
   };
 
   const stopTranscription = () => {
-    if (micStream) {
-      micStream.stop();
+    if (screenStream) {
+      screenStream.stop();
       setRecording(false);
-      setMicStream(undefined);
+      setScreenStream(undefined);
     }
   };
 
   const clearTranscripts = () => {
     setRawTranscripts([]);
+    setError('');
   };
 
   return {
     startTranscription,
     stopTranscription,
     recording,
-    transcriptMic,
+    transcriptScreen,
     clearTranscripts,
+    isSupported,
+    error,
     rawTranscripts,
   };
 };
 
-export default useMicrophone;
+export default useScreenAudio;

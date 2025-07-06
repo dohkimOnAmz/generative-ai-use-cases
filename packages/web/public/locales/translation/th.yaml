@@ -705,6 +705,8 @@ transcribe:
   max_speakers_help: จำนวนผู้พูดสูงสุดในบทสนทนาที่ต้องการแยกแยะ
   mic_input: อินพุตไมโครโฟน
   result_placeholder: ข้อความที่แปลงจากเสียงของคุณ
+  screen_audio: เสียงหน้าจอ
+  screen_audio_error: 'ข้อผิดพลาดเสียงหน้าจอ:'
   select_input_method: โปรดเลือกจากอินพุตไมโครโฟนหรืออัปโหลดไฟล์
   speaker_names: ชื่อผู้พูด (คั่นด้วยเครื่องหมายจุลภาค)
   speaker_recognition: การแยกแยะผู้พูด

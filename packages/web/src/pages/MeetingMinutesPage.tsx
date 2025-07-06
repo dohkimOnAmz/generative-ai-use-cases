@@ -13,6 +13,7 @@ import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import ButtonIcon from '../components/ButtonIcon';
 import useTranscribe from '../hooks/useTranscribe';
 import useMicrophone from '../hooks/useMicrophone';
+import useScreenAudio from '../hooks/useScreenAudio';
 import useMeetingMinutes from '../hooks/useMeetingMinutes';
 import { MODELS } from '../hooks/useModel';
 import {
@@ -33,6 +34,16 @@ import { useNavigate } from 'react-router-dom';
 import queryString from 'query-string';
 import { MeetingMinutesStyle } from '../hooks/useMeetingMinutes';
 import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
+
+// Time-series transcript segment for chronological integration
+interface TimeSeriesSegment {
+  resultId: string;
+  source: 'microphone' | 'screen';
+  startTime: number;
+  endTime: number;
+  isPartial: boolean;
+  transcripts: Transcript[];
+}
 
 type StateType = {
   content: Transcript[];
@@ -152,12 +163,21 @@ const MeetingMinutesPage: React.FC = () => {
   const { loading, transcriptData, file, setFile, transcribe, clear } =
     useTranscribe();
   const {
-    startTranscription,
-    stopTranscription,
-    transcriptMic,
-    recording,
-    clearTranscripts,
+    startTranscription: startMicTranscription,
+    stopTranscription: stopMicTranscription,
+    recording: micRecording,
+    clearTranscripts: clearMicTranscripts,
+    rawTranscripts: micRawTranscripts,
   } = useMicrophone();
+  const {
+    startTranscription: startScreenTranscription,
+    stopTranscription: stopScreenTranscription,
+    recording: screenRecording,
+    clearTranscripts: clearScreenTranscripts,
+    isSupported: isScreenAudioSupported,
+    error: screenAudioError,
+    rawTranscripts: screenRawTranscripts,
+  } = useScreenAudio();
   const {
     content,
     setContent,
@@ -192,6 +212,14 @@ const MeetingMinutesPage: React.FC = () => {
 
   // Countdown state for auto-generation timer
   const [countdownSeconds, setCountdownSeconds] = useState(0);
+
+  // Screen Audio enable/disable state
+  const [enableScreenAudio, setEnableScreenAudio] = useState(false);
+
+  // Time-series segments management
+  const [timeSeriesSegments, setTimeSeriesSegments] = useState<
+    TimeSeriesSegment[]
+  >([]);
 
   // Language options for transcription
   const languageOptions = useMemo(
@@ -231,15 +259,37 @@ const MeetingMinutesPage: React.FC = () => {
     );
   }, [speakers]);
 
+  // Helper function to format time in MM:SS format
+  const formatTime = useCallback((seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Time-series based formatted output
   const formattedOutput: string = useMemo(() => {
-    return content
-      .map((item) =>
-        item.speakerLabel
-          ? `${speakerMapping[item.speakerLabel] || item.speakerLabel}: ${item.transcript}`
-          : item.transcript
-      )
+    // Sort segments by start time (chronological order)
+    // Show both partial and finalized segments for real-time display
+    const sortedSegments = [...timeSeriesSegments].sort(
+      (a, b) => a.startTime - b.startTime
+    );
+
+    return sortedSegments
+      .map((segment) => {
+        const timeStr = `[${formatTime(segment.startTime)}]`;
+        const partialIndicator = segment.isPartial ? ' (...)' : '';
+
+        return segment.transcripts
+          .map((transcript) => {
+            const speakerLabel = transcript.speakerLabel
+              ? `${speakerMapping[transcript.speakerLabel] || transcript.speakerLabel}: `
+              : '';
+            return `${timeStr} ${speakerLabel}${transcript.transcript}${partialIndicator}`;
+          })
+          .join('\n');
+      })
       .join('\n');
-  }, [content, speakerMapping]);
+  }, [timeSeriesSegments, speakerMapping, formatTime]);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -254,11 +304,68 @@ const MeetingMinutesPage: React.FC = () => {
     }
   }, [setContent, transcriptData]);
 
+  // Time-series integration of raw transcripts
+  const updateTimeSeriesSegments = useCallback(
+    (newSegment: TimeSeriesSegment) => {
+      setTimeSeriesSegments((prev) => {
+        const existingIndex = prev.findIndex(
+          (seg) =>
+            seg.resultId === newSegment.resultId &&
+            seg.source === newSegment.source
+        );
+
+        if (existingIndex >= 0) {
+          // Update existing segment (partial result update)
+          const updated = [...prev];
+          updated[existingIndex] = newSegment;
+          return updated;
+        } else {
+          // Add new segment
+          return [...prev, newSegment];
+        }
+      });
+    },
+    []
+  );
+
+  // Process microphone raw transcripts
   useEffect(() => {
-    if (transcriptMic && transcriptMic.length > 0) {
-      setContent(transcriptMic);
+    if (micRawTranscripts && micRawTranscripts.length > 0) {
+      // Only process the latest segment
+      const latestSegment = micRawTranscripts[micRawTranscripts.length - 1];
+      const segment: TimeSeriesSegment = {
+        resultId: latestSegment.resultId,
+        source: 'microphone',
+        startTime: latestSegment.startTime,
+        endTime: latestSegment.endTime,
+        isPartial: latestSegment.isPartial,
+        transcripts: latestSegment.transcripts,
+      };
+      updateTimeSeriesSegments(segment);
     }
-  }, [setContent, transcriptMic]);
+  }, [micRawTranscripts, updateTimeSeriesSegments]);
+
+  // Process screen audio raw transcripts
+  useEffect(() => {
+    if (
+      enableScreenAudio &&
+      screenRawTranscripts &&
+      screenRawTranscripts.length > 0
+    ) {
+      // Only process the latest segment
+      const latestSegment =
+        screenRawTranscripts[screenRawTranscripts.length - 1];
+      const segment: TimeSeriesSegment = {
+        resultId: latestSegment.resultId,
+        source: 'screen',
+        startTime: latestSegment.startTime,
+        endTime: latestSegment.endTime,
+        isPartial: latestSegment.isPartial,
+        transcripts: latestSegment.transcripts,
+      };
+      updateTimeSeriesSegments(segment);
+    }
+  }, [screenRawTranscripts, enableScreenAudio, updateTimeSeriesSegments]);
 
   // Watch for generation signal and trigger generation
   useEffect(() => {
@@ -329,12 +436,14 @@ const MeetingMinutesPage: React.FC = () => {
   }, [autoGenerate, generationFrequency]);
 
   const disabledExec = useMemo(() => {
-    return !file || loading || recording;
-  }, [file, loading, recording]);
+    return !file || loading || micRecording;
+  }, [file, loading, micRecording]);
+
+  const isRecording = micRecording || screenRecording;
 
   const disableClearExec = useMemo(() => {
-    return (!file && content.length === 0) || loading || recording;
-  }, [content, file, loading, recording]);
+    return (!file && content.length === 0) || loading || isRecording;
+  }, [content, file, loading, isRecording]);
 
   const disabledMicExec = useMemo(() => {
     return loading;
@@ -343,8 +452,8 @@ const MeetingMinutesPage: React.FC = () => {
   const onClickExec = useCallback(() => {
     if (loading) return;
     // Don't clear existing transcripts - append instead
-    stopTranscription();
-    clearTranscripts();
+    stopMicTranscription();
+    clearMicTranscripts();
     const langCode = languageCode === 'auto' ? undefined : languageCode;
     transcribe(speakerLabel, maxSpeakers, langCode);
   }, [
@@ -352,8 +461,8 @@ const MeetingMinutesPage: React.FC = () => {
     languageCode,
     speakerLabel,
     maxSpeakers,
-    stopTranscription,
-    clearTranscripts,
+    stopMicTranscription,
+    clearMicTranscripts,
     transcribe,
   ]);
 
@@ -362,17 +471,47 @@ const MeetingMinutesPage: React.FC = () => {
       ref.current.value = '';
     }
     setContent([]);
-    stopTranscription();
+    setTimeSeriesSegments([]);
+    stopMicTranscription();
+    stopScreenTranscription();
     clear();
-    clearTranscripts();
-  }, [setContent, stopTranscription, clear, clearTranscripts]);
+    clearMicTranscripts();
+    clearScreenTranscripts();
+  }, [
+    setContent,
+    stopMicTranscription,
+    stopScreenTranscription,
+    clear,
+    clearMicTranscripts,
+    clearScreenTranscripts,
+  ]);
 
   const onClickExecStartTranscription = useCallback(() => {
-    // Don't clear existing content - append new transcriptions
+    // Clear existing content before starting new recording
+    setContent([]);
+    setTimeSeriesSegments([]);
+    clearMicTranscripts();
+    clearScreenTranscripts();
+
     const langCode =
       languageCode === 'auto' ? undefined : (languageCode as LanguageCode);
-    startTranscription(langCode, speakerLabel);
-  }, [languageCode, speakerLabel, startTranscription]);
+    startMicTranscription(langCode, speakerLabel);
+
+    // Also start screen audio recording if enabled
+    if (enableScreenAudio && isScreenAudioSupported) {
+      startScreenTranscription(langCode, speakerLabel);
+    }
+  }, [
+    languageCode,
+    speakerLabel,
+    startMicTranscription,
+    enableScreenAudio,
+    isScreenAudioSupported,
+    startScreenTranscription,
+    setContent,
+    clearMicTranscripts,
+    clearScreenTranscripts,
+  ]);
 
   // Manual generation handler
   const handleManualGeneration = useCallback(() => {
@@ -439,10 +578,13 @@ const MeetingMinutesPage: React.FC = () => {
                       {t('transcribe.mic_input')}
                     </label>
                     <div className="flex justify-center">
-                      {recording ? (
+                      {isRecording ? (
                         <Button
                           className="h-10 w-full"
-                          onClick={stopTranscription}
+                          onClick={() => {
+                            stopMicTranscription();
+                            stopScreenTranscription();
+                          }}
                           disabled={disabledMicExec}>
                           <PiStopCircleBold className="mr-2 h-5 w-5" />
                           {t('transcribe.stop_recording')}
@@ -462,6 +604,15 @@ const MeetingMinutesPage: React.FC = () => {
                         </Button>
                       )}
                     </div>
+                    {isScreenAudioSupported && (
+                      <div className="ml-0.5 mt-2">
+                        <Switch
+                          label={t('transcribe.screen_audio')}
+                          checked={enableScreenAudio}
+                          onSwitch={setEnableScreenAudio}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="basis-full p-2 lg:basis-3/5 xl:basis-1/2">
                     <label
@@ -532,6 +683,14 @@ const MeetingMinutesPage: React.FC = () => {
                     </div>
                   )}
                 </ExpandableField>
+
+                {/* Screen Audio Error Display */}
+                {screenAudioError && (
+                  <div className="mb-4 mt-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+                    <strong>{t('meetingMinutes.screen_audio_error')}</strong>{' '}
+                    {screenAudioError}
+                  </div>
+                )}
 
                 {/* Left Column Buttons */}
                 <div className="flex justify-end gap-3">
@@ -633,15 +792,14 @@ const MeetingMinutesPage: React.FC = () => {
                         }
                       }}
                     />
-                    {/* eslint-disable @shopify/jsx-no-hardcoded-content */}
                     {autoGenerate && countdownSeconds > 0 && (
                       <div className="text-sm text-gray-600">
                         {t('meetingMinutes.next_generation_in')}
-                        {Math.floor(countdownSeconds / 60)}:
+                        {Math.floor(countdownSeconds / 60)}
+                        {t('common.colon')}
                         {(countdownSeconds % 60).toString().padStart(2, '0')}
                       </div>
                     )}
-                    {/* eslint-enable @shopify/jsx-no-hardcoded-content */}
                   </div>
                 </div>
                 {autoGenerate && (

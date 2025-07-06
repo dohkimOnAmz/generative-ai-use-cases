@@ -675,6 +675,8 @@ transcribe:
   max_speakers_help: 認識する話者の最大数
   mic_input: マイク入力
   result_placeholder: 音声認識結果がここに表示されます
+  screen_audio: スクリーン音声
+  screen_audio_error: 'スクリーン音声エラー:'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
   speaker_recognition: 話者認識
