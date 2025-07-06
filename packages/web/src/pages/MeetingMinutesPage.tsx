@@ -207,8 +207,10 @@ const MeetingMinutesPage: React.FC = () => {
     setLanguageCode,
   } = useMeetingMinutesState();
   const ref = useRef<HTMLInputElement>(null);
+  const transcriptTextareaRef = useRef<HTMLTextAreaElement>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const shouldGenerateRef = useRef<boolean>(false);
+  const isAtBottomRef = useRef<boolean>(true);
 
   // Countdown state for auto-generation timer
   const [countdownSeconds, setCountdownSeconds] = useState(0);
@@ -283,8 +285,7 @@ const MeetingMinutesPage: React.FC = () => {
     autoGenerateSessionTimestamp,
     setGeneratedMinutes,
     setLastProcessedTranscript,
-    setLastGeneratedTime,
-    i18n.resolvedLanguage
+    setLastGeneratedTime
   );
 
   const speakerMapping = useMemo(() => {
@@ -324,6 +325,23 @@ const MeetingMinutesPage: React.FC = () => {
       })
       .join('\n');
   }, [timeSeriesSegments, speakerMapping, formatTime]);
+
+  // Auto scroll to bottom when transcript updates if user was at bottom
+  useEffect(() => {
+    if (
+      transcriptTextareaRef.current &&
+      isAtBottomRef.current &&
+      formattedOutput
+    ) {
+      // Small delay to ensure content is rendered
+      setTimeout(() => {
+        if (transcriptTextareaRef.current) {
+          transcriptTextareaRef.current.scrollTop =
+            transcriptTextareaRef.current.scrollHeight;
+        }
+      }, 10);
+    }
+  }, [formattedOutput]);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -899,9 +917,11 @@ const MeetingMinutesPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              <Textarea
+              <textarea
+                ref={transcriptTextareaRef}
                 value={formattedOutput}
-                onChange={(value) => {
+                onChange={(e) => {
+                  const value = e.target.value;
                   // Parse the textarea content back into transcript format
                   const lines = value.split('\n');
                   const newContent = lines.map((line) => ({
@@ -910,9 +930,20 @@ const MeetingMinutesPage: React.FC = () => {
                   }));
                   setContent(newContent);
                 }}
+                onScroll={(e) => {
+                  // Check if user is at the bottom of the textarea
+                  const target = e.target as HTMLTextAreaElement;
+                  const isAtBottom =
+                    Math.abs(
+                      target.scrollHeight -
+                        target.clientHeight -
+                        target.scrollTop
+                    ) < 3;
+                  isAtBottomRef.current = isAtBottom;
+                }}
                 placeholder={t('transcribe.result_placeholder')}
                 rows={10}
-                className="min-h-48"
+                className="min-h-48 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
               />
               {loading && (
                 <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
