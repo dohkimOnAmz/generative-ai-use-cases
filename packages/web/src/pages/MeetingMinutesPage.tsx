@@ -158,7 +158,7 @@ const useMeetingMinutesState = create<StateType>((set) => {
 });
 
 const MeetingMinutesPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { loading, transcriptData, file, setFile, transcribe, clear } =
     useTranscribe();
@@ -235,6 +235,39 @@ const MeetingMinutesPage: React.FC = () => {
     [t]
   );
 
+  // Map i18n language to transcription language, fallback to auto if not supported
+  const getTranscriptionLanguageFromSettings = useCallback(
+    (settingsLang: string): string => {
+      const langMapping: { [key: string]: string } = {
+        ja: 'ja-JP',
+        en: 'en-US',
+        zh: 'zh-CN',
+        ko: 'ko-KR',
+        th: 'th-TH',
+        vi: 'vi-VN',
+      };
+      return langMapping[settingsLang] || 'auto';
+    },
+    []
+  );
+
+  // Set language from settings on mount
+  useEffect(() => {
+    if (i18n.resolvedLanguage && languageCode === 'auto') {
+      const mappedLang = getTranscriptionLanguageFromSettings(
+        i18n.resolvedLanguage
+      );
+      if (mappedLang !== 'auto') {
+        setLanguageCode(mappedLang);
+      }
+    }
+  }, [
+    i18n.resolvedLanguage,
+    languageCode,
+    setLanguageCode,
+    getTranscriptionLanguageFromSettings,
+  ]);
+
   // Model selection state
   const { modelIds: availableModels, modelDisplayName } = MODELS;
   const [modelId, setModelId] = useState(availableModels[0] || '');
@@ -250,7 +283,8 @@ const MeetingMinutesPage: React.FC = () => {
     autoGenerateSessionTimestamp,
     setGeneratedMinutes,
     setLastProcessedTranscript,
-    setLastGeneratedTime
+    setLastGeneratedTime,
+    i18n.resolvedLanguage
   );
 
   const speakerMapping = useMemo(() => {
