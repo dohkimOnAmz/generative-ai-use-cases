@@ -255,7 +255,9 @@ const useScreenAudio = () => {
       // Request screen audio capture
       // Note: Most browsers require video to be true when capturing audio
       const displayStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
+        video: {
+          displaySurface: 'monitor',
+        },
         audio: true,
       });
 
