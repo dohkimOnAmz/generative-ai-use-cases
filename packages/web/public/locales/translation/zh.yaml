@@ -574,6 +574,9 @@ summarize:
   title: 摘要
 transcribe:
   detailed_parameters: 详细参数
+  direct_input: 直接输入
+  direct_input_instruction: 请在下方"转录文本"区域中直接输入会议记录的源文本
+  direct_input_placeholder: 请在此处输入会议记录的源文本...
   file_upload: 文件上传
   max_speakers: 最大发言人数
   max_speakers_help: 要识别的最大发言人数

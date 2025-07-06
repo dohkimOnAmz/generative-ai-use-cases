@@ -220,9 +220,12 @@ const MeetingMinutesPage: React.FC = () => {
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
 
   // Input method selection state
-  const [inputMethod, setInputMethod] = useState<'microphone' | 'file'>(
-    'microphone'
-  );
+  const [inputMethod, setInputMethod] = useState<
+    'microphone' | 'file' | 'direct'
+  >('microphone');
+
+  // Direct input text state
+  const [directInputText, setDirectInputText] = useState('');
 
   // Time-series segments management
   const [timeSeriesSegments, setTimeSeriesSegments] = useState<
@@ -525,6 +528,8 @@ const MeetingMinutesPage: React.FC = () => {
   ]);
 
   const onClickClear = useCallback(() => {
+    // Clear all input methods
+    setDirectInputText('');
     if (ref.current) {
       ref.current.value = '';
     }
@@ -582,8 +587,10 @@ const MeetingMinutesPage: React.FC = () => {
       return;
     }
 
-    if (formattedOutput.trim() !== '' && !minutesLoading) {
-      generateMinutes(formattedOutput, modelId, (status) => {
+    const textForGeneration =
+      inputMethod === 'direct' ? directInputText : formattedOutput;
+    if (textForGeneration.trim() !== '' && !minutesLoading) {
+      generateMinutes(textForGeneration, modelId, (status) => {
         if (status === 'success') {
           toast.success(t('meetingMinutes.generation_success'));
         } else if (status === 'error') {
@@ -592,6 +599,8 @@ const MeetingMinutesPage: React.FC = () => {
       });
     }
   }, [
+    inputMethod,
+    directInputText,
     formattedOutput,
     minutesLoading,
     modelId,
@@ -641,6 +650,16 @@ const MeetingMinutesPage: React.FC = () => {
                     onClick={() => setInputMethod('file')}>
                     <PiPaperclip className="mr-2 h-4 w-4" />
                     {t('transcribe.file_upload')}
+                  </button>
+                  <button
+                    className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                      inputMethod === 'direct'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                    onClick={() => setInputMethod('direct')}>
+                    <PiPencilLine className="mr-2 h-4 w-4" />
+                    {t('transcribe.direct_input')}
                   </button>
                 </div>
 
@@ -706,53 +725,65 @@ const MeetingMinutesPage: React.FC = () => {
                       </p>
                     </div>
                   )}
-                </div>
 
-                {/* Language Selection */}
-                <div className="mb-4 px-2">
-                  <label className="mb-2 block font-bold">
-                    {t('meetingMinutes.language')}
-                  </label>
-                  <Select
-                    value={languageCode}
-                    onChange={(value) => setLanguageCode(value)}
-                    options={languageOptions}
-                  />
-                </div>
-
-                {/* Speaker Recognition Parameters */}
-                <ExpandableField
-                  label={t('transcribe.detailed_parameters')}
-                  className="mb-4"
-                  notItem={true}>
-                  <div className="grid grid-cols-2 gap-2 pt-2">
-                    <Switch
-                      label={t('transcribe.speaker_recognition')}
-                      checked={speakerLabel}
-                      onSwitch={setSpeakerLabel}
-                    />
-                    {speakerLabel && (
-                      <RangeSlider
-                        className=""
-                        label={t('transcribe.max_speakers')}
-                        min={2}
-                        max={10}
-                        value={maxSpeakers}
-                        onChange={setMaxSpeakers}
-                        help={t('transcribe.max_speakers_help')}
-                      />
-                    )}
-                  </div>
-                  {speakerLabel && (
-                    <div className="mt-2">
-                      <Textarea
-                        placeholder={t('transcribe.speaker_names')}
-                        value={speakers}
-                        onChange={setSpeakers}
-                      />
+                  {inputMethod === 'direct' && (
+                    <div className="p-2">
+                      <p className="mb-2 text-sm text-gray-600">
+                        {t('transcribe.direct_input_instruction')}
+                      </p>
                     </div>
                   )}
-                </ExpandableField>
+                </div>
+
+                {/* Language Selection - Hidden for direct input */}
+                {inputMethod !== 'direct' && (
+                  <div className="mb-4 px-2">
+                    <label className="mb-2 block font-bold">
+                      {t('meetingMinutes.language')}
+                    </label>
+                    <Select
+                      value={languageCode}
+                      onChange={(value) => setLanguageCode(value)}
+                      options={languageOptions}
+                    />
+                  </div>
+                )}
+
+                {/* Speaker Recognition Parameters - Hidden for direct input */}
+                {inputMethod !== 'direct' && (
+                  <ExpandableField
+                    label={t('transcribe.detailed_parameters')}
+                    className="mb-4"
+                    notItem={true}>
+                    <div className="grid grid-cols-2 gap-2 pt-2">
+                      <Switch
+                        label={t('transcribe.speaker_recognition')}
+                        checked={speakerLabel}
+                        onSwitch={setSpeakerLabel}
+                      />
+                      {speakerLabel && (
+                        <RangeSlider
+                          className=""
+                          label={t('transcribe.max_speakers')}
+                          min={2}
+                          max={10}
+                          value={maxSpeakers}
+                          onChange={setMaxSpeakers}
+                          help={t('transcribe.max_speakers_help')}
+                        />
+                      )}
+                    </div>
+                    {speakerLabel && (
+                      <div className="mt-2">
+                        <Textarea
+                          placeholder={t('transcribe.speaker_names')}
+                          value={speakers}
+                          onChange={setSpeakers}
+                        />
+                      </div>
+                    )}
+                  </ExpandableField>
+                )}
 
                 {/* Screen Audio Error Display */}
                 {screenAudioError && (
@@ -908,7 +939,9 @@ const MeetingMinutesPage: React.FC = () => {
                   <Button
                     onClick={handleManualGeneration}
                     disabled={
-                      formattedOutput === '' ||
+                      (inputMethod === 'direct'
+                        ? directInputText.trim() === ''
+                        : formattedOutput === '') ||
                       minutesLoading ||
                       (minutesStyle === 'custom' &&
                         (!customPrompt || customPrompt.trim() === ''))
@@ -928,27 +961,35 @@ const MeetingMinutesPage: React.FC = () => {
                 <div className="font-bold">
                   {t('meetingMinutes.transcript')}
                 </div>
-                {formattedOutput.trim() !== '' && (
+                {(inputMethod === 'direct'
+                  ? directInputText.trim() !== ''
+                  : formattedOutput.trim() !== '') && (
                   <div className="flex">
                     <ButtonCopy
-                      text={formattedOutput}
+                      text={
+                        inputMethod === 'direct'
+                          ? directInputText
+                          : formattedOutput
+                      }
                       interUseCasesKey="transcript"></ButtonCopy>
-                    <ButtonSendToUseCase text={formattedOutput} />
+                    <ButtonSendToUseCase
+                      text={
+                        inputMethod === 'direct'
+                          ? directInputText
+                          : formattedOutput
+                      }
+                    />
                   </div>
                 )}
               </div>
               <textarea
                 ref={transcriptTextareaRef}
-                value={formattedOutput}
+                value={
+                  inputMethod === 'direct' ? directInputText : formattedOutput
+                }
                 onChange={(e) => {
-                  const value = e.target.value;
-                  // Parse the textarea content back into transcript format
-                  const lines = value.split('\n');
-                  const newContent = lines.map((line) => ({
-                    speakerLabel: undefined,
-                    transcript: line,
-                  }));
-                  setContent(newContent);
+                  // Only used when inputMethod === 'direct' (other modes are readOnly)
+                  setDirectInputText(e.target.value);
                 }}
                 onScroll={(e) => {
                   // Check if user is at the bottom of the textarea
@@ -961,9 +1002,14 @@ const MeetingMinutesPage: React.FC = () => {
                     ) < 3;
                   isAtBottomRef.current = isAtBottom;
                 }}
-                placeholder={t('transcribe.result_placeholder')}
+                placeholder={
+                  inputMethod === 'direct'
+                    ? t('transcribe.direct_input_placeholder')
+                    : t('transcribe.result_placeholder')
+                }
                 rows={10}
                 className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
+                readOnly={inputMethod !== 'direct'}
               />
               {loading && (
                 <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>

@@ -832,6 +832,9 @@ summarize:
   title: Summarize
 transcribe:
   detailed_parameters: Detailed parameters
+  direct_input: Direct Input
+  direct_input_instruction: Please enter the source text for meeting minutes directly in the "Transcript" area below.
+  direct_input_placeholder: Please enter the source text for meeting minutes here...
   file_upload: File Upload
   max_speakers: Max Speakers
   max_speakers_help: Maximum number of speakers to recognize

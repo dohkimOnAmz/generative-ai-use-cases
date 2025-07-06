@@ -670,6 +670,9 @@ summarize:
   title: 要約
 transcribe:
   detailed_parameters: 詳細なパラメータ
+  direct_input: 直接入力
+  direct_input_instruction: 下の「文字起こし」エリアに議事録の元となるテキストを直接入力してください。
+  direct_input_placeholder: ここに議事録の元となるテキストを入力してください...
   file_upload: ファイルアップロード
   max_speakers: Max Speakers
   max_speakers_help: 認識する話者の最大数

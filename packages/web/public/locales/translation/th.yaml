@@ -700,6 +700,9 @@ summarize:
   title: สรุป
 transcribe:
   detailed_parameters: ตั้งค่าขั้นสูงแบบกำหนดเอง
+  direct_input: ป้อนข้อมูลโดยตรง
+  direct_input_instruction: โปรดป้อนข้อความต้นฉบับสำหรับรายงานการประชุมโดยตรงในพื้นที่ "บันทึกการถอดความ" ด้านล่าง
+  direct_input_placeholder: โปรดป้อนข้อความต้นฉบับสำหรับรายงานการประชุมที่นี่...
   file_upload: อัปโหลดไฟล์
   max_speakers: จำนวนผู้พูดสูงสุด
   max_speakers_help: จำนวนผู้พูดสูงสุดในบทสนทนาที่ต้องการแยกแยะ
