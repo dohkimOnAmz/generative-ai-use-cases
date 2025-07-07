@@ -28,7 +28,7 @@ import ExpandableField from '../components/ExpandableField';
 import Select from '../components/Select';
 import { Transcript } from 'generative-ai-use-cases';
 import Textarea from '../components/Textarea';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { toast } from 'sonner';
 import Markdown from '../components/Markdown';
 import { useNavigate } from 'react-router-dom';
@@ -708,7 +708,10 @@ const MeetingMinutesPage: React.FC = () => {
                           />
                           {enableScreenAudio && (
                             <div className="mt-2 rounded-md bg-blue-50 p-3 text-sm text-blue-700">
-                              {t('transcribe.screen_audio_notice')}
+                              <Trans
+                                i18nKey="transcribe.screen_audio_notice"
+                                components={{ br: <br /> }}
+                              />
                             </div>
                           )}
                         </div>
