@@ -171,7 +171,8 @@ const MeetingMinutesPage: React.FC = () => {
     rawTranscripts: micRawTranscripts,
   } = useMicrophone();
   const {
-    startTranscription: startScreenTranscription,
+    prepareScreenCapture,
+    startTranscriptionWithStream,
     stopTranscription: stopScreenTranscription,
     recording: screenRecording,
     clearTranscripts: clearScreenTranscripts,
@@ -554,7 +555,7 @@ const MeetingMinutesPage: React.FC = () => {
     clearScreenTranscripts,
   ]);
 
-  const onClickExecStartTranscription = useCallback(() => {
+  const onClickExecStartTranscription = useCallback(async () => {
     // Clear existing content before starting new recording
     setContent([]);
     setTimeSeriesSegments([]);
@@ -563,11 +564,23 @@ const MeetingMinutesPage: React.FC = () => {
 
     const langCode =
       languageCode === 'auto' ? undefined : (languageCode as LanguageCode);
-    startMicTranscription(langCode, speakerLabel);
 
-    // Also start screen audio recording if enabled
-    if (enableScreenAudio && isScreenAudioSupported) {
-      startScreenTranscription(langCode, speakerLabel);
+    try {
+      // If screen audio is enabled, prepare screen capture first
+      let screenStream: MediaStream | null = null;
+      if (enableScreenAudio && isScreenAudioSupported) {
+        screenStream = await prepareScreenCapture();
+      }
+
+      // Now start both recordings simultaneously for better synchronization
+      if (screenStream) {
+        startTranscriptionWithStream(screenStream, langCode, speakerLabel);
+      }
+      startMicTranscription(langCode, speakerLabel);
+    } catch (error) {
+      console.error('Failed to start synchronized recording:', error);
+      // Fallback to microphone only if screen preparation fails
+      startMicTranscription(langCode, speakerLabel);
     }
   }, [
     languageCode,
@@ -575,7 +588,8 @@ const MeetingMinutesPage: React.FC = () => {
     startMicTranscription,
     enableScreenAudio,
     isScreenAudioSupported,
-    startScreenTranscription,
+    prepareScreenCapture,
+    startTranscriptionWithStream,
     setContent,
     clearMicTranscripts,
     clearScreenTranscripts,

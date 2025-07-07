@@ -50,6 +50,8 @@ const useScreenAudio = () => {
     useState<TranscribeStreamingClient>();
   const [isSupported, setIsSupported] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [preparedDisplayStream, setPreparedDisplayStream] =
+    useState<MediaStream | null>(null);
 
   // Check browser support
   useEffect(() => {
@@ -295,11 +297,118 @@ const useScreenAudio = () => {
     }
   };
 
+  /**
+   * Prepares screen capture by requesting user permission and screen selection.
+   * This function only handles the preparation phase (getDisplayMedia) without starting
+   * the actual recording. This allows synchronization with microphone recording by
+   * completing user interactions upfront, then starting both recordings simultaneously.
+   *
+   * @returns Promise<MediaStream> The prepared display stream with audio tracks
+   * @throws Error if screen capture is not supported or user denies permission
+   */
+  const prepareScreenCapture = async (): Promise<MediaStream> => {
+    if (!isSupported) {
+      throw new Error('Screen audio capture is not supported in this browser');
+    }
+
+    try {
+      setError('');
+
+      // Request screen audio capture
+      // Note: Most browsers require video to be true when capturing audio
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          displaySurface: 'monitor',
+        },
+        audio: true,
+      });
+
+      // Check if audio track is available
+      const audioTracks = displayStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No audio track available in screen capture');
+      }
+
+      setPreparedDisplayStream(displayStream);
+      return displayStream;
+    } catch (e) {
+      console.log('Screen audio capture preparation error:', e);
+      if (e instanceof Error) {
+        if (e.name === 'NotAllowedError') {
+          setError('Screen audio access was denied');
+        } else if (e.name === 'NotSupportedError') {
+          setError('Screen audio capture is not supported');
+        } else {
+          setError('Failed to prepare screen audio capture');
+        }
+      }
+      throw e;
+    }
+  };
+
+  /**
+   * Starts screen audio transcription using a pre-prepared display stream.
+   * This function is designed to work with prepareScreenCapture() for synchronized
+   * recording. It extracts audio tracks from the provided stream and begins
+   * transcription without additional user interaction delays.
+   *
+   * @param displayStream The MediaStream obtained from prepareScreenCapture()
+   * @param languageCode Optional language code for transcription
+   * @param speakerLabel Whether to enable speaker recognition
+   */
+  const startTranscriptionWithStream = async (
+    displayStream: MediaStream,
+    languageCode?: LanguageCode,
+    speakerLabel?: boolean
+  ) => {
+    const stream = new MicrophoneStream();
+    try {
+      setError('');
+      setScreenStream(stream);
+
+      // Extract only the audio track
+      const audioTracks = displayStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No audio track available in screen capture');
+      }
+
+      // Create a new MediaStream with only audio
+      const audioOnlyStream = new MediaStream(audioTracks);
+
+      // Stop the video track to save resources
+      const videoTracks = displayStream.getVideoTracks();
+      videoTracks.forEach((track) => track.stop());
+
+      stream.setStream(audioOnlyStream);
+      setRecording(true);
+      await startStream(stream, languageCode, speakerLabel);
+    } catch (e) {
+      console.log('Screen audio transcription error:', e);
+      if (e instanceof Error) {
+        setError('Failed to start screen audio transcription');
+      }
+    } finally {
+      stream.stop();
+      setRecording(false);
+      setScreenStream(undefined);
+      // Clean up prepared stream
+      if (preparedDisplayStream === displayStream) {
+        setPreparedDisplayStream(null);
+      }
+    }
+  };
+
   const stopTranscription = () => {
     if (screenStream) {
       screenStream.stop();
       setRecording(false);
       setScreenStream(undefined);
+    }
+
+    // Clean up prepared stream if exists
+    if (preparedDisplayStream) {
+      preparedDisplayStream.getTracks().forEach((track) => track.stop());
+      setPreparedDisplayStream(null);
     }
   };
 
@@ -310,6 +419,8 @@ const useScreenAudio = () => {
 
   return {
     startTranscription,
+    prepareScreenCapture,
+    startTranscriptionWithStream,
     stopTranscription,
     recording,
     transcriptScreen,
