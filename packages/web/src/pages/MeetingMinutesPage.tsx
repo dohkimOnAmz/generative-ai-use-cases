@@ -354,6 +354,23 @@ const MeetingMinutesPage: React.FC = () => {
     }
   }, [realtimeText]);
 
+  // Current transcript text based on input method
+  const currentTranscriptText = useMemo(() => {
+    switch (inputMethod) {
+      case 'direct':
+        return directInputText;
+      case 'file':
+        return fileTranscriptText;
+      default:
+        return realtimeText;
+    }
+  }, [inputMethod, directInputText, fileTranscriptText, realtimeText]);
+
+  // Text existence check
+  const hasTranscriptText = useMemo(() => {
+    return currentTranscriptText.trim() !== '';
+  }, [currentTranscriptText]);
+
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
@@ -512,20 +529,9 @@ const MeetingMinutesPage: React.FC = () => {
   const isRecording = micRecording || screenRecording;
 
   const disableClearExec = useMemo(() => {
-    const hasData =
-      file ||
-      realtimeText.trim() !== '' ||
-      directInputText.trim() !== '' ||
-      fileTranscriptText.trim() !== '';
+    const hasData = file || hasTranscriptText;
     return !hasData || loading || isRecording;
-  }, [
-    file,
-    realtimeText,
-    directInputText,
-    fileTranscriptText,
-    loading,
-    isRecording,
-  ]);
+  }, [file, hasTranscriptText, loading, isRecording]);
 
   const disabledMicExec = useMemo(() => {
     return loading;
@@ -618,14 +624,8 @@ const MeetingMinutesPage: React.FC = () => {
       return;
     }
 
-    const textForGeneration =
-      inputMethod === 'direct'
-        ? directInputText
-        : inputMethod === 'file'
-          ? fileTranscriptText
-          : realtimeText;
-    if (textForGeneration.trim() !== '' && !minutesLoading) {
-      generateMinutes(textForGeneration, modelId, (status) => {
+    if (hasTranscriptText && !minutesLoading) {
+      generateMinutes(currentTranscriptText, modelId, (status) => {
         if (status === 'success') {
           toast.success(t('meetingMinutes.generation_success'));
         } else if (status === 'error') {
@@ -634,10 +634,8 @@ const MeetingMinutesPage: React.FC = () => {
       });
     }
   }, [
-    inputMethod,
-    directInputText,
-    fileTranscriptText,
-    realtimeText,
+    hasTranscriptText,
+    currentTranscriptText,
     minutesLoading,
     modelId,
     generateMinutes,
@@ -983,11 +981,7 @@ const MeetingMinutesPage: React.FC = () => {
                   <Button
                     onClick={handleManualGeneration}
                     disabled={
-                      (inputMethod === 'direct'
-                        ? directInputText.trim() === ''
-                        : inputMethod === 'file'
-                          ? fileTranscriptText.trim() === ''
-                          : realtimeText === '') ||
+                      !hasTranscriptText ||
                       minutesLoading ||
                       (minutesStyle === 'custom' &&
                         (!customPrompt || customPrompt.trim() === ''))
@@ -1007,42 +1001,18 @@ const MeetingMinutesPage: React.FC = () => {
                 <div className="font-bold">
                   {t('meetingMinutes.transcript')}
                 </div>
-                {(inputMethod === 'direct'
-                  ? directInputText.trim() !== ''
-                  : inputMethod === 'file'
-                    ? fileTranscriptText.trim() !== ''
-                    : realtimeText.trim() !== '') && (
+                {hasTranscriptText && (
                   <div className="flex">
                     <ButtonCopy
-                      text={
-                        inputMethod === 'direct'
-                          ? directInputText
-                          : inputMethod === 'file'
-                            ? fileTranscriptText
-                            : realtimeText
-                      }
+                      text={currentTranscriptText}
                       interUseCasesKey="transcript"></ButtonCopy>
-                    <ButtonSendToUseCase
-                      text={
-                        inputMethod === 'direct'
-                          ? directInputText
-                          : inputMethod === 'file'
-                            ? fileTranscriptText
-                            : realtimeText
-                      }
-                    />
+                    <ButtonSendToUseCase text={currentTranscriptText} />
                   </div>
                 )}
               </div>
               <textarea
                 ref={transcriptTextareaRef}
-                value={
-                  inputMethod === 'direct'
-                    ? directInputText
-                    : inputMethod === 'file'
-                      ? fileTranscriptText
-                      : realtimeText
-                }
+                value={currentTranscriptText}
                 onChange={(e) => {
                   // Only used when inputMethod === 'direct' (other modes are readOnly)
                   setDirectInputText(e.target.value);
