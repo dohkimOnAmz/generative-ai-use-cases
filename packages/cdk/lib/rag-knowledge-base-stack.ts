@@ -145,14 +145,8 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
       crossAccountBedrockRoleArn,
+      tag,
     } = props.params;
-    
-    // Define the common tags to be applied to resources
-    const commonTags = {
-      CostCenter: 'DataAnalytics',
-      Project: 'GenAI',
-      Environment: env.toLowerCase(),
-    };
 
     if (typeof embeddingModelId !== 'string') {
       throw new Error(
@@ -298,11 +292,11 @@ export class RagKnowledgeBaseStack extends Stack {
     collection.node.addDependency(accessPolicy);
     collection.node.addDependency(networkPolicy);
     collection.node.addDependency(encryptionPolicy);
-    
+
     // Since we need to apply tags directly through AWS SDK instead of CloudFormation
     // We'll use a custom resource to apply tags after the collection is created
     // This avoids CloudFormation attempting to replace the collection when adding tags
-    if (Object.keys(commonTags).length > 0) {
+    if (Object.keys(tag).length > 0) {
       // Add tag applier custom resource
       const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
         runtime: LAMBDA_RUNTIME_NODEJS,
@@ -312,26 +306,28 @@ export class RagKnowledgeBaseStack extends Stack {
         lambdaPurpose: 'ApplyTagsToResources',
         timeout: cdk.Duration.minutes(5),
       });
-      
-      // Custom resource to apply tags after collection creation
+
       const applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
         serviceToken: tagApplier.functionArn,
         resourceType: 'Custom::ApplyTags',
         properties: {
-          tagsHash: JSON.stringify(commonTags),
+          tag: tag,
           collectionId: collection.ref,
           region: this.region,
+          accountId: this.account,
         },
       });
-      
+
       // Ensure tag application happens after collection creation
       applyTagsResource.node.addDependency(collection);
-      
+
       // Grant permissions to apply tags
       tagApplier.addToRolePolicy(
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [`arn:aws:aoss:${this.region}:*:collection/${collection.ref}`],
+          resources: [
+            `arn:aws:aoss:${this.region}:${this.account}:collection/${collection.ref}`,
+          ],
           actions: ['aoss:TagResource', 'aoss:ListTagsForResource'],
         })
       );

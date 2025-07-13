@@ -1,38 +1,60 @@
-const AWS = require('aws-sdk');
+const {
+  OpenSearchServerlessClient,
+  TagResourceCommand,
+} = require('@aws-sdk/client-opensearchserverless');
 
 exports.handler = async (event, context) => {
   console.log('Event:', JSON.stringify(event, null, 2));
-  
+
   try {
-    const { collectionId, region, tagsHash } = event.ResourceProperties;
-    const tags = JSON.parse(tagsHash);
-    
+    const { collectionId, region, accountId, tag } = event.ResourceProperties;
+
     // Skip for Delete operation
     if (event.RequestType === 'Delete') {
-      return await sendResponse(event, context, 'SUCCESS', {}, 'ApplyTagsResource');
+      return await sendResponse(
+        event,
+        context,
+        'SUCCESS',
+        {},
+        'ApplyTagsResource'
+      );
     }
-    
+
     // Create OpenSearch Serverless client
-    const opensearchserverless = new AWS.OpenSearchServerless({ region });
-    const collectionArn = `arn:aws:aoss:${region}::collection/${collectionId}`;
-    
-    // Convert tags to the required format
-    const tagList = Object.entries(tags).map(([Key, Value]) => ({ Key, Value }));
-    
-    console.log(`Applying tags to collection ${collectionId}: ${JSON.stringify(tagList)}`);
-    
+    const ossClient = new OpenSearchServerlessClient({ region });
+    const collectionArn = `arn:aws:aoss:${region}:${accountId}:collection/${collectionId}`;
+
+    console.log(
+      `Applying tags to collection ${collectionId}: ${JSON.stringify(tag)}`
+    );
+
     // Apply tags
-    await opensearchserverless.tagResource({
+    const command = new TagResourceCommand({
       resourceArn: collectionArn,
-      tags: tagList
-    }).promise();
-    
+      tags: [tag],
+    });
+
+    const res = await ossClient.send(command);
+
+    console.log(`response: ${JSON.stringify(res)}`);
     console.log(`Successfully applied tags to ${collectionArn}`);
-    
-    return await sendResponse(event, context, 'SUCCESS', {}, 'ApplyTagsResource');
+
+    return await sendResponse(
+      event,
+      context,
+      'SUCCESS',
+      {},
+      'ApplyTagsResource'
+    );
   } catch (error) {
     console.error('Error:', error);
-    return await sendResponse(event, context, 'FAILED', {}, 'ApplyTagsResource');
+    return await sendResponse(
+      event,
+      context,
+      'FAILED',
+      {},
+      'ApplyTagsResource'
+    );
   }
 };
 
@@ -47,12 +69,12 @@ async function sendResponse(event, context, status, data, physicalId) {
     LogicalResourceId: event.LogicalResourceId,
     Data: data,
   });
-  
+
   return await new Promise((resolve, reject) => {
     const https = require('https');
     const url = require('url');
     const parsedUrl = url.parse(event.ResponseURL);
-    
+
     const options = {
       hostname: parsedUrl.hostname,
       port: 443,
@@ -63,17 +85,17 @@ async function sendResponse(event, context, status, data, physicalId) {
         'Content-Length': responseBody.length,
       },
     };
-    
+
     const request = https.request(options, (response) => {
       console.log(`Status code: ${response.statusCode}`);
       resolve();
     });
-    
+
     request.on('error', (error) => {
       console.log('send() error:', error);
       resolve(); // Still resolve to avoid CF waiting
     });
-    
+
     request.write(responseBody);
     request.end();
   });
