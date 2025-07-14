@@ -10,6 +10,7 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface RagKnowledgeBaseProps {
   // Context Params
@@ -20,6 +21,7 @@ export interface RagKnowledgeBaseProps {
   readonly knowledgeBaseId: string;
   readonly userPool: UserPool;
   readonly api: RestApi;
+  readonly vpc?: Vpc;
 }
 
 export class RagKnowledgeBase extends Construct {
@@ -37,6 +39,7 @@ export class RagKnowledgeBase extends Construct {
         MODEL_REGION: modelRegion,
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
       },
+      vpc: props.vpc,
     });
 
     if (!props.crossAccountBedrockRoleArn) {

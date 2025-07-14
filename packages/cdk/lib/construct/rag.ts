@@ -18,6 +18,7 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 
 const KENDRA_STATE_CFN_PARAMETER_NAME = 'kendraState';
 
@@ -34,6 +35,7 @@ export interface RagProps {
   // Resource
   readonly userPool: UserPool;
   readonly api: RestApi;
+  readonly vpc?: Vpc;
 }
 
 export interface IndexScheduleCron {
@@ -515,6 +517,7 @@ export class Rag extends Construct {
         INDEX_ID: kendraIndexId,
         LANGUAGE: kendraIndexLanguage,
       },
+      vpc: props.vpc,
     });
     queryFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
@@ -536,6 +539,7 @@ export class Rag extends Construct {
         INDEX_ID: kendraIndexId,
         LANGUAGE: kendraIndexLanguage,
       },
+      vpc: props.vpc,
     });
     retrieveFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({

@@ -13,10 +13,12 @@ import { Duration } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { Vpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface UseCaseBuilderProps {
   readonly userPool: UserPool;
   readonly api: RestApi;
+  readonly vpc?: Vpc;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
@@ -57,6 +59,7 @@ export class UseCaseBuilder extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
         USECASE_ID_INDEX_NAME: useCaseIdIndexName,
       },
+      vpc: props.vpc,
     };
 
     const commonPath = './lambda/useCaseBuilder';

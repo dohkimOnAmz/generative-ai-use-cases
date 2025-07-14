@@ -8,6 +8,7 @@ import { RagKnowledgeBaseStack } from './rag-knowledge-base-stack';
 import { GuardrailStack } from './guardrail-stack';
 import { ProcessedStackInput } from './stack-input';
 import { VideoTmpBucketStack } from './video-tmp-bucket-stack';
+import { ClosedNetworkStack } from './closed-network-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -20,14 +21,51 @@ class DeletionPolicySetter implements cdk.IAspect {
 }
 
 export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
+  let closedNetworkStack: ClosedNetworkStack | undefined = undefined;
+
+  if (params.closedNetworkMode) {
+    const region =
+      app.region ?? params.region ?? process.env.CDK_DEFAULT_REGION;
+
+    if (region !== params.modelRegion) {
+      // TODO
+      throw new Error(
+        `app region to model region ga chigauyo ${region} vs ${params.modelRegion}`
+      );
+    }
+
+    const modelRegions = [
+      ...new Set(params.modelIds.map((model) => model.region)),
+    ];
+
+    if (modelRegions.length !== 1 || modelRegions[0] !== region) {
+      // TODO
+      throw new Error(`app region to chigau model region ga aruyo.`);
+    }
+
+    // TODO cross account not supported
+    closedNetworkStack = new ClosedNetworkStack(
+      app,
+      `ClosedNetworkStack${params.env}`,
+      {
+        env: {
+          account: params.account,
+          region: params.region,
+        },
+        params,
+      }
+    );
+  }
+
   // CloudFront WAF
   // Only deploy CloudFrontWafStack if IP address range (v4 or v6) or geographic restriction is defined
   // WAF v2 is only deployable in us-east-1, so the Stack is separated
   const cloudFrontWafStack =
-    params.allowedIpV4AddressRanges ||
-    params.allowedIpV6AddressRanges ||
-    params.allowedCountryCodes ||
-    params.hostName
+    (params.allowedIpV4AddressRanges ||
+      params.allowedIpV6AddressRanges ||
+      params.allowedCountryCodes ||
+      params.hostName) &&
+    !params.closedNetworkMode
       ? new CloudFrontWafStack(app, `CloudFrontWafStack${params.env}`, {
           env: {
             account: params.account,
@@ -67,6 +105,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
         },
         params: params,
         crossRegionReferences: true,
+        vpc: closedNetworkStack?.vpc,
       })
     : null;
 
@@ -136,6 +175,10 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       cert: cloudFrontWafStack?.cert,
       // Image build environment
       isSageMakerStudio,
+      // Closed network
+      vpc: closedNetworkStack?.vpc,
+      apiGatewayVpcEndpoints: closedNetworkStack?.apiGatewayVpcEndpoints,
+      webBucket: closedNetworkStack?.webBucket,
     }
   );
 

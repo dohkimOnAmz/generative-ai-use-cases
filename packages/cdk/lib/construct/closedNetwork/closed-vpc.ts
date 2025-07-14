@@ -1,0 +1,91 @@
+import { Construct } from 'constructs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { PrivateHostedZone } from 'aws-cdk-lib/aws-route53';
+
+const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
+  ApiGateway: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+  Lambda: ec2.InterfaceVpcEndpointAwsService.LAMBDA,
+  Bedrock: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
+  BedrockAgent: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
+  Ecr: ec2.InterfaceVpcEndpointAwsService.ECR,
+  EcrDocker: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER,
+  CloudWatchLogs: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
+  Kendra: ec2.InterfaceVpcEndpointAwsService.KENDRA,
+};
+
+export interface ClosedVpcProps {
+  readonly ipv4Cidr: string;
+  readonly userIpv4Cidr: string;
+  readonly domainName?: string;
+}
+
+export class ClosedVpc extends Construct {
+  public readonly vpc: ec2.Vpc;
+  public readonly apiGatewayVpcEndpoint: ec2.InterfaceVpcEndpoint;
+  public readonly hostedZone: PrivateHostedZone | undefined;
+
+  constructor(scope: Construct, id: string, props: ClosedVpcProps) {
+    super(scope, id);
+
+    const vpc = new ec2.Vpc(this, 'ClosedVpc', {
+      ipAddresses: ec2.IpAddresses.cidr(props.ipv4Cidr),
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          name: 'isolated',
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        },
+      ],
+      gatewayEndpoints: {
+        s3: {
+          service: ec2.GatewayVpcEndpointAwsService.S3,
+        },
+        dynamoDb: {
+          service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
+        },
+      },
+    });
+
+    const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
+      vpc,
+    });
+
+    securityGroup.addIngressRule(
+      ec2.Peer.ipv4(props.ipv4Cidr),
+      ec2.Port.tcp(443)
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.ipv4(props.userIpv4Cidr),
+      ec2.Port.tcp(443)
+    );
+
+    for (const [name, service] of Object.entries(VPC_ENDPOINTS)) {
+      const vpcEndpoint = new ec2.InterfaceVpcEndpoint(
+        this,
+        `VpcEndpoint${name}`,
+        {
+          vpc,
+          service,
+          subnets: {
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          },
+          securityGroups: [securityGroup],
+          privateDnsEnabled: true,
+        }
+      );
+
+      if (name === 'ApiGateway') {
+        this.apiGatewayVpcEndpoint = vpcEndpoint;
+      }
+    }
+
+    if (props.domainName) {
+      this.hostedZone = new PrivateHostedZone(this, 'HostedZone', {
+        vpc,
+        zoneName: props.domainName,
+      });
+    }
+
+    this.vpc = vpc;
+  }
+}
