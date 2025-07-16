@@ -166,9 +166,9 @@ const baseStackInputSchema = z.object({
   // Closed network
   closedNetworkMode: z.boolean().default(false),
   closedNetworkAppIpv4Cidr: z.string().default('10.0.0.0/16'),
-  closedNetworkUserIpv4Cidr: z.string().default('10.0.0.1/16'),
-  closedNetworkCertificateArn: z.string().optional(),
-  closedNetworkDomainName: z.string().optional(),
+  closedNetworkUserIpv4Cidr: z.string().default('10.1.0.0/16'),
+  closedNetworkCertificateArn: z.string().nullish(),
+  closedNetworkDomainName: z.string().nullish(),
   closedNetwrokCreateTestEnvironment: z.boolean().default(true),
 });
 

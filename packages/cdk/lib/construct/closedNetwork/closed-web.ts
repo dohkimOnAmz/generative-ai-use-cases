@@ -18,7 +18,7 @@ export interface ClosedWebProps {
   vpc: Vpc;
   // For HTTPS listener
   hostedZone?: PrivateHostedZone;
-  certificateArn?: string;
+  certificateArn?: string | null;
 }
 
 export class ClosedWeb extends Construct {

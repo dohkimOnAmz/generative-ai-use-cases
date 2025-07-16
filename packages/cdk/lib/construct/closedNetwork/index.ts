@@ -1,4 +1,4 @@
 export * from './closed-vpc';
-export * from './test-environment';
-export * from './windows-rdp';
 export * from './closed-web';
+export * from './windows-rdp';
+export * from './cognito-private-proxy';

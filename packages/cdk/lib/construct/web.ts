@@ -59,6 +59,8 @@ export interface WebProps {
   readonly mcpEnabled: boolean;
   readonly mcpEndpoint: string | null;
   readonly webBucket?: s3.Bucket;
+  readonly cognitoUserPoolProxyEndpoint?: string;
+  readonly cognitoIdentityPoolProxyEndpoint?: string;
 }
 
 export class Web extends Construct {
@@ -208,7 +210,7 @@ export class Web extends Construct {
     } else {
       // Closed network
       webBucket = props.webBucket!;
-      this.webUrl = 'CLOSED_NETWORK';
+      this.webUrl = 'CLOSED_NETWORK_MODE';
     }
 
     const build = new NodejsBuild(this, 'BuildWeb', {
@@ -279,6 +281,10 @@ export class Web extends Construct {
         ),
         VITE_APP_MCP_ENABLED: props.mcpEnabled.toString(),
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
+        VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT:
+          props.cognitoUserPoolProxyEndpoint ?? '',
+        VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT:
+          props.cognitoIdentityPoolProxyEndpoint ?? '',
       },
     });
     // Enhance computing resources

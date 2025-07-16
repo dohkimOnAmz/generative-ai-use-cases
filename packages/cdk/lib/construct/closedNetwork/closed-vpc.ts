@@ -3,8 +3,13 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { PrivateHostedZone } from 'aws-cdk-lib/aws-route53';
 
 const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
+  // VPC Endpoints required by user side
   ApiGateway: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
   Lambda: ec2.InterfaceVpcEndpointAwsService.LAMBDA,
+  Transcribe: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE,
+  TranscribeStreaming: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE_STREAMING,
+  Polly: ec2.InterfaceVpcEndpointAwsService.POLLY,
+  // VPC Endpoints required by app side
   Bedrock: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
   BedrockAgent: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
   Ecr: ec2.InterfaceVpcEndpointAwsService.ECR,
@@ -16,7 +21,7 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
 export interface ClosedVpcProps {
   readonly ipv4Cidr: string;
   readonly userIpv4Cidr: string;
-  readonly domainName?: string;
+  readonly domainName?: string | null;
 }
 
 export class ClosedVpc extends Construct {

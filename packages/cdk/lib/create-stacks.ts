@@ -28,9 +28,8 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       app.region ?? params.region ?? process.env.CDK_DEFAULT_REGION;
 
     if (region !== params.modelRegion) {
-      // TODO
       throw new Error(
-        `app region to model region ga chigauyo ${region} vs ${params.modelRegion}`
+        `The app region and modelRegion must be same if closedNetworkMode=true (${region} vs ${params.modelRegion})`
       );
     }
 
@@ -39,11 +38,20 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     ];
 
     if (modelRegions.length !== 1 || modelRegions[0] !== region) {
-      // TODO
-      throw new Error(`app region to chigau model region ga aruyo.`);
+      throw new Error(
+        'You cannot specify the regions other than the app region if closedNetworkMode=true'
+      );
     }
 
-    // TODO cross account not supported
+    if (
+      params.crossAccountBedrockRoleArn &&
+      params.crossAccountBedrockRoleArn.length > 0
+    ) {
+      throw new Error(
+        'You cannot specify crossAccountBedrockRoleArn if closedNetworkMode=true'
+      );
+    }
+
     closedNetworkStack = new ClosedNetworkStack(
       app,
       `ClosedNetworkStack${params.env}`,
@@ -177,8 +185,14 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       isSageMakerStudio,
       // Closed network
       vpc: closedNetworkStack?.vpc,
-      apiGatewayVpcEndpoints: closedNetworkStack?.apiGatewayVpcEndpoints,
+      apiGatewayVpcEndpoint: closedNetworkStack?.apiGatewayVpcEndpoint,
       webBucket: closedNetworkStack?.webBucket,
+      cognitoUserPoolProxyEndpoint:
+        closedNetworkStack?.cognitoUserPoolProxyApi?.url ?? '',
+      cognitoIdentityPoolProxyEndpoint:
+        closedNetworkStack?.cognitoIdPoolProxyApi?.url ?? '',
+      // cognitoUserPoolProxyEndpoint: closedNetworkStack?.cognitoUserPoolProxyApi ? `${closedNetworkStack.cognitoUserPoolProxyApi.url.replace(/\/$/, '')}/auth` : '',
+      // cognitoIdentityPoolProxyEndpoint: closedNetworkStack?.cognitoIdPoolProxyApi ? `${closedNetworkStack.cognitoIdPoolProxyApi.url.replace(/\/$/, '')}/auth` : '',
     }
   );
 

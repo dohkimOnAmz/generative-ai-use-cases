@@ -65,7 +65,7 @@ export interface BackendApiProps {
 
   // Closed network
   readonly vpc?: Vpc;
-  readonly apiGatewayVpcEndpoints?: InterfaceVpcEndpoint[];
+  readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
 }
 
 export class Api extends Construct {
@@ -100,7 +100,7 @@ export class Api extends Construct {
       queryDecompositionEnabled,
       rerankingModelId,
       vpc,
-      apiGatewayVpcEndpoints,
+      apiGatewayVpcEndpoint,
     } = props;
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
@@ -785,12 +785,12 @@ export class Api extends Construct {
       endpointConfiguration: vpc
         ? {
             types: [EndpointType.PRIVATE],
-            vpcEndpoints: apiGatewayVpcEndpoints!,
+            vpcEndpoints: [apiGatewayVpcEndpoint!],
           }
         : undefined,
       policy: vpc
         ? new PolicyDocument({
-            statements: apiGatewayVpcEndpoints!.map(
+            statements: [apiGatewayVpcEndpoint!].map(
               (e: InterfaceVpcEndpoint) => {
                 return new PolicyStatement({
                   effect: Effect.ALLOW,

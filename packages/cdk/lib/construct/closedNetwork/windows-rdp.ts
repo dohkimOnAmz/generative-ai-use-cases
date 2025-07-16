@@ -3,16 +3,10 @@ import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
-const USER_SIDE_VPC_ENDPOINTS: Record<
-  string,
-  ec2.InterfaceVpcEndpointAwsService
-> = {
-  ApiGateway: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-  Lambda: ec2.InterfaceVpcEndpointAwsService.LAMBDA,
-  AppSync: ec2.InterfaceVpcEndpointAwsService.APP_SYNC,
-  Transcribe: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE,
-  TranscribeStreaming: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE_STREAMING,
-  Polly: ec2.InterfaceVpcEndpointAwsService.POLLY,
+const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
+  Ssm: ec2.InterfaceVpcEndpointAwsService.SSM,
+  SsmMessages: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+  Ec2Messages: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
 };
 
 export interface WindowsRdpProps {
@@ -26,23 +20,51 @@ export class WindowsRdp extends Construct {
     super(scope, id);
 
     const region = cdk.Stack.of(this).region;
-    const keyPair = new ec2.CfnKeyPair(this, 'KeyPair', {
-      keyName: 'windows-key-pair',
-    });
+    const keyPair = new ec2.KeyPair(this, 'WindowsKeyPair');
 
     new cdk.CfnOutput(this, 'GetSSMKeyCommand', {
-      value: `aws ssm get-parameter --name /ec2/keypair/${keyPair.getAtt(
-        'KeyPairId'
-      )} --region ${
+      value: `aws ssm get-parameter --name /ec2/keypair/${keyPair.keyPairId} --region ${
         region
       } --with-decryption --query Parameter.Value --output text`,
     });
 
-    const sg = new ec2.SecurityGroup(this, 'WindowsSg', {
+    const windowsSecurityGroup = new ec2.SecurityGroup(this, 'WindowsSg', {
       vpc: props.vpc,
     });
 
-    sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(3389));
+    const vpcEndpointSecurityGroup = new ec2.SecurityGroup(
+      this,
+      'WindowsVpcEndpointSg',
+      {
+        vpc: props.vpc,
+      }
+    );
+
+    vpcEndpointSecurityGroup.addIngressRule(
+      ec2.Peer.ipv4(props.vpc.vpcCidrBlock),
+      ec2.Port.tcp(443)
+    );
+
+    for (const [name, service] of Object.entries(VPC_ENDPOINTS)) {
+      const vpcEndpoint = new ec2.InterfaceVpcEndpoint(
+        this,
+        `VpcEndpoint${name}`,
+        {
+          vpc: props.vpc,
+          service,
+          subnets: {
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          },
+          securityGroups: [vpcEndpointSecurityGroup],
+          privateDnsEnabled: true,
+        }
+      );
+
+      windowsSecurityGroup.connections.allowFrom(
+        vpcEndpoint,
+        ec2.Port.tcp(443)
+      );
+    }
 
     const role = new iam.Role(this, 'WindowsRole', {
       assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -55,9 +77,9 @@ export class WindowsRdp extends Construct {
     new ec2.Instance(this, 'windowsInstance', {
       vpc: props.vpc,
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
       },
-      securityGroup: sg,
+      securityGroup: windowsSecurityGroup,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.MEMORY6_INTEL,
         ec2.InstanceSize.LARGE
@@ -65,7 +87,7 @@ export class WindowsRdp extends Construct {
       machineImage: ec2.MachineImage.latestWindows(
         ec2.WindowsVersion.WINDOWS_SERVER_2025_ENGLISH_FULL_BASE
       ),
-      keyName: cdk.Token.asString(keyPair.ref),
+      keyPair,
       instanceProfile: new iam.InstanceProfile(this, 'InstanceProfile', {
         role,
       }),
@@ -79,38 +101,5 @@ export class WindowsRdp extends Construct {
         },
       ],
     });
-
-    const securityGroup = new ec2.SecurityGroup(
-      this,
-      'UserSideVpcEndpointSecurityGroup',
-      {
-        vpc: props.vpc,
-      }
-    );
-
-    securityGroup.addIngressRule(
-      ec2.Peer.ipv4(props.vpc.vpcCidrBlock),
-      ec2.Port.tcp(443)
-    );
-
-    for (const [name, service] of Object.entries(USER_SIDE_VPC_ENDPOINTS)) {
-      const vpcEndpoint = new ec2.InterfaceVpcEndpoint(
-        this,
-        `VpcEndpoint${name}`,
-        {
-          vpc: props.vpc,
-          service,
-          subnets: {
-            subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-          },
-          securityGroups: [securityGroup],
-          privateDnsEnabled: true,
-        }
-      );
-
-      if (name === 'ApiGateway') {
-        this.apiGatewayVpcEndpoint = vpcEndpoint;
-      }
-    }
   }
 }

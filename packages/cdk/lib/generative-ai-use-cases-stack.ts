@@ -42,8 +42,10 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly isSageMakerStudio: boolean;
   // Closed network
   readonly vpc?: Vpc;
-  readonly apiGatewayVpcEndpoints?: InterfaceVpcEndpoint[];
+  readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
+  readonly cognitoUserPoolProxyEndpoint?: string;
+  readonly cognitoIdentityPoolProxyEndpoint?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -96,7 +98,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
       vpc: props.vpc,
-      apiGatewayVpcEndpoints: props.apiGatewayVpcEndpoints,
+      apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
     });
 
     // WAF
@@ -186,6 +188,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: params.hostedZoneId,
       // Closed network
       webBucket: props.webBucket,
+      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
+      cognitoIdentityPoolProxyEndpoint: props.cognitoIdentityPoolProxyEndpoint,
     });
 
     // RAG
@@ -276,16 +280,6 @@ export class GenerativeAiUseCasesStack extends Stack {
     new CfnOutput(this, 'Region', {
       value: this.region,
     });
-
-    // if (params.hostName && params.domainName) {
-    //   new CfnOutput(this, 'WebUrl', {
-    //     value: `https://${params.hostName}.${params.domainName}`,
-    //   });
-    // } else {
-    //   new CfnOutput(this, 'WebUrl', {
-    //     value: `https://${web.distribution.domainName}`,
-    //   });
-    // }
 
     new CfnOutput(this, 'WebUrl', {
       value: web.webUrl,
