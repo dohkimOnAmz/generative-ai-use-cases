@@ -296,45 +296,48 @@ export class RagKnowledgeBaseStack extends Stack {
     // Since we need to apply tags directly through AWS SDK instead of CloudFormation
     // We'll use a custom resource to apply tags after the collection is created
     // This avoids CloudFormation attempting to replace the collection when adding tags
-    if (tagValue) {
-      // Add tag applier custom resource
-      const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        code: lambda.Code.fromAsset('custom-resources'),
-        handler: 'apply-tags.handler',
-        uuid: 'E2488E36-B465-4D1F-9D1C-89FB99F1CC01',
-        lambdaPurpose: 'ApplyTagsToResources',
-        timeout: cdk.Duration.minutes(5),
-      });
 
-      const applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
-        serviceToken: tagApplier.functionArn,
-        resourceType: 'Custom::ApplyTags',
-        properties: {
-          tag: {
-            key: TAG_KEY,
-            value: tagValue,
-          },
-          collectionId: collection.ref,
-          region: this.region,
-          accountId: this.account,
+    // Always create the tag applier custom resource to handle both tag application and removal
+    const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      code: lambda.Code.fromAsset('custom-resources'),
+      handler: 'apply-tags.handler',
+      uuid: 'E2488E36-B465-4D1F-9D1C-89FB99F1CC01',
+      lambdaPurpose: 'ApplyTagsToResources',
+      timeout: cdk.Duration.minutes(5),
+    });
+
+    const applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
+      serviceToken: tagApplier.functionArn,
+      resourceType: 'Custom::ApplyTags',
+      properties: {
+        tag: {
+          key: TAG_KEY,
+          value: tagValue || '', // Pass empty string when tagValue is unset
         },
-      });
+        collectionId: collection.ref,
+        region: this.region,
+        accountId: this.account,
+      },
+    });
 
-      // Ensure tag application happens after collection creation
-      applyTagsResource.node.addDependency(collection);
+    // Ensure tag application happens after collection creation
+    applyTagsResource.node.addDependency(collection);
 
-      // Grant permissions to apply tags
-      tagApplier.addToRolePolicy(
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          resources: [
-            `arn:aws:aoss:${this.region}:${this.account}:collection/${collection.ref}`,
-          ],
-          actions: ['aoss:TagResource', 'aoss:ListTagsForResource'],
-        })
-      );
-    }
+    // Grant permissions to apply and remove tags
+    tagApplier.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [
+          `arn:aws:aoss:${this.region}:${this.account}:collection/${collection.ref}`,
+        ],
+        actions: [
+          'aoss:TagResource',
+          'aoss:UntagResource',
+          'aoss:ListTagsForResource',
+        ],
+      })
+    );
 
     const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
