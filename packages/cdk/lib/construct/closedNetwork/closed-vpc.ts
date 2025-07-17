@@ -19,36 +19,44 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
 };
 
 export interface ClosedVpcProps {
+  readonly vpcId?: string | null;
   readonly ipv4Cidr: string;
-  readonly userIpv4Cidr: string;
   readonly domainName?: string | null;
 }
 
 export class ClosedVpc extends Construct {
-  public readonly vpc: ec2.Vpc;
+  public readonly vpc: ec2.IVpc;
   public readonly apiGatewayVpcEndpoint: ec2.InterfaceVpcEndpoint;
   public readonly hostedZone: PrivateHostedZone | undefined;
 
   constructor(scope: Construct, id: string, props: ClosedVpcProps) {
     super(scope, id);
 
-    const vpc = new ec2.Vpc(this, 'ClosedVpc', {
-      ipAddresses: ec2.IpAddresses.cidr(props.ipv4Cidr),
-      maxAzs: 2,
-      subnetConfiguration: [
-        {
-          name: 'isolated',
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        },
-      ],
-      gatewayEndpoints: {
-        s3: {
-          service: ec2.GatewayVpcEndpointAwsService.S3,
-        },
-        dynamoDb: {
-          service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
-        },
-      },
+    let vpc: ec2.IVpc;
+
+    if (props.vpcId) {
+      vpc = ec2.Vpc.fromLookup(this, 'ImportedVpc', {
+        vpcId: props.vpcId,
+      });
+    } else {
+      vpc = new ec2.Vpc(this, 'ClosedVpc', {
+        ipAddresses: ec2.IpAddresses.cidr(props.ipv4Cidr),
+        maxAzs: 2,
+        subnetConfiguration: [
+          {
+            name: 'isolated',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          },
+        ],
+      });
+    }
+
+    vpc.addGatewayEndpoint('S3GatewayEndpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.S3,
+    });
+
+    vpc.addGatewayEndpoint('DynamoDbGatewayEndpoint', {
+      service: ec2.GatewayVpcEndpointAwsService.DYNAMODB,
     });
 
     const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
@@ -56,11 +64,7 @@ export class ClosedVpc extends Construct {
     });
 
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4(props.ipv4Cidr),
-      ec2.Port.tcp(443)
-    );
-    securityGroup.addIngressRule(
-      ec2.Peer.ipv4(props.userIpv4Cidr),
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
       ec2.Port.tcp(443)
     );
 

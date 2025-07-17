@@ -18,14 +18,14 @@ import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
 import { Agent as AgentType } from 'generative-ai-use-cases';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 import { StackInput } from '../stack-input';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 interface AgentProps {
   // Context Params
   readonly searchAgentEnabled: boolean;
   readonly searchApiKey?: string | null;
   readonly searchEngine?: StackInput['searchEngine'];
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
 }
 
 export class Agent extends Construct {

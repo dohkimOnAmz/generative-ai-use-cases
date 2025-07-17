@@ -10,7 +10,7 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
 };
 
 export interface WindowsRdpProps {
-  readonly vpc: ec2.Vpc;
+  readonly vpc: ec2.IVpc;
 }
 
 export class WindowsRdp extends Construct {

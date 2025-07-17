@@ -25,19 +25,9 @@ export class CognitoPrivateProxy extends Construct {
       {
         restApiName: 'GenU Cognito UserPool Proxy API',
         defaultCorsPreflightOptions: {
-          allowOrigins: agw.Cors.ALL_ORIGINS, // [], // TODO
+          allowOrigins: agw.Cors.ALL_ORIGINS,
           allowMethods: ['POST', 'OPTIONS'],
           allowHeaders: [
-            // amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent
-            // amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent
-            // amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent
-            // 'Content-Type',
-            // 'Authorization',
-            // 'Cache-Control',
-            // 'X-Amz-Target',
-            // 'X-Amz-User-Agent',
-            // 'Amz-Sdk-Invocation-Id',
-            // 'Amz-Sdk-Request',
             'amz-sdk-invocation-id',
             'amz-sdk-request',
             'cache-control',
@@ -45,7 +35,6 @@ export class CognitoPrivateProxy extends Construct {
             'x-amz-target',
             'x-amz-user-agent',
           ],
-          // allowCredentials: true,
         },
         endpointConfiguration: {
           types: [agw.EndpointType.PRIVATE],
@@ -97,9 +86,7 @@ export class CognitoPrivateProxy extends Construct {
             {
               statusCode: '200',
               responseParameters: {
-                'method.response.header.Access-Control-Allow-Origin': `'*'`, // TODO
-                // 'method.response.header.Access-Control-Allow-Credentials':
-                // "'true'",
+                'method.response.header.Access-Control-Allow-Origin': `'*'`,
                 'method.response.header.Access-Control-Allow-Headers':
                   "'Content-Type,Authorization,Cache-Control,X-Amz-Target,X-Amz-User-Agent'",
                 'method.response.header.Access-Control-Allow-Methods':
@@ -121,7 +108,6 @@ export class CognitoPrivateProxy extends Construct {
             statusCode: '200',
             responseParameters: {
               'method.response.header.Access-Control-Allow-Origin': true,
-              // 'method.response.header.Access-Control-Allow-Credentials': true,
               'method.response.header.Access-Control-Allow-Headers': true,
               'method.response.header.Access-Control-Allow-Methods': true,
             },
@@ -137,14 +123,9 @@ export class CognitoPrivateProxy extends Construct {
       {
         restApiName: 'GenU Cognito ID Pool Proxy API',
         defaultCorsPreflightOptions: {
-          allowOrigins: agw.Cors.ALL_ORIGINS, // [], // TODO
+          allowOrigins: agw.Cors.ALL_ORIGINS,
           allowMethods: ['POST', 'OPTIONS'],
           allowHeaders: [
-            // 'Content-Type',
-            // 'Authorization',
-            // 'Cache-Control',
-            // 'X-Amz-Target',
-            // 'X-Amz-User-Agent',
             'amz-sdk-invocation-id',
             'amz-sdk-request',
             'cache-control',
@@ -152,7 +133,6 @@ export class CognitoPrivateProxy extends Construct {
             'x-amz-target',
             'x-amz-user-agent',
           ],
-          // allowCredentials: true,
         },
         endpointConfiguration: {
           types: [agw.EndpointType.PRIVATE],
@@ -204,9 +184,7 @@ export class CognitoPrivateProxy extends Construct {
             {
               statusCode: '200',
               responseParameters: {
-                'method.response.header.Access-Control-Allow-Origin': `'*'`, // TODO
-                // 'method.response.header.Access-Control-Allow-Credentials':
-                // "'true'",
+                'method.response.header.Access-Control-Allow-Origin': `'*'`,
                 'method.response.header.Access-Control-Allow-Headers':
                   "'Content-Type,Authorization,Cache-Control,X-Amz-Target,X-Amz-User-Agent'",
                 'method.response.header.Access-Control-Allow-Methods':
@@ -228,7 +206,6 @@ export class CognitoPrivateProxy extends Construct {
             statusCode: '200',
             responseParameters: {
               'method.response.header.Access-Control-Allow-Origin': true,
-              // 'method.response.header.Access-Control-Allow-Credentials': true,
               'method.response.header.Access-Control-Allow-Headers': true,
               'method.response.header.Access-Control-Allow-Methods': true,
             },

@@ -16,7 +16,7 @@ export interface ClosedNetworkStackProps extends StackProps {
 }
 
 export class ClosedNetworkStack extends Stack {
-  public readonly vpc: ec2.Vpc;
+  public readonly vpc: ec2.IVpc;
   public readonly apiGatewayVpcEndpoint: ec2.InterfaceVpcEndpoint;
   public readonly webBucket: s3.Bucket;
   public readonly cognitoUserPoolProxyApi: agw.RestApi;
@@ -26,16 +26,18 @@ export class ClosedNetworkStack extends Stack {
     super(scope, id, props);
 
     const {
-      closedNetworkAppIpv4Cidr,
-      closedNetworkUserIpv4Cidr,
+      closedNetworkVpcId,
+      closedNetworkVpcIpv4Cidr,
+      // TODO
+      // closedNetworkSubnetIds,
       closedNetworkCertificateArn,
       closedNetworkDomainName,
       closedNetwrokCreateTestEnvironment,
     } = props.params;
 
     const closedVpc = new ClosedVpc(this, 'ClosedVpc', {
-      ipv4Cidr: closedNetworkAppIpv4Cidr,
-      userIpv4Cidr: closedNetworkUserIpv4Cidr,
+      vpcId: closedNetworkVpcId,
+      ipv4Cidr: closedNetworkVpcIpv4Cidr,
       domainName: closedNetworkDomainName,
     });
 
@@ -54,7 +56,7 @@ export class ClosedNetworkStack extends Stack {
     );
 
     const webUrl =
-      closedVpc?.hostedZone && closedNetworkCertificateArn
+      closedVpc.hostedZone && closedNetworkCertificateArn
         ? `https://${closedVpc.hostedZone.zoneName}`
         : `http://${closedWeb.alb.loadBalancerDnsName}`;
 

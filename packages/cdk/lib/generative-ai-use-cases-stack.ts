@@ -19,7 +19,7 @@ import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
 import { ProcessedStackInput } from './stack-input';
 import { allowS3AccessWithSourceIpCondition } from './utils/s3-access-policy';
-import { InterfaceVpcEndpoint, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpoint, IVpc } from 'aws-cdk-lib/aws-ec2';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
@@ -41,7 +41,7 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   // Image build environment
   readonly isSageMakerStudio: boolean;
   // Closed network
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
   readonly cognitoUserPoolProxyEndpoint?: string;

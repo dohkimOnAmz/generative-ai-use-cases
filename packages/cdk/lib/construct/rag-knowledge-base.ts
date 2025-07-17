@@ -10,7 +10,7 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface RagKnowledgeBaseProps {
   // Context Params
@@ -21,7 +21,7 @@ export interface RagKnowledgeBaseProps {
   readonly knowledgeBaseId: string;
   readonly userPool: UserPool;
   readonly api: RestApi;
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
 }
 
 export class RagKnowledgeBase extends Construct {

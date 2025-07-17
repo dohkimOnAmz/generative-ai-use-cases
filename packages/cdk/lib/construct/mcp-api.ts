@@ -12,13 +12,13 @@ import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 import { NetworkMode } from 'aws-cdk-lib/aws-ecr-assets';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface McpApiProps {
   readonly idPool: IdentityPool;
   readonly isSageMakerStudio: boolean;
   readonly fileBucket: Bucket;
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
 }
 
 export class McpApi extends Construct {

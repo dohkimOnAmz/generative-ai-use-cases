@@ -35,7 +35,7 @@ import {
 } from '@generative-ai-use-cases/common';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
-import { InterfaceVpcEndpoint, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { InterfaceVpcEndpoint, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface BackendApiProps {
   // Context Params
@@ -64,7 +64,7 @@ export interface BackendApiProps {
   readonly guardrailVersion?: string;
 
   // Closed network
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
 }
 

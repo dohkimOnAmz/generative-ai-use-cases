@@ -1,7 +1,12 @@
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import { PrivateHostedZone } from 'aws-cdk-lib/aws-route53';
+import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import {
+  PrivateHostedZone,
+  ARecord,
+  RecordTarget,
+} from 'aws-cdk-lib/aws-route53';
+import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
@@ -15,7 +20,7 @@ import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 export interface ClosedWebProps {
-  vpc: Vpc;
+  vpc: IVpc;
   // For HTTPS listener
   hostedZone?: PrivateHostedZone;
   certificateArn?: string | null;
@@ -70,6 +75,9 @@ export class ClosedWeb extends Construct {
         cpuArchitecture: CpuArchitecture.X86_64,
         operatingSystemFamily: OperatingSystemFamily.LINUX,
       },
+      taskSubnets: {
+        subnetType: SubnetType.PRIVATE_ISOLATED,
+      },
       ...httpsProps,
     });
 
@@ -78,6 +86,15 @@ export class ClosedWeb extends Construct {
     });
 
     bucket.grantRead(service.taskDefinition.taskRole);
+
+    if (props.hostedZone) {
+      new ARecord(this, 'LbRecord', {
+        zone: props.hostedZone,
+        target: RecordTarget.fromAlias(
+          new LoadBalancerTarget(service.loadBalancer)
+        ),
+      });
+    }
 
     this.bucket = bucket;
     this.alb = service.loadBalancer;

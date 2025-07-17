@@ -18,7 +18,7 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 const KENDRA_STATE_CFN_PARAMETER_NAME = 'kendraState';
 
@@ -35,7 +35,7 @@ export interface RagProps {
   // Resource
   readonly userPool: UserPool;
   readonly api: RestApi;
-  readonly vpc?: Vpc;
+  readonly vpc?: IVpc;
 }
 
 export interface IndexScheduleCron {
