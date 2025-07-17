@@ -8,7 +8,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { ProcessedStackInput } from './stack-input';
-import { LAMBDA_RUNTIME_NODEJS } from '../consts';
+import { LAMBDA_RUNTIME_NODEJS, TAG_KEY } from '../consts';
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -145,7 +145,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
       crossAccountBedrockRoleArn,
-      tag,
+      tagValue,
     } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
@@ -296,7 +296,7 @@ export class RagKnowledgeBaseStack extends Stack {
     // Since we need to apply tags directly through AWS SDK instead of CloudFormation
     // We'll use a custom resource to apply tags after the collection is created
     // This avoids CloudFormation attempting to replace the collection when adding tags
-    if (Object.keys(tag).length > 0) {
+    if (tagValue) {
       // Add tag applier custom resource
       const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
         runtime: LAMBDA_RUNTIME_NODEJS,
@@ -311,7 +311,10 @@ export class RagKnowledgeBaseStack extends Stack {
         serviceToken: tagApplier.functionArn,
         resourceType: 'Custom::ApplyTags',
         properties: {
-          tag: tag,
+          tag: {
+            key: TAG_KEY,
+            value: tagValue,
+          },
           collectionId: collection.ref,
           region: this.region,
           accountId: this.account,

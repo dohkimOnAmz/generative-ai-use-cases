@@ -163,10 +163,7 @@ export const stackInputSchema = z.object({
   // Dashboard
   dashboard: z.boolean().default(false),
   // Tag
-  tag: z.object({
-    key: z.string().optional(),
-    value: z.string().optional(),
-  }),
+  tagValue: z.string().nullish(),
 });
 
 // schema after conversion
