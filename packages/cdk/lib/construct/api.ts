@@ -35,7 +35,11 @@ import {
 } from '@generative-ai-use-cases/common';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
-import { InterfaceVpcEndpoint, IVpc } from 'aws-cdk-lib/aws-ec2';
+import {
+  InterfaceVpcEndpoint,
+  IVpc,
+  ISecurityGroup,
+} from 'aws-cdk-lib/aws-ec2';
 
 export interface BackendApiProps {
   // Context Params
@@ -65,6 +69,7 @@ export interface BackendApiProps {
 
   // Closed network
   readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
 }
 
@@ -100,6 +105,7 @@ export class Api extends Construct {
       queryDecompositionEnabled,
       rerankingModelId,
       vpc,
+      securityGroups,
       apiGatewayVpcEndpoint,
     } = props;
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
@@ -187,6 +193,7 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
+      securityGroups,
     });
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
@@ -223,6 +230,7 @@ export class Api extends Construct {
         ],
       },
       vpc,
+      securityGroups,
     });
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
@@ -242,6 +250,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
       },
       vpc,
+      securityGroups,
     });
     invokeFlowFunction.grantInvoke(idPool.authenticatedRole);
 
@@ -267,6 +276,7 @@ export class Api extends Construct {
           : {}),
       },
       vpc,
+      securityGroups,
     });
     table.grantWriteData(predictTitleFunction);
 
@@ -285,6 +295,7 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
+      securityGroups,
     });
 
     const generateVideoFunction = new NodejsFunction(this, 'GenerateVideo', {
@@ -306,6 +317,7 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
+      securityGroups,
     });
     for (const region of Object.keys(props.videoBucketRegionMap)) {
       const bucketName = props.videoBucketRegionMap[region];
@@ -341,6 +353,7 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
+      securityGroups,
     });
     for (const region of Object.keys(props.videoBucketRegionMap)) {
       const bucketName = props.videoBucketRegionMap[region];
@@ -377,6 +390,7 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(listVideoJobs);
     copyVideoJob.grantInvoke(listVideoJobs);
@@ -392,6 +406,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantWriteData(deleteVideoJob);
 
@@ -409,6 +424,7 @@ export class Api extends Construct {
           MODEL_REGION: modelRegion,
         },
         vpc,
+        securityGroups,
       }
     );
     optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
@@ -421,6 +437,7 @@ export class Api extends Construct {
         BUCKET_NAME: fileBucket.bucketName,
       },
       vpc,
+      securityGroups,
     });
     // Grant S3 write permissions with source IP condition
     if (getSignedUrlFunction.role) {
@@ -446,6 +463,7 @@ export class Api extends Construct {
           CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         },
         vpc,
+        securityGroups,
       }
     );
     // Grant S3 read permissions with source IP condition
@@ -540,6 +558,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantWriteData(createChatFunction);
 
@@ -551,6 +570,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(deleteChatFunction);
 
@@ -564,6 +584,7 @@ export class Api extends Construct {
         BUCKET_NAME: fileBucket.bucketName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(createMessagesFunction);
     props.statsTable.grantReadWriteData(createMessagesFunction);
@@ -579,6 +600,7 @@ export class Api extends Construct {
           TABLE_NAME: table.tableName,
         },
         vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(updateChatTitleFunction);
@@ -591,6 +613,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(listChatsFunction);
 
@@ -602,6 +625,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(findChatbyIdFunction);
 
@@ -613,6 +637,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(listMessagesFunction);
 
@@ -624,6 +649,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(updateFeedbackFunction);
 
@@ -632,6 +658,7 @@ export class Api extends Construct {
       entry: './lambda/getWebText.ts',
       timeout: Duration.minutes(15),
       vpc,
+      securityGroups,
     });
 
     const createShareId = new NodejsFunction(this, 'CreateShareId', {
@@ -642,6 +669,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(createShareId);
 
@@ -653,6 +681,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(getSharedChat);
 
@@ -664,6 +693,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(findShareId);
 
@@ -675,6 +705,7 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadWriteData(deleteShareId);
 
@@ -689,6 +720,7 @@ export class Api extends Construct {
           TABLE_NAME: table.tableName,
         },
         vpc,
+        securityGroups,
       }
     );
     table.grantReadData(listSystemContextsFunction);
@@ -704,6 +736,7 @@ export class Api extends Construct {
           TABLE_NAME: table.tableName,
         },
         vpc,
+        securityGroups,
       }
     );
     table.grantWriteData(createSystemContextFunction);
@@ -719,6 +752,7 @@ export class Api extends Construct {
           TABLE_NAME: table.tableName,
         },
         vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(updateSystemContextTitleFunction);
@@ -734,6 +768,7 @@ export class Api extends Construct {
           TABLE_NAME: table.tableName,
         },
         vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(deleteSystemContextFunction);
@@ -746,6 +781,7 @@ export class Api extends Construct {
         BUCKET_NAME: fileBucket.bucketName,
       },
       vpc,
+      securityGroups,
     });
     fileBucket.grantDelete(deleteFileFunction);
 
@@ -758,6 +794,7 @@ export class Api extends Construct {
         STATS_TABLE_NAME: props.statsTable.tableName,
       },
       vpc,
+      securityGroups,
     });
     table.grantReadData(getTokenUsageFunction);
     props.statsTable.grantReadData(getTokenUsageFunction);

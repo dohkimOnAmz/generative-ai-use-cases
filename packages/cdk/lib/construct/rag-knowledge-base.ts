@@ -10,7 +10,7 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
-import { IVpc } from 'aws-cdk-lib/aws-ec2';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface RagKnowledgeBaseProps {
   // Context Params
@@ -21,7 +21,10 @@ export interface RagKnowledgeBaseProps {
   readonly knowledgeBaseId: string;
   readonly userPool: UserPool;
   readonly api: RestApi;
+
+  // Closed network
   readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class RagKnowledgeBase extends Construct {
@@ -40,6 +43,7 @@ export class RagKnowledgeBase extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
       },
       vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
 
     if (!props.crossAccountBedrockRoleArn) {

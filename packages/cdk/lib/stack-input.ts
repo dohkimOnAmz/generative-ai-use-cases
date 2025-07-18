@@ -171,6 +171,7 @@ const baseStackInputSchema = z.object({
   closedNetworkCertificateArn: z.string().nullish(),
   closedNetworkDomainName: z.string().nullish(),
   closedNetwrokCreateTestEnvironment: z.boolean().default(true),
+  closedNetworkCreateResolverEndpoint: z.boolean().default(false),
 });
 
 // Common Validator with refine

@@ -19,7 +19,12 @@ import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
 import { ProcessedStackInput } from './stack-input';
 import { allowS3AccessWithSourceIpCondition } from './utils/s3-access-policy';
-import { InterfaceVpcEndpoint, IVpc } from 'aws-cdk-lib/aws-ec2';
+import {
+  InterfaceVpcEndpoint,
+  IVpc,
+  ISecurityGroup,
+  SecurityGroup,
+} from 'aws-cdk-lib/aws-ec2';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
@@ -62,6 +67,18 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     const params = props.params;
 
+    // Common security group for saving ENI in Closed network mode
+    let securityGroups: ISecurityGroup[] | undefined = undefined;
+    if (props.vpc) {
+      securityGroups = [
+        new SecurityGroup(this, 'LambdaSeurityGroup', {
+          vpc: props.vpc,
+          description: 'GenU Lambda Security Group',
+          allowAllOutbound: true,
+        }),
+      ];
+    }
+
     // Auth
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled: params.selfSignUpEnabled,
@@ -98,6 +115,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
       vpc: props.vpc,
+      securityGroups,
       apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
     });
 
@@ -131,6 +149,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       vpc: props.vpc,
+      securityGroups,
     });
 
     // MCP
@@ -141,6 +160,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         isSageMakerStudio: props.isSageMakerStudio,
         fileBucket: api.fileBucket,
         vpc: props.vpc,
+        securityGroups,
       });
       mcpEndpoint = mcpApi.endpoint;
     }
@@ -205,6 +225,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         userPool: auth.userPool,
         api: api.api,
         vpc: props.vpc,
+        securityGroups,
       });
 
       // Allow downloading files from the File API to the data source Bucket
@@ -238,6 +259,7 @@ export class GenerativeAiUseCasesStack extends Stack {
           userPool: auth.userPool,
           api: api.api,
           vpc: props.vpc,
+          securityGroups,
         });
         // Allow downloading files from the File API to the data source Bucket
         if (
@@ -263,6 +285,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         userPool: auth.userPool,
         api: api.api,
         vpc: props.vpc,
+        securityGroups,
       });
     }
 
@@ -274,6 +297,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       vpc: props.vpc,
+      securityGroups,
     });
 
     // Cfn Outputs

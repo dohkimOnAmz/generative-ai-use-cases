@@ -1,6 +1,6 @@
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { IVpc, SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, SubnetFilter, SubnetType } from 'aws-cdk-lib/aws-ec2';
 import {
   PrivateHostedZone,
   ARecord,
@@ -21,6 +21,7 @@ import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 
 export interface ClosedWebProps {
   vpc: IVpc;
+  subnetIds?: string[] | null;
   // For HTTPS listener
   hostedZone?: PrivateHostedZone;
   certificateArn?: string | null;
@@ -75,9 +76,13 @@ export class ClosedWeb extends Construct {
         cpuArchitecture: CpuArchitecture.X86_64,
         operatingSystemFamily: OperatingSystemFamily.LINUX,
       },
-      taskSubnets: {
-        subnetType: SubnetType.PRIVATE_ISOLATED,
-      },
+      taskSubnets: props.subnetIds
+        ? {
+            subnetFilters: [SubnetFilter.byIds(props.subnetIds)],
+          }
+        : {
+            subnetType: SubnetType.PRIVATE_ISOLATED,
+          },
       ...httpsProps,
     });
 

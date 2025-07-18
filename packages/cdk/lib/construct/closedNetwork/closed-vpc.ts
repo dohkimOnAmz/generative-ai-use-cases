@@ -20,6 +20,7 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
 
 export interface ClosedVpcProps {
   readonly vpcId?: string | null;
+  readonly subnetIds?: string[] | null;
   readonly ipv4Cidr: string;
   readonly domainName?: string | null;
 }
@@ -75,9 +76,13 @@ export class ClosedVpc extends Construct {
         {
           vpc,
           service,
-          subnets: {
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          },
+          subnets: props.subnetIds
+            ? {
+                subnetFilters: [ec2.SubnetFilter.byIds(props.subnetIds)],
+              }
+            : {
+                subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+              },
           securityGroups: [securityGroup],
           privateDnsEnabled: true,
         }

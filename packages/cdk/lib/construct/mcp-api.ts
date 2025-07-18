@@ -12,13 +12,14 @@ import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 import { NetworkMode } from 'aws-cdk-lib/aws-ecr-assets';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { IVpc } from 'aws-cdk-lib/aws-ec2';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface McpApiProps {
   readonly idPool: IdentityPool;
   readonly isSageMakerStudio: boolean;
   readonly fileBucket: Bucket;
   readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class McpApi extends Construct {
@@ -41,6 +42,7 @@ export class McpApi extends Construct {
         FILE_BUCKET: props.fileBucket.bucketName,
       },
       vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
 
     mcpFunction.role?.addToPrincipalPolicy(

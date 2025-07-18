@@ -9,6 +9,7 @@ import {
   ClosedWeb,
   CognitoPrivateProxy,
   WindowsRdp,
+  Resolver,
 } from './construct';
 
 export interface ClosedNetworkStackProps extends StackProps {
@@ -33,6 +34,7 @@ export class ClosedNetworkStack extends Stack {
       closedNetworkCertificateArn,
       closedNetworkDomainName,
       closedNetwrokCreateTestEnvironment,
+      closedNetworkCreateResolverEndpoint,
     } = props.params;
 
     const closedVpc = new ClosedVpc(this, 'ClosedVpc', {
@@ -60,15 +62,25 @@ export class ClosedNetworkStack extends Stack {
         ? `https://${closedVpc.hostedZone.zoneName}`
         : `http://${closedWeb.alb.loadBalancerDnsName}`;
 
+    new CfnOutput(this, 'WebUrl', {
+      value: webUrl,
+    });
+
+    if (closedNetworkCreateResolverEndpoint) {
+      const resolver = new Resolver(this, 'Resolver', {
+        vpc: closedVpc.vpc,
+      });
+
+      new CfnOutput(this, 'ResolverId', {
+        value: resolver.resolverEndpoint.ref,
+      });
+    }
+
     if (closedNetwrokCreateTestEnvironment) {
       new WindowsRdp(this, 'WindowsRdp', {
         vpc: closedVpc.vpc,
       });
     }
-
-    new CfnOutput(this, 'WebUrl', {
-      value: webUrl,
-    });
 
     this.vpc = closedVpc.vpc;
     this.webBucket = closedWeb.bucket;

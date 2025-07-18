@@ -11,6 +11,7 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
 
 export interface WindowsRdpProps {
   readonly vpc: ec2.IVpc;
+  readonly subnetIds?: string[] | null;
 }
 
 export class WindowsRdp extends Construct {
@@ -52,9 +53,13 @@ export class WindowsRdp extends Construct {
         {
           vpc: props.vpc,
           service,
-          subnets: {
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          },
+          subnets: props.subnetIds
+            ? {
+                subnetFilters: [ec2.SubnetFilter.byIds(props.subnetIds)],
+              }
+            : {
+                subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+              },
           securityGroups: [vpcEndpointSecurityGroup],
           privateDnsEnabled: true,
         }
@@ -76,9 +81,13 @@ export class WindowsRdp extends Construct {
 
     new ec2.Instance(this, 'windowsInstance', {
       vpc: props.vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-      },
+      vpcSubnets: props.subnetIds
+        ? {
+            subnetFilters: [ec2.SubnetFilter.byIds(props.subnetIds)],
+          }
+        : {
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          },
       securityGroup: windowsSecurityGroup,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.MEMORY6_INTEL,
