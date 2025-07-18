@@ -191,8 +191,6 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
         closedNetworkStack?.cognitoUserPoolProxyApi?.url ?? '',
       cognitoIdentityPoolProxyEndpoint:
         closedNetworkStack?.cognitoIdPoolProxyApi?.url ?? '',
-      // cognitoUserPoolProxyEndpoint: closedNetworkStack?.cognitoUserPoolProxyApi ? `${closedNetworkStack.cognitoUserPoolProxyApi.url.replace(/\/$/, '')}/auth` : '',
-      // cognitoIdentityPoolProxyEndpoint: closedNetworkStack?.cognitoIdPoolProxyApi ? `${closedNetworkStack.cognitoIdPoolProxyApi.url.replace(/\/$/, '')}/auth` : '',
     }
   );
 
