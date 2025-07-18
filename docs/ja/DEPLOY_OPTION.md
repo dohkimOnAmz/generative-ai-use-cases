@@ -1765,7 +1765,7 @@ Kendraのインデックスが削除されても、RAG機能はオンのまま�
 
 ### タグを設定する方法
 
-GenU ではコスト管理等に使うためのタグをサポートしています。
+GenU ではコスト管理等に使うためのタグをサポートしています。タグのキー名には、自動で `GenU` `が設定されます。
 以下に設定例を示します。
 
 `cdk.json` での設定方法
@@ -1774,10 +1774,7 @@ GenU ではコスト管理等に使うためのタグをサポートしていま
 // cdk.json
   ...
   "context": {
-    "tag": {
-      "key": "Name",
-      "value": "GenU"
-    },
+    "tagValue": "dev",
     ...
 ```
 
@@ -1785,11 +1782,7 @@ GenU ではコスト管理等に使うためのタグをサポートしていま
 
 ```typescript
     ...
-    tag: {
-      key: 'Name',
-      value: 'GenU',
-    },
-    selfSignUpEnabled: false,
+    tagValue: "dev",
     ...
 ```
 
