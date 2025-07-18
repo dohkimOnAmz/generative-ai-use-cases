@@ -29,8 +29,7 @@ export class ClosedNetworkStack extends Stack {
     const {
       closedNetworkVpcId,
       closedNetworkVpcIpv4Cidr,
-      // TODO
-      // closedNetworkSubnetIds,
+      closedNetworkSubnetIds,
       closedNetworkCertificateArn,
       closedNetworkDomainName,
       closedNetwrokCreateTestEnvironment,
@@ -39,12 +38,14 @@ export class ClosedNetworkStack extends Stack {
 
     const closedVpc = new ClosedVpc(this, 'ClosedVpc', {
       vpcId: closedNetworkVpcId,
+      subnetIds: closedNetworkSubnetIds,
       ipv4Cidr: closedNetworkVpcIpv4Cidr,
       domainName: closedNetworkDomainName,
     });
 
     const closedWeb = new ClosedWeb(this, 'ClosedWeb', {
       vpc: closedVpc.vpc,
+      subnetIds: closedNetworkSubnetIds,
       hostedZone: closedVpc?.hostedZone,
       certificateArn: closedNetworkCertificateArn,
     });
@@ -69,6 +70,7 @@ export class ClosedNetworkStack extends Stack {
     if (closedNetworkCreateResolverEndpoint) {
       const resolver = new Resolver(this, 'Resolver', {
         vpc: closedVpc.vpc,
+        subnetIds: closedNetworkSubnetIds,
       });
 
       new CfnOutput(this, 'ResolverId', {
@@ -79,6 +81,7 @@ export class ClosedNetworkStack extends Stack {
     if (closedNetwrokCreateTestEnvironment) {
       new WindowsRdp(this, 'WindowsRdp', {
         vpc: closedVpc.vpc,
+        subnetIds: closedNetworkSubnetIds,
       });
     }
 
