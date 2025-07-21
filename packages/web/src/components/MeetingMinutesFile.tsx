@@ -6,9 +6,6 @@ import React, {
   useEffect,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import queryString from 'query-string';
 import Button from './Button';
 import ButtonCopy from './ButtonCopy';
 import ButtonSendToUseCase from './ButtonSendToUseCase';
@@ -17,18 +14,17 @@ import Switch from './Switch';
 import RangeSlider from './RangeSlider';
 import ExpandableField from './ExpandableField';
 import Textarea from './Textarea';
-import MeetingMinutesGeneration from './MeetingMinutesGeneration';
 import useTranscribe from '../hooks/useTranscribe';
-import useMeetingMinutes, {
-  MeetingMinutesStyle,
-} from '../hooks/useMeetingMinutes';
-import { MODELS } from '../hooks/useModel';
 
-interface MeetingMinutesFileProps {}
+interface MeetingMinutesFileProps {
+  /** Callback when transcript text changes */
+  onTranscriptChange?: (text: string) => void;
+}
 
-const MeetingMinutesFile: React.FC<MeetingMinutesFileProps> = () => {
+const MeetingMinutesFile: React.FC<MeetingMinutesFileProps> = ({
+  onTranscriptChange,
+}) => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Transcription hook
@@ -41,33 +37,6 @@ const MeetingMinutesFile: React.FC<MeetingMinutesFileProps> = () => {
   const [speakerLabel, setSpeakerLabel] = useState(false);
   const [maxSpeakers, setMaxSpeakers] = useState(4);
   const [speakers, setSpeakers] = useState('');
-  const [minutesStyle, setMinutesStyle] = useState<MeetingMinutesStyle>('faq');
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [autoGenerate, setAutoGenerate] = useState(false);
-  const [generationFrequency, setGenerationFrequency] = useState(5);
-  const [autoGenerateSessionTimestamp, setAutoGenerateSessionTimestamp] =
-    useState<number | null>(null);
-  const [generatedMinutes, setGeneratedMinutes] = useState('');
-  const [, setLastProcessedTranscript] = useState('');
-  const [lastGeneratedTime, setLastGeneratedTime] = useState<Date | null>(null);
-
-  // Model selection
-  const { modelIds: availableModels, modelDisplayName } = MODELS;
-  const [modelId, setModelId] = useState(availableModels[0] || '');
-
-  // Meeting minutes hook
-  const {
-    loading: minutesLoading,
-    generateMinutes,
-    clearMinutes,
-  } = useMeetingMinutes(
-    minutesStyle,
-    customPrompt,
-    autoGenerateSessionTimestamp,
-    setGeneratedMinutes,
-    setLastProcessedTranscript,
-    setLastGeneratedTime
-  );
 
   // Language options
   const languageOptions = useMemo(
@@ -143,8 +112,9 @@ const MeetingMinutesFile: React.FC<MeetingMinutesFileProps> = () => {
         .join('\n');
 
       setFileTranscriptText(fileText);
+      onTranscriptChange?.(fileText);
     }
-  }, [transcriptData, speakerMapping]);
+  }, [transcriptData, speakerMapping, onTranscriptChange]);
 
   // Text existence check
   const hasTranscriptText = useMemo(() => {
@@ -175,176 +145,109 @@ const MeetingMinutesFile: React.FC<MeetingMinutesFileProps> = () => {
       fileInputRef.current.value = '';
     }
     clear();
-  }, [clear]);
-
-  // Manual generation handler
-  const handleManualGeneration = useCallback(() => {
-    if (
-      minutesStyle === 'custom' &&
-      (!customPrompt || customPrompt.trim() === '')
-    ) {
-      toast.error(t('meetingMinutes.custom_prompt_placeholder'));
-      return;
-    }
-
-    if (hasTranscriptText && !minutesLoading) {
-      generateMinutes(fileTranscriptText, modelId, (status) => {
-        if (status === 'success') {
-          toast.success(t('meetingMinutes.generation_success'));
-        } else if (status === 'error') {
-          toast.error(t('meetingMinutes.generation_error'));
-        }
-      });
-    }
-  }, [
-    hasTranscriptText,
-    fileTranscriptText,
-    minutesLoading,
-    modelId,
-    generateMinutes,
-    t,
-    minutesStyle,
-    customPrompt,
-  ]);
-
-  // Clear minutes handler
-  const handleClearMinutes = useCallback(() => {
-    clearMinutes();
-  }, [clearMinutes]);
+    onTranscriptChange?.('');
+  }, [clear, onTranscriptChange]);
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Left Column - File Upload */}
-      <div>
-        {/* File Upload Content */}
-        <div className="mb-4">
-          <div className="p-2">
-            <input
-              className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
-                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
-                file:px-4 file:py-2.5 file:text-white focus:outline-none"
-              onChange={handleFileChange}
-              aria-describedby="file_input_help"
-              id="file_input"
-              type="file"
-              accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
-              ref={fileInputRef}></input>
-            <p
-              className="ml-0.5 mt-1 text-xs text-gray-500"
-              id="file_input_help">
-              {t('transcribe.supported_files')}
-            </p>
-          </div>
-        </div>
-
-        {/* Language Selection */}
-        <div className="mb-4 px-2">
-          <label className="mb-2 block font-bold">
-            {t('meetingMinutes.language')}
-          </label>
-          <Select
-            value={languageCode}
-            onChange={setLanguageCode}
-            options={languageOptions}
-          />
-        </div>
-
-        {/* Speaker Recognition Parameters */}
-        <ExpandableField
-          label={t('transcribe.detailed_parameters')}
-          className="mb-4"
-          notItem={true}>
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <Switch
-              label={t('transcribe.speaker_recognition')}
-              checked={speakerLabel}
-              onSwitch={setSpeakerLabel}
-            />
-            {speakerLabel && (
-              <RangeSlider
-                className=""
-                label={t('transcribe.max_speakers')}
-                min={2}
-                max={10}
-                value={maxSpeakers}
-                onChange={setMaxSpeakers}
-                help={t('transcribe.max_speakers_help')}
-              />
-            )}
-          </div>
-          {speakerLabel && (
-            <div className="mt-2">
-              <Textarea
-                placeholder={t('transcribe.speaker_names')}
-                value={speakers}
-                onChange={setSpeakers}
-              />
-            </div>
-          )}
-        </ExpandableField>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3">
-          <Button outlined disabled={disableClearExec} onClick={onClickClear}>
-            {t('common.clear')}
-          </Button>
-          <Button disabled={disabledExec} onClick={onClickExec}>
-            {t('meetingMinutes.speech_recognition')}
-          </Button>
-        </div>
-
-        {/* Transcript Panel */}
-        <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="font-bold">{t('meetingMinutes.transcript')}</div>
-            {hasTranscriptText && (
-              <div className="flex">
-                <ButtonCopy
-                  text={fileTranscriptText}
-                  interUseCasesKey="transcript"></ButtonCopy>
-                <ButtonSendToUseCase text={fileTranscriptText} />
-              </div>
-            )}
-          </div>
-          <textarea
-            value={fileTranscriptText}
-            placeholder={t('transcribe.result_placeholder')}
-            rows={10}
-            className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
-            readOnly
-          />
-          {loading && (
-            <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-          )}
+    <div>
+      {/* File Upload Content */}
+      <div className="mb-4">
+        <div className="p-2">
+          <input
+            className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+              text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+              file:px-4 file:py-2.5 file:text-white focus:outline-none"
+            onChange={handleFileChange}
+            aria-describedby="file_input_help"
+            id="file_input"
+            type="file"
+            accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
+            ref={fileInputRef}></input>
+          <p className="ml-0.5 mt-1 text-xs text-gray-500" id="file_input_help">
+            {t('transcribe.supported_files')}
+          </p>
         </div>
       </div>
 
-      {/* Right Column - Minutes Generation */}
-      <div>
-        <MeetingMinutesGeneration
-          minutesStyle={minutesStyle}
-          onMinutesStyleChange={setMinutesStyle}
-          modelId={modelId}
-          onModelChange={setModelId}
-          availableModels={availableModels}
-          modelDisplayName={modelDisplayName}
-          customPrompt={customPrompt}
-          onCustomPromptChange={setCustomPrompt}
-          autoGenerate={autoGenerate}
-          onAutoGenerateChange={setAutoGenerate}
-          onAutoGenerateSessionTimestampChange={setAutoGenerateSessionTimestamp}
-          generationFrequency={generationFrequency}
-          onGenerationFrequencyChange={setGenerationFrequency}
-          countdownSeconds={0}
-          hasTranscriptText={hasTranscriptText}
-          minutesLoading={minutesLoading}
-          onManualGeneration={handleManualGeneration}
-          onClearMinutes={handleClearMinutes}
-          generatedMinutes={generatedMinutes}
-          lastGeneratedTime={lastGeneratedTime}
-          navigate={navigate}
-          queryString={queryString}
+      {/* Language Selection */}
+      <div className="mb-4 px-2">
+        <label className="mb-2 block font-bold">
+          {t('meetingMinutes.language')}
+        </label>
+        <Select
+          value={languageCode}
+          onChange={setLanguageCode}
+          options={languageOptions}
         />
+      </div>
+
+      {/* Speaker Recognition Parameters */}
+      <ExpandableField
+        label={t('transcribe.detailed_parameters')}
+        className="mb-4"
+        notItem={true}>
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          <Switch
+            label={t('transcribe.speaker_recognition')}
+            checked={speakerLabel}
+            onSwitch={setSpeakerLabel}
+          />
+          {speakerLabel && (
+            <RangeSlider
+              className=""
+              label={t('transcribe.max_speakers')}
+              min={2}
+              max={10}
+              value={maxSpeakers}
+              onChange={setMaxSpeakers}
+              help={t('transcribe.max_speakers_help')}
+            />
+          )}
+        </div>
+        {speakerLabel && (
+          <div className="mt-2">
+            <Textarea
+              placeholder={t('transcribe.speaker_names')}
+              value={speakers}
+              onChange={setSpeakers}
+            />
+          </div>
+        )}
+      </ExpandableField>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-3">
+        <Button outlined disabled={disableClearExec} onClick={onClickClear}>
+          {t('common.clear')}
+        </Button>
+        <Button disabled={disabledExec} onClick={onClickExec}>
+          {t('meetingMinutes.speech_recognition')}
+        </Button>
+      </div>
+
+      {/* Transcript Panel */}
+      <div className="mt-6">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="font-bold">{t('meetingMinutes.transcript')}</div>
+          {hasTranscriptText && (
+            <div className="flex">
+              <ButtonCopy
+                text={fileTranscriptText}
+                interUseCasesKey="transcript"></ButtonCopy>
+              <ButtonSendToUseCase text={fileTranscriptText} />
+            </div>
+          )}
+        </div>
+        <textarea
+          value={fileTranscriptText}
+          placeholder={t('transcribe.result_placeholder')}
+          rows={10}
+          className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
+          readOnly
+        />
+        {loading && (
+          <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+        )}
       </div>
     </div>
   );

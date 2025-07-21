@@ -37,6 +37,7 @@ common:
   cancel: キャンセル
   clear: クリア
   close: 閉じる
+  collapse: 折りたたみ
   colon: ':'
   complete: 完了
   create: 作成
@@ -45,6 +46,7 @@ common:
   error: エラー
   errorNoSuggestions: 候補が見つかりませんでした。
   execute: 実行
+  expand: 展開
   export: エクスポート
   feedback_received: フィードバックを受け付けました。ありがとうございます。
   here: こちら
@@ -519,17 +521,21 @@ mcp_chat:
   title: MCP チャット
 meetingMinutes:
   auto_generate: 自動生成
+  clear_minutes: 議事録をクリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
   frequency: 生成頻度
   frequency_10min: 10分ごと
   frequency_1min: 1分ごと
+  frequency_3min: 3分ごと
   frequency_5min: 5分ごと
   generate: 生成
+  generate_minutes: 議事録を生成
   generate_minutes_header: 議事録を生成
   generated_minutes: 生成された議事録
   generating: 議事録生成中...
   generation_error: 議事録の生成に失敗しました。再試行してください。
+  generation_frequency: 生成頻度
   generation_success: 議事録が正常に生成されました
   language: 言語
   language_auto: 自動検出
@@ -542,14 +548,18 @@ meetingMinutes:
   last_generated: 最後の生成時刻 {{time}}
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: モデル
+  next_generation: 次回生成
   next_generation_in: '次回生成まで : '
+  no_transcript: 文字起こしがありません
   record_transcribe: 音声認識
   screen_audio_error: スクリーン音声エラー
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
+  style_detail: 詳細
   style_faq: 質疑応答
   style_newspaper: 新聞
+  style_summary: 要約
   style_transcription: 文字起こし
   title: 議事録生成
   transcript: 文字起こし

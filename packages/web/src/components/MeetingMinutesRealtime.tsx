@@ -6,9 +6,6 @@ import React, {
   useEffect,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import queryString from 'query-string';
 import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
 import { Transcript } from 'generative-ai-use-cases';
 import Button from './Button';
@@ -20,14 +17,9 @@ import RangeSlider from './RangeSlider';
 import ExpandableField from './ExpandableField';
 import Textarea from './Textarea';
 import ScreenAudioToggle from './ScreenAudioToggle';
-import MeetingMinutesGeneration from './MeetingMinutesGeneration';
 import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import useMicrophone from '../hooks/useMicrophone';
 import useScreenAudio from '../hooks/useScreenAudio';
-import useMeetingMinutes, {
-  MeetingMinutesStyle,
-} from '../hooks/useMeetingMinutes';
-import { MODELS } from '../hooks/useModel';
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -39,15 +31,17 @@ interface RealtimeSegment {
   transcripts: Transcript[];
 }
 
-interface MeetingMinutesRealtimeProps {}
+interface MeetingMinutesRealtimeProps {
+  /** Callback when transcript text changes */
+  onTranscriptChange?: (text: string) => void;
+}
 
-const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = () => {
+const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
+  onTranscriptChange,
+}) => {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const transcriptTextareaRef = useRef<HTMLTextAreaElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const shouldGenerateRef = useRef<boolean>(false);
 
   // Microphone and screen audio hooks
   const {
@@ -77,34 +71,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = () => {
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
   const [realtimeSegments, setRealtimeSegments] = useState<RealtimeSegment[]>(
     []
-  );
-  const [minutesStyle, setMinutesStyle] = useState<MeetingMinutesStyle>('faq');
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [autoGenerate, setAutoGenerate] = useState(false);
-  const [generationFrequency, setGenerationFrequency] = useState(5);
-  const [autoGenerateSessionTimestamp, setAutoGenerateSessionTimestamp] =
-    useState<number | null>(null);
-  const [generatedMinutes, setGeneratedMinutes] = useState('');
-  const [lastProcessedTranscript, setLastProcessedTranscript] = useState('');
-  const [lastGeneratedTime, setLastGeneratedTime] = useState<Date | null>(null);
-  const [countdownSeconds, setCountdownSeconds] = useState(0);
-
-  // Model selection
-  const { modelIds: availableModels, modelDisplayName } = MODELS;
-  const [modelId, setModelId] = useState(availableModels[0] || '');
-
-  // Meeting minutes hook
-  const {
-    loading: minutesLoading,
-    generateMinutes,
-    clearMinutes,
-  } = useMeetingMinutes(
-    minutesStyle,
-    customPrompt,
-    autoGenerateSessionTimestamp,
-    setGeneratedMinutes,
-    setLastProcessedTranscript,
-    setLastGeneratedTime
   );
 
   // Language options
@@ -211,6 +177,11 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = () => {
     return realtimeText.trim() !== '';
   }, [realtimeText]);
 
+  // Update callback when transcript changes
+  useEffect(() => {
+    onTranscriptChange?.(realtimeText);
+  }, [realtimeText, onTranscriptChange]);
+
   // Real-time integration of raw transcripts
   const updateRealtimeSegments = useCallback((newSegment: RealtimeSegment) => {
     setRealtimeSegments((prev) => {
@@ -277,11 +248,13 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = () => {
     stopScreenTranscription();
     clearMicTranscripts();
     clearScreenTranscripts();
+    onTranscriptChange?.('');
   }, [
     stopMicTranscription,
     stopScreenTranscription,
     clearMicTranscripts,
     clearScreenTranscripts,
+    onTranscriptChange,
   ]);
 
   // Start transcription
@@ -319,264 +292,134 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = () => {
     clearScreenTranscripts,
   ]);
 
-  // Watch for generation signal and trigger generation
-  useEffect(() => {
-    if (
-      shouldGenerateRef.current &&
-      autoGenerate &&
-      realtimeText.trim() !== ''
-    ) {
-      if (realtimeText !== lastProcessedTranscript && !minutesLoading) {
-        shouldGenerateRef.current = false;
-        generateMinutes(realtimeText, modelId, (status) => {
-          if (status === 'success') {
-            toast.success(t('meetingMinutes.generation_success'));
-          } else if (status === 'error') {
-            toast.error(t('meetingMinutes.generation_error'));
-          }
-        });
-      } else {
-        shouldGenerateRef.current = false;
-      }
-    }
-  }, [
-    countdownSeconds,
-    autoGenerate,
-    realtimeText,
-    lastProcessedTranscript,
-    minutesLoading,
-    generateMinutes,
-    modelId,
-    t,
-  ]);
-
-  // Auto-generation countdown setup
-  useEffect(() => {
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = null;
-    }
-
-    if (!autoGenerate || generationFrequency <= 0) {
-      setCountdownSeconds(0);
-      return;
-    }
-
-    const totalSeconds = generationFrequency * 60;
-    setCountdownSeconds(totalSeconds);
-
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdownSeconds((prev) => {
-        const newValue = prev - 1;
-        if (newValue <= 0) {
-          shouldGenerateRef.current = true;
-          return totalSeconds;
-        }
-        return newValue;
-      });
-    }, 1000);
-
-    return () => {
-      if (countdownIntervalRef.current) {
-        clearInterval(countdownIntervalRef.current);
-      }
-    };
-  }, [autoGenerate, generationFrequency]);
-
-  // Manual generation handler
-  const handleManualGeneration = useCallback(() => {
-    if (
-      minutesStyle === 'custom' &&
-      (!customPrompt || customPrompt.trim() === '')
-    ) {
-      toast.error(t('meetingMinutes.custom_prompt_placeholder'));
-      return;
-    }
-
-    if (hasTranscriptText && !minutesLoading) {
-      generateMinutes(realtimeText, modelId, (status) => {
-        if (status === 'success') {
-          toast.success(t('meetingMinutes.generation_success'));
-        } else if (status === 'error') {
-          toast.error(t('meetingMinutes.generation_error'));
-        }
-      });
-    }
-  }, [
-    hasTranscriptText,
-    realtimeText,
-    minutesLoading,
-    modelId,
-    generateMinutes,
-    t,
-    minutesStyle,
-    customPrompt,
-  ]);
-
-  // Clear minutes handler
-  const handleClearMinutes = useCallback(() => {
-    clearMinutes();
-  }, [clearMinutes]);
-
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Left Column - Microphone Input */}
-      <div>
-        {/* Microphone Input Content */}
-        <div className="mb-4">
-          <div className="p-2">
-            <div className="flex justify-center">
-              {isRecording ? (
-                <Button
-                  className="h-10 w-full"
-                  onClick={() => {
-                    stopMicTranscription();
-                    stopScreenTranscription();
-                  }}>
-                  <PiStopCircleBold className="mr-2 h-5 w-5" />
-                  {t('transcribe.stop_recording')}
-                </Button>
-              ) : (
-                <Button
-                  className="h-10 w-full"
-                  onClick={onClickExecStartTranscription}
-                  outlined={true}>
-                  <PiMicrophoneBold className="mr-2 h-5 w-5" />
-                  {t('transcribe.start_recording')}
-                </Button>
-              )}
-            </div>
-            <ScreenAudioToggle
-              enabled={enableScreenAudio}
-              onToggle={setEnableScreenAudio}
-              isSupported={isScreenAudioSupported}
-            />
-          </div>
-        </div>
-
-        {/* Language Selection */}
-        <div className="mb-4 px-2">
-          <label className="mb-2 block font-bold">
-            {t('meetingMinutes.language')}
-          </label>
-          <Select
-            value={languageCode}
-            onChange={setLanguageCode}
-            options={languageOptions}
-          />
-        </div>
-
-        {/* Speaker Recognition Parameters */}
-        <ExpandableField
-          label={t('transcribe.detailed_parameters')}
-          className="mb-4"
-          notItem={true}>
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <Switch
-              label={t('transcribe.speaker_recognition')}
-              checked={speakerLabel}
-              onSwitch={setSpeakerLabel}
-            />
-            {speakerLabel && (
-              <RangeSlider
-                className=""
-                label={t('transcribe.max_speakers')}
-                min={2}
-                max={10}
-                value={maxSpeakers}
-                onChange={setMaxSpeakers}
-                help={t('transcribe.max_speakers_help')}
-              />
+    <div>
+      {/* Microphone Input Content */}
+      <div className="mb-4">
+        <div className="p-2">
+          <div className="flex justify-center">
+            {isRecording ? (
+              <Button
+                className="h-10 w-full"
+                onClick={() => {
+                  stopMicTranscription();
+                  stopScreenTranscription();
+                }}>
+                <PiStopCircleBold className="mr-2 h-5 w-5" />
+                {t('transcribe.stop_recording')}
+              </Button>
+            ) : (
+              <Button
+                className="h-10 w-full"
+                onClick={onClickExecStartTranscription}
+                outlined={true}>
+                <PiMicrophoneBold className="mr-2 h-5 w-5" />
+                {t('transcribe.start_recording')}
+              </Button>
             )}
           </div>
-          {speakerLabel && (
-            <div className="mt-2">
-              <Textarea
-                placeholder={t('transcribe.speaker_names')}
-                value={speakers}
-                onChange={setSpeakers}
-              />
-            </div>
-          )}
-        </ExpandableField>
-
-        {/* Screen Audio Error Display */}
-        {screenAudioError && (
-          <div className="mb-4 mt-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
-            <strong>{t('meetingMinutes.screen_audio_error')}</strong>
-            {t('common.colon')} {screenAudioError}
-          </div>
-        )}
-
-        {/* Clear Button */}
-        <div className="flex justify-end gap-3">
-          <Button
-            outlined
-            disabled={!hasTranscriptText && !isRecording}
-            onClick={handleClear}>
-            {t('common.clear')}
-          </Button>
-        </div>
-
-        {/* Transcript Panel */}
-        <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="font-bold">{t('meetingMinutes.transcript')}</div>
-            {hasTranscriptText && (
-              <div className="flex">
-                <ButtonCopy
-                  text={realtimeText}
-                  interUseCasesKey="transcript"></ButtonCopy>
-                <ButtonSendToUseCase text={realtimeText} />
-              </div>
-            )}
-          </div>
-          <textarea
-            ref={transcriptTextareaRef}
-            value={realtimeText}
-            onScroll={(e) => {
-              const target = e.target as HTMLTextAreaElement;
-              const isAtBottom =
-                Math.abs(
-                  target.scrollHeight - target.clientHeight - target.scrollTop
-                ) < 3;
-              if (isAtBottomRef.current) {
-                isAtBottomRef.current = isAtBottom;
-              }
-            }}
-            placeholder={t('transcribe.result_placeholder')}
-            rows={10}
-            className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
-            readOnly
+          <ScreenAudioToggle
+            enabled={enableScreenAudio}
+            onToggle={setEnableScreenAudio}
+            isSupported={isScreenAudioSupported}
           />
         </div>
       </div>
 
-      {/* Right Column - Minutes Generation */}
-      <div>
-        <MeetingMinutesGeneration
-          minutesStyle={minutesStyle}
-          onMinutesStyleChange={setMinutesStyle}
-          modelId={modelId}
-          onModelChange={setModelId}
-          availableModels={availableModels}
-          modelDisplayName={modelDisplayName}
-          customPrompt={customPrompt}
-          onCustomPromptChange={setCustomPrompt}
-          autoGenerate={autoGenerate}
-          onAutoGenerateChange={setAutoGenerate}
-          onAutoGenerateSessionTimestampChange={setAutoGenerateSessionTimestamp}
-          generationFrequency={generationFrequency}
-          onGenerationFrequencyChange={setGenerationFrequency}
-          countdownSeconds={countdownSeconds}
-          hasTranscriptText={hasTranscriptText}
-          minutesLoading={minutesLoading}
-          onManualGeneration={handleManualGeneration}
-          onClearMinutes={handleClearMinutes}
-          generatedMinutes={generatedMinutes}
-          lastGeneratedTime={lastGeneratedTime}
-          navigate={navigate}
-          queryString={queryString}
+      {/* Language Selection */}
+      <div className="mb-4 px-2">
+        <label className="mb-2 block font-bold">
+          {t('meetingMinutes.language')}
+        </label>
+        <Select
+          value={languageCode}
+          onChange={setLanguageCode}
+          options={languageOptions}
+        />
+      </div>
+
+      {/* Speaker Recognition Parameters */}
+      <ExpandableField
+        label={t('transcribe.detailed_parameters')}
+        className="mb-4"
+        notItem={true}>
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          <Switch
+            label={t('transcribe.speaker_recognition')}
+            checked={speakerLabel}
+            onSwitch={setSpeakerLabel}
+          />
+          {speakerLabel && (
+            <RangeSlider
+              className=""
+              label={t('transcribe.max_speakers')}
+              min={2}
+              max={10}
+              value={maxSpeakers}
+              onChange={setMaxSpeakers}
+              help={t('transcribe.max_speakers_help')}
+            />
+          )}
+        </div>
+        {speakerLabel && (
+          <div className="mt-2">
+            <Textarea
+              placeholder={t('transcribe.speaker_names')}
+              value={speakers}
+              onChange={setSpeakers}
+            />
+          </div>
+        )}
+      </ExpandableField>
+
+      {/* Screen Audio Error Display */}
+      {screenAudioError && (
+        <div className="mb-4 mt-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <strong>{t('meetingMinutes.screen_audio_error')}</strong>
+          {t('common.colon')} {screenAudioError}
+        </div>
+      )}
+
+      {/* Clear Button */}
+      <div className="flex justify-end gap-3">
+        <Button
+          outlined
+          disabled={!hasTranscriptText && !isRecording}
+          onClick={handleClear}>
+          {t('common.clear')}
+        </Button>
+      </div>
+
+      {/* Transcript Panel */}
+      <div className="mt-6">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="font-bold">{t('meetingMinutes.transcript')}</div>
+          {hasTranscriptText && (
+            <div className="flex">
+              <ButtonCopy
+                text={realtimeText}
+                interUseCasesKey="transcript"></ButtonCopy>
+              <ButtonSendToUseCase text={realtimeText} />
+            </div>
+          )}
+        </div>
+        <textarea
+          ref={transcriptTextareaRef}
+          value={realtimeText}
+          onScroll={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            const isAtBottom =
+              Math.abs(
+                target.scrollHeight - target.clientHeight - target.scrollTop
+              ) < 3;
+            if (isAtBottomRef.current) {
+              isAtBottomRef.current = isAtBottom;
+            }
+          }}
+          placeholder={t('transcribe.result_placeholder')}
+          rows={10}
+          className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
+          readOnly
         />
       </div>
     </div>
