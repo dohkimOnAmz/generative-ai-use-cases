@@ -37,6 +37,7 @@ common:
   cancel: Hủy
   clear: Xóa
   close: Đóng
+  collapse: Thu gọn
   colon: ':'
   complete: Hoàn thành
   create: Tạo
@@ -45,6 +46,7 @@ common:
   error: Lỗi
   errorNoSuggestions: Không tìm thấy gợi ý.
   execute: Thực hiện
+  expand: Mở rộng
   feedback_received: Đã nhận phản hồi. Cảm ơn bạn.
   here: Tại đây
   load_more: Tải thêm
@@ -542,17 +544,20 @@ language:
   zh: Tiếng Trung
 meetingMinutes:
   auto_generate: Tự động tạo
+  clear_minutes: Xóa biên bản
   custom_prompt: Lời nhắc tùy chỉnh
   custom_prompt_placeholder: Nhập lời nhắc tùy chỉnh để tạo biên bản cuộc họp...
   frequency: Tần suất tạo
   frequency_10min: Mỗi 10 phút
   frequency_1min: Mỗi phút
+  frequency_3min: Mỗi 3 phút
   frequency_5min: Mỗi 5 phút
   generate: Tạo
   generate_minutes_header: Tạo biên bản
   generated_minutes: Biên bản đã được tạo
   generating: Đang tạo biên bản...
   generation_error: Không thể tạo biên bản cuộc họp. Vui lòng thử lại.
+  generation_frequency: Tần suất tạo
   generation_success: Tạo biên bản cuộc họp thành công
   language: Ngôn ngữ
   language_auto: Tự động phát hiện
@@ -565,14 +570,18 @@ meetingMinutes:
   last_generated: Tạo lần cuối {{time}}
   minutes_placeholder: Biên bản sẽ xuất hiện ở đây sau khi tạo
   model: Mô hình
+  next_generation: Tạo tiếp theo
   next_generation_in: 'Tạo tiếp theo trong : '
+  no_transcript: Không có bản chuyển đổi
   record_transcribe: Ghi âm và chuyển đổi
   screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
   style_custom: Tùy chỉnh
+  style_detail: Chi tiết
   style_faq: FAQ
   style_newspaper: Báo chí
+  style_summary: Tóm tắt
   style_transcription: Chuyển đổi
   title: Trình tạo biên bản cuộc họp
   transcript: Bản chuyển đổi

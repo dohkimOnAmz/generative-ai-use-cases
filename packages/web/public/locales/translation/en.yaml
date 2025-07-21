@@ -39,6 +39,7 @@ common:
   cancel: Cancel
   clear: Clear
   close: Close
+  collapse: Collapse
   colon: ':'
   complete: Complete
   create: Create
@@ -47,6 +48,7 @@ common:
   error: An error occurred
   errorNoSuggestions: No suggestions were found.
   execute: Execute
+  expand: Expand
   export: Export
   feedback_received: Feedback received. Thank you.
   here: here
@@ -658,17 +660,20 @@ mcp_chat:
   title: MCP Chat
 meetingMinutes:
   auto_generate: Auto Generate
+  clear_minutes: Clear Minutes
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
   frequency: Generation Frequency
   frequency_10min: Every 10 minutes
   frequency_1min: Every 1 minute
+  frequency_3min: Every 3 minutes
   frequency_5min: Every 5 minutes
   generate: Generate
   generate_minutes_header: Generate Meeting Minutes
   generated_minutes: Generated Minutes
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
+  generation_frequency: Generation Frequency
   generation_success: Meeting minutes generated successfully
   language: Language
   language_auto: Auto Detect
@@ -681,14 +686,18 @@ meetingMinutes:
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
   model: Model
+  next_generation: Next Generation
   next_generation_in: 'Next generation in : '
+  no_transcript: No Transcript
   record_transcribe: Record & Transcribe
   screen_audio_error: Screen Audio Error
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
+  style_detail: Detail
   style_faq: FAQ
   style_newspaper: Newspaper
+  style_summary: Summary
   style_transcription: Transcription
   title: Meeting Minutes Generator
   transcript: Transcript

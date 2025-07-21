@@ -45,7 +45,7 @@ const MeetingMinutesPage: React.FC = () => {
       </div>
 
       {/* Main Content Area - Left & Right columns only */}
-      <div className="grid grid-cols-12 gap-2 lg:flex lg:flex-row lg:gap-2">
+      <div className="my-2 grid grid-cols-12 gap-2 lg:flex lg:flex-row lg:gap-2">
         {/* Left Column - Tab Content */}
         <div
           className={`col-span-12 ml-4 transition-all duration-300 ease-in-out lg:ml-4 ${
@@ -124,10 +124,10 @@ const MeetingMinutesPage: React.FC = () => {
 
         {/* Right Column - Generation Panel */}
         <div
-          className={`col-span-12 ml-4 transition-all duration-500 ease-in-out lg:mr-4 ${
+          className={`col-span-12 my-2 ml-4 transition-all duration-500 ease-in-out lg:my-0 lg:ml-0 lg:mr-4 ${
             isGenerationPanelCollapsed
-              ? 'lg:flex-[0_0_4em]'
-              : 'lg:flex-[0_0_40%]'
+              ? 'lg:flex-[0_0_4em] xl:flex-[0_0_4em] 2xl:flex-[0_0_5em]'
+              : 'lg:flex-[0_0_42%] xl:flex-[0_0_43%] 2xl:flex-[0_0_44%]'
           }`}>
           <Card>
             <MeetingMinutesGeneration

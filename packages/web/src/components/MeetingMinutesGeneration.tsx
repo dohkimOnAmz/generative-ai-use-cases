@@ -48,7 +48,6 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
   const [generationFrequency, setGenerationFrequency] = useState(5);
   const [autoGenerateSessionTimestamp] = useState<number | null>(null);
   const [generatedMinutes, setGeneratedMinutes] = useState('');
-  const [lastProcessedTranscript, setLastProcessedTranscript] = useState('');
   const [countdownSeconds, setCountdownSeconds] = useState(0);
 
   // Model selection
@@ -65,7 +64,8 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     customPrompt,
     autoGenerateSessionTimestamp,
     setGeneratedMinutes,
-    setLastProcessedTranscript
+    () => {}, // Empty function for setLastProcessedTranscript
+    () => {} // Empty function for setLastGeneratedTime
   );
 
   // Text existence check
@@ -80,7 +80,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
       autoGenerate &&
       transcriptText.trim() !== ''
     ) {
-      if (transcriptText !== lastProcessedTranscript && !minutesLoading) {
+      if (!minutesLoading) {
         shouldGenerateRef.current = false;
         generateMinutes(transcriptText, modelId, (status) => {
           if (status === 'success') {
@@ -97,7 +97,6 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     countdownSeconds,
     autoGenerate,
     transcriptText,
-    lastProcessedTranscript,
     minutesLoading,
     generateMinutes,
     modelId,
@@ -180,12 +179,11 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
       {isCollapsed ? (
         // Collapsed UI
         <div className="p-0 transition-opacity duration-200 lg:p-0">
-          <div className="flex justify-center lg:justify-start">
+          <div className="flex justify-center">
             <button
               className="inline-flex items-center rounded-md bg-white px-0.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
               onClick={onToggleCollapse}>
               <PiCaretLeft className="h-3 w-3 xl:mr-0" />
-              <span className="hidden 2xl:inline">{t('common.expand')}</span>
             </button>
           </div>
         </div>
@@ -341,13 +339,6 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
               <div className="max-h-96 overflow-y-auto overflow-x-hidden rounded border border-black/30 p-3">
                 <Markdown>{generatedMinutes}</Markdown>
               </div>
-            </div>
-          )}
-
-          {/* Status display */}
-          {!hasTranscriptText && (
-            <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
-              {t('meetingMinutes.no_transcript')}
             </div>
           )}
         </div>
