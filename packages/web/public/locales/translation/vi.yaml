@@ -37,6 +37,7 @@ common:
   cancel: Hủy
   clear: Xóa
   close: Đóng
+  colon: ':'
   complete: Hoàn thành
   create: Tạo
   delete: Xóa
@@ -566,6 +567,7 @@ meetingMinutes:
   model: Mô hình
   next_generation_in: 'Tạo tiếp theo trong : '
   record_transcribe: Ghi âm và chuyển đổi
+  screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
   style_custom: Tùy chỉnh
@@ -696,7 +698,7 @@ transcribe:
   mic_input: Đầu vào microphone
   result_placeholder: Kết quả nhận dạng giọng nói sẽ được hiển thị ở đây
   screen_audio: Âm thanh màn hình
-  screen_audio_error: 'Lỗi âm thanh màn hình:'
+  screen_audio_error: Lỗi âm thanh màn hình
   screen_audio_notice: 'Đối với Windows: Chọn tab "Toàn bộ màn hình" và bật "Chia sẻ âm thanh hệ thống".<br/>Đối với Mac: Chọn "Chrome Tab" và bật "Also share tab audio".<br/>Chrome và Edge hoạt động. Firefox không hoạt động.'
   select_input_method: Vui lòng chọn từ đầu vào microphone hoặc tải lên tệp
   speaker_names: Tên người nói (phân cách bằng dấu phẩy)

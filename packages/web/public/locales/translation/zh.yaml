@@ -34,6 +34,7 @@ common:
   cancel: 取消
   clear: 清除
   close: 关闭
+  colon: ':'
   complete: 完成
   create: 创建
   delete: 删除
@@ -470,6 +471,7 @@ meetingMinutes:
   model: 模型
   next_generation_in: '下次生成时间 :'
   record_transcribe: 录音和转录
+  screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别
   style: 会议纪要风格
   style_custom: 自定义

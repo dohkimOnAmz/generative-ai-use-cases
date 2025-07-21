@@ -37,6 +37,7 @@ common:
   cancel: ยกเลิก
   clear: ล้าง
   close: ปิด
+  colon: ':'
   complete: เสร็จสิ้น
   create: สร้าง
   delete: ลบ
@@ -582,6 +583,7 @@ meetingMinutes:
   model: โมเดล
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   record_transcribe: บันทึกและถอดความ
+  screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   speech_recognition: การรู้จำเสียงพูด
   style: รูปแบบรายงานการประชุม
   style_custom: กำหนดเอง
@@ -718,7 +720,7 @@ transcribe:
   mic_input: อินพุตไมโครโฟน
   result_placeholder: ข้อความที่แปลงจากเสียงของคุณ
   screen_audio: เสียงหน้าจอ
-  screen_audio_error: 'ข้อผิดพลาดเสียงหน้าจอ:'
+  screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   screen_audio_notice: 'สำหรับ Windows: เลือกแท็บ "หน้าจอทั้งหมด" และเปิด "แชร์เสียงระบบด้วย"<br/>สำหรับ Mac: เลือก "Chrome Tab" และเปิด "Also share tab audio"<br/>Chrome และ Edge ใช้งานได้ Firefox ใช้งานไม่ได้'
   select_input_method: โปรดเลือกจากอินพุตไมโครโฟนหรืออัปโหลดไฟล์
   speaker_names: ชื่อผู้พูด (คั่นด้วยเครื่องหมายจุลภาค)

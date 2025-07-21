@@ -39,6 +39,7 @@ common:
   cancel: Cancel
   clear: Clear
   close: Close
+  colon: ':'
   complete: Complete
   create: Create
   delete: Delete
@@ -682,6 +683,7 @@ meetingMinutes:
   model: Model
   next_generation_in: 'Next generation in : '
   record_transcribe: Record & Transcribe
+  screen_audio_error: Screen Audio Error
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
@@ -844,7 +846,7 @@ transcribe:
   mic_input: Microphone Input
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
-  screen_audio_error: 'Screen Audio Error:'
+  screen_audio_error: Screen Audio Error
   screen_audio_notice: 'For Windows: Select "Entire Screen" tab and turn ON "Share system audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab audio".<br/>Chrome and Edge work. Firefox does not work.'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
