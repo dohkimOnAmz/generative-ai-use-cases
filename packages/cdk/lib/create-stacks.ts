@@ -24,34 +24,6 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
   let closedNetworkStack: ClosedNetworkStack | undefined = undefined;
 
   if (params.closedNetworkMode) {
-    const region =
-      app.region ?? params.region ?? process.env.CDK_DEFAULT_REGION;
-
-    if (region !== params.modelRegion) {
-      throw new Error(
-        `The app region and modelRegion must be same if closedNetworkMode=true (${region} vs ${params.modelRegion})`
-      );
-    }
-
-    const modelRegions = [
-      ...new Set(params.modelIds.map((model) => model.region)),
-    ];
-
-    if (modelRegions.length !== 1 || modelRegions[0] !== region) {
-      throw new Error(
-        'You cannot specify the regions other than the app region if closedNetworkMode=true'
-      );
-    }
-
-    if (
-      params.crossAccountBedrockRoleArn &&
-      params.crossAccountBedrockRoleArn.length > 0
-    ) {
-      throw new Error(
-        'You cannot specify crossAccountBedrockRoleArn if closedNetworkMode=true'
-      );
-    }
-
     closedNetworkStack = new ClosedNetworkStack(
       app,
       `ClosedNetworkStack${params.env}`,

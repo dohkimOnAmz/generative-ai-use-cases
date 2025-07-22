@@ -34,7 +34,36 @@ export class ClosedNetworkStack extends Stack {
       closedNetworkDomainName,
       closedNetwrokCreateTestEnvironment,
       closedNetworkCreateResolverEndpoint,
+      modelRegion,
+      modelIds,
+      crossAccountBedrockRoleArn,
     } = props.params;
+
+    if (this.region !== modelRegion) {
+      throw new Error(
+        `The app region and modelRegion must be same if closedNetworkMode=true (${this.region} vs ${modelRegion})`
+      );
+    }
+
+    const modelRegions = [
+      ...new Set(
+        modelIds.map(
+          (model: { modelId: string; region: string }) => model.region
+        )
+      ),
+    ];
+
+    if (modelRegions.length !== 1 || modelRegions[0] !== this.region) {
+      throw new Error(
+        'You cannot specify the regions other than the app region if closedNetworkMode=true'
+      );
+    }
+
+    if (crossAccountBedrockRoleArn && crossAccountBedrockRoleArn.length > 0) {
+      throw new Error(
+        'You cannot specify crossAccountBedrockRoleArn if closedNetworkMode=true'
+      );
+    }
 
     const closedVpc = new ClosedVpc(this, 'ClosedVpc', {
       vpcId: closedNetworkVpcId,
