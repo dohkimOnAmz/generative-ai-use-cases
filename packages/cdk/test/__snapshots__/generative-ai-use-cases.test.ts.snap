@@ -167,11 +167,15 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
             "Arn",
           ],
         },
+        "accountId": "123456890123",
         "collectionId": {
           "Ref": "Collection",
         },
         "region": "us-east-1",
-        "tagsHash": "{"CostCenter":"DataAnalytics","Project":"GenAI","Environment":""}",
+        "tag": {
+          "key": "GenU",
+          "value": "",
+        },
       },
       "Type": "Custom::ApplyTags",
       "UpdateReplacePolicy": "Delete",
@@ -236,6 +240,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
             {
               "Action": [
                 "aoss:TagResource",
+                "aoss:UntagResource",
                 "aoss:ListTagsForResource",
               ],
               "Effect": "Allow",
@@ -243,7 +248,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:aoss:us-east-1:*:collection/",
+                    "arn:aws:aoss:us-east-1:123456890123:collection/",
                     {
                       "Ref": "Collection",
                     },
