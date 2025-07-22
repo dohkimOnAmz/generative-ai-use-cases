@@ -11,6 +11,7 @@ import {
   CommonWebAcl,
   SpeechToSpeech,
   McpApi,
+  AgentCore,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -133,6 +134,17 @@ export class GenerativeAiUseCasesStack extends Stack {
       mcpEndpoint = mcpApi.endpoint;
     }
 
+    // AgentCore Runtime
+    let agentCore: AgentCore | undefined;
+    if (params.agentCoreEnabled) {
+      agentCore = new AgentCore(this, 'AgentCore', {
+        agentCoreEnabled: params.agentCoreEnabled,
+        agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
+        idPool: auth.idPool,
+        fileBucket: api.fileBucket,
+      });
+    }
+
     // Web Frontend
     const web = new Web(this, 'Api', {
       // Auth
@@ -167,6 +179,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
+      agentCoreEnabled: params.agentCoreEnabled,
+      agentCoreGenericRuntime: agentCore
+        ? {
+            name: agentCore.getGenericRuntimeConfig().name,
+            arn: agentCore.getDeployedRuntimeArns()[0] || '', // Generic runtime ARN
+          }
+        : undefined,
+      agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
       // Frontend
       hiddenUseCases: params.hiddenUseCases,
       // Custom Domain
@@ -381,6 +401,23 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'McpEndpoint', {
       value: mcpEndpoint ?? '',
+    });
+
+    new CfnOutput(this, 'AgentCoreEnabled', {
+      value: params.agentCoreEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'AgentCoreGenericRuntime', {
+      value: agentCore
+        ? JSON.stringify({
+            name: agentCore.getGenericRuntimeConfig().name,
+            arn: agentCore.getDeployedRuntimeArns()[0] || '',
+          })
+        : 'null',
+    });
+
+    new CfnOutput(this, 'AgentCoreExternalRuntimes', {
+      value: JSON.stringify(params.agentCoreExternalRuntimes),
     });
 
     this.userPool = auth.userPool;
