@@ -71,7 +71,7 @@ const useAgentCorePageState = create<StateType>((set) => {
 
 const AgentCorePage: React.FC = () => {
   const { t } = useTranslation();
-  const pageTitle = t('agent_core.runtime', 'AgentCore Runtime');
+  const pageTitle = t('agent_core.title', 'AgentCore');
   const { pathname } = useLocation();
   const { content, setContent } = useAgentCorePageState();
 
@@ -287,7 +287,7 @@ const AgentCorePage: React.FC = () => {
             <p className="mt-4 text-gray-500">
               {t(
                 'agent_core.start_conversation',
-                'Start a conversation with Agent Core'
+                'Start a conversation with AgentCore'
               )}
             </p>
           </div>

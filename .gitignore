@@ -10,4 +10,5 @@ site*/
 .cache
 
 # Coding Asssitant
-.kiro
+.kiro/settings
+.kiro/specs

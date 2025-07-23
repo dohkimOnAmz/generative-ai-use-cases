@@ -141,7 +141,7 @@ const App: React.FC = () => {
       : null,
     agentCoreEnabled
       ? {
-          label: t('AgentCore'),
+          label: t('agent_core.title'),
           to: '/agent-core',
           icon: <PiRobot />,
           display: 'usecase' as const,
