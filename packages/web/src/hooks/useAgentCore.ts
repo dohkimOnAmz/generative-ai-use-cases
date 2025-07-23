@@ -32,8 +32,6 @@ const useAgentCore = (id: string) => {
   } = useChat(id);
   const { postMessage, loading } = useAgentCoreApi(id);
 
-  // We're now using the shared utility functions from strandsUtils.ts
-
   const invokeAgentRuntime = async (
     agentRuntimeArn: string,
     sessionId: string,

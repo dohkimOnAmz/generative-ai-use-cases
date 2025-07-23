@@ -24,6 +24,7 @@ export const convertToStrandsFormat = (messages: UnrecordedMessage[]) => {
         strandsContent = [{ text: msg.content }];
       }
       // Handle extraData if present (images, files, etc.)
+      // TODO: Refactor
       else if (msg.extraData && msg.extraData.length > 0) {
         strandsContent = [];
 
@@ -115,6 +116,7 @@ export const processStrandsContent = (
 
   let extractedText = '';
 
+  // TODO: Refactor
   for (const block of contentBlocks) {
     // Handle different content block types based on their keys
     if ('text' in block) {
@@ -169,6 +171,7 @@ export const processStrandsContent = (
  * Convert Strands format response to the format expected by the frontend
  */
 export const convertStrandsToGenU = (strandsData: string): string => {
+  // TODO: Refactor
   try {
     // Try to parse the data as JSON
     const parsed = JSON.parse(strandsData);

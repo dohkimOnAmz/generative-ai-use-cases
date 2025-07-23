@@ -157,7 +157,6 @@ async function updateAgentRuntime(
 
 /**
  * Delete AgentCore Runtime using AWS SDK
- * Simplified approach following CTC best practices
  */
 async function deleteAgentRuntime(
   client: BedrockAgentCoreControlClient,
