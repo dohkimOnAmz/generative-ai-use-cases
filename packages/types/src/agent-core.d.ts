@@ -1,4 +1,4 @@
-import { UnrecordedMessage, Model } from './message';
+import { Model } from './message';
 
 export type AgentCoreConfiguration = {
   name: string;

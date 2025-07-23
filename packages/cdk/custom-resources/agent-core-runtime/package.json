@@ -1,5 +1,6 @@
 {
   "name": "agent-core-runtime-custom-resource",
+  "private": true,
   "version": "1.0.0",
   "description": "CustomResource for managing AWS Bedrock AgentCore Runtimes",
   "main": "index.js",
