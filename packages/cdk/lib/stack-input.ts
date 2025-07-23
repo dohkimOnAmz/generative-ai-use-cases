@@ -170,7 +170,7 @@ const baseStackInputSchema = z.object({
   closedNetworkSubnetIds: z.array(z.string()).nullish(),
   closedNetworkCertificateArn: z.string().nullish(),
   closedNetworkDomainName: z.string().nullish(),
-  closedNetwrokCreateTestEnvironment: z.boolean().default(true),
+  closedNetworkCreateTestEnvironment: z.boolean().default(true),
   closedNetworkCreateResolverEndpoint: z.boolean().default(false),
 });
 

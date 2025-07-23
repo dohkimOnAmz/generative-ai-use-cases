@@ -32,7 +32,7 @@ export class ClosedNetworkStack extends Stack {
       closedNetworkSubnetIds,
       closedNetworkCertificateArn,
       closedNetworkDomainName,
-      closedNetwrokCreateTestEnvironment,
+      closedNetworkCreateTestEnvironment,
       closedNetworkCreateResolverEndpoint,
       modelRegion,
       modelIds,
@@ -107,7 +107,7 @@ export class ClosedNetworkStack extends Stack {
       });
     }
 
-    if (closedNetwrokCreateTestEnvironment) {
+    if (closedNetworkCreateTestEnvironment) {
       new WindowsRdp(this, 'WindowsRdp', {
         vpc: closedVpc.vpc,
         subnetIds: closedNetworkSubnetIds,

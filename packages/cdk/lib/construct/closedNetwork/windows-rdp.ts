@@ -15,8 +15,6 @@ export interface WindowsRdpProps {
 }
 
 export class WindowsRdp extends Construct {
-  public readonly apiGatewayVpcEndpoint: ec2.InterfaceVpcEndpoint;
-
   constructor(scope: Construct, id: string, props: WindowsRdpProps) {
     super(scope, id);
 
