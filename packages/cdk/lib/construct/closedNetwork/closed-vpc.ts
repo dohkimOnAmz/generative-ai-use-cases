@@ -69,6 +69,24 @@ export class ClosedVpc extends Construct {
       ec2.Port.tcp(443)
     );
 
+    const securityGroupWebSocket = new ec2.SecurityGroup(
+      this,
+      'SecurityGroupWebSocket',
+      {
+        vpc,
+      }
+    );
+
+    securityGroupWebSocket.addIngressRule(
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
+      ec2.Port.tcp(443)
+    );
+
+    securityGroupWebSocket.addIngressRule(
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
+      ec2.Port.tcp(8443)
+    );
+
     for (const [name, service] of Object.entries(VPC_ENDPOINTS)) {
       const vpcEndpoint = new ec2.InterfaceVpcEndpoint(
         this,
@@ -83,7 +101,11 @@ export class ClosedVpc extends Construct {
             : {
                 subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
               },
-          securityGroups: [securityGroup],
+          securityGroups: [
+            name !== 'TranscribeStreaming'
+              ? securityGroup
+              : securityGroupWebSocket,
+          ],
           privateDnsEnabled: true,
         }
       );
