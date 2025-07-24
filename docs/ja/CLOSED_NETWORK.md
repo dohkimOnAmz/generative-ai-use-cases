@@ -135,7 +135,7 @@ Certificate body には ssl.crt の中身、Certificate private key には ssl.k
 
 ここでは 2 つの前提を置きます。
 
-- オンプレから AWS に接続するルートはすでに確立している。(ClosedNetworkStack で利用する VPC の IP アドレスを指定すれば、その先のリソースにたどり着ける状態のことです。)
+- オンプレから AWS に接続するルートはすでに確立している。(ClosedNetworkStack で作成した or にインポートした VPC の IP アドレスを指定すれば、その先のリソースにたどり着ける状態のことです。)
 - Route53 の Resolver Endpoint は作成済み。(Resolver Endpoint は closedNetworkCreateResolverEndpoint を true にしてデプロイすることで作成されます。このパラメータはデフォルトで true です。)
 
 クライアントから名前解決が必要なエンドポイントは以下の通りです。`<>` で囲まれた箇所は実際の値に置き換えが必要です。
@@ -151,9 +151,11 @@ Certificate body には ssl.crt の中身、Certificate private key には ssl.k
 | Amazon Transcribe Streaming | リアルタイム文字起こし         | transcribestreaming.\<region>.amazonaws.com                 | エンドポイントは固定                                                                     |
 | Amazon Polly                | 文字の読み上げ                 | polly.\<region>.amazonaws.com                               | エンドポイントは固定                                                                     |
 
-上の表のすべてのエンドポイントに対して Resolver Endpoint の IP アドレスを指定するように DNS サーバーの設定を変更してください。
+上の表のすべてのエンドポイントのリゾルバー (フォワーダー) として Resolver Endpoint の IP アドレスを指定するように DNS サーバーの設定を変更してください。
 Resolver Endpoint の IP アドレスは、[Route53](https://console.aws.amazon.com/route53resolver) を開き、Inbound endpoints を選択して、作成したエンドポイントをクリックすることで確認できます。
-なお、「Application Load Balancer に独自のドメインを設定している場合」を除き、すべてのエンドポイントは amazonaws.com ドメインです。そのため、amazonaws.com の DNS サーバーとして Resolver Endpoint の IP アドレスを指定する方法が最も簡略的な設定です。ただし、この場合は対象範囲が広く、副作用が否定できないため、可能であれば各エンドポイントの FQDN で設定をいれることを推奨いたします。動作確認のために、手元の端末にネームサーバーとして Resolver Endpoint の IP を設定することは特に問題ありません。(この場合も副作用は否定できないため、動作検証後には設定を戻すことを推奨いたします。)
+なお、「Application Load Balancer に独自のドメインを設定している場合」を除き、すべてのエンドポイントは amazonaws.com ドメインです。そのため、amazonaws.com のリゾルバーとして Resolver Endpoint の IP アドレスを指定する方法が最も簡略的な設定です。ただし、この設定は対象範囲が広く、副作用が大きいため、各エンドポイントの FQDN で設定をいれることを強く推奨いたします。
+
+動作確認のために、手元の端末に DNS サーバーとして Resolver Endpoint の IP を設定することもできます。ただし、この場合も副作用の懸念から、動作検証後には設定を戻すことを強く推奨いたします。
 
 ### /etc/hosts を設定して動作検証する場合
 
