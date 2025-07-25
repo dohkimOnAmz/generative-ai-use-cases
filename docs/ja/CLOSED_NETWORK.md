@@ -5,7 +5,7 @@
 
 - Amazon CloudFront は利用せず、Web の静的ファイルは Application Load Balancer と ECS Fargate でサーブします。
 - Amazon Cognito へは Amazon API Gateway を経由してアクセスします。
-- AWS サービス間の通信は基本的に VPC Endpoint 経由で行います。
+- Lambda 関数から他サービスへの通信は VPC Endpoint 経由で行います。
 
 閉域モードに関するオプションは `closedNetwork` プレフィックスがついています。以下がオプション一覧です。
 
@@ -23,11 +23,11 @@
 ## 現状の制約
 
 - デプロイはインターネットに疎通可能な環境で行う必要があります。また、動作検証環境にはマネージメントコンソールからアクセスするため、その場合もインターネット疎通が必要になります。
-- 様々なリソースを作成するため、既存の VPC をインポートする場合は可能な限り clean な環境を利用することを推奨します。
-- Voice Chat のユースケースは現状利用できません。(AppSync Event API の VPC Endpoint がないため)
 - GenU がデプロイされるリージョンとモデルのリージョンは同一である必要があります。GenU を ap-northeast-1 にデプロイし、us-east-1 のモデルを利用するといったことは現状できません。
+- 様々なリソースを作成するため、既存の VPC をインポートする場合は可能な限り clean な環境を利用することを推奨します。
 - 別アカウントの Bedrock を利用するオプション `crossAccountBedrockRoleArn` は現状利用できません。
 - SAML 連携は利用できません。
+- Voice Chat のユースケースは現状利用できません。
 
 ## 有効な設定ファイルの例
 
@@ -63,8 +63,6 @@ const envs: Record<string, Partial<StackInput>> = {
       'subnet-11111111111111111',
       'subnet-22222222222222222',
     ],
-    // Route53 Resolver Endpoint を作成する場合
-    closedNetworkCreateResolverEndpoint: true,
   },
 };
 ```
@@ -81,7 +79,7 @@ closedNetworkCreateTestEnvironment を true にしてデプロイした場合の
 
 ### 手順1. EC2 Key Pair の Private Key の取得
 
-Windows インスタンスに RDP で接続するために EC2 に設定した Key Pair の Private Key を取得します。Private Key を取得するためのコマンドは `WindowsRdpGetSSMKeyCommand...` で始まる ClosedNetworkStack の出力に表示されています。
+Windows インスタンスに RDP で接続するために EC2 に設定した Key Pair の private key を取得します。private pey を取得するためのコマンドは `WindowsRdpGetSSMKeyCommand...` で始まる ClosedNetworkStack の出力に表示されています。
 以下のようなものです。
 
 ```bash
