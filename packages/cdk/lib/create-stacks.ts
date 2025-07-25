@@ -189,6 +189,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     : null;
 
   return {
+    closedNetworkStack,
     cloudFrontWafStack,
     ragKnowledgeBaseStack,
     agentStack,

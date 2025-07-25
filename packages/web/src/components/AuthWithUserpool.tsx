@@ -19,21 +19,6 @@ type Props = {
 const AuthWithUserpool: React.FC<Props> = (props) => {
   const { t, i18n } = useTranslation();
 
-  const h = {
-    userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
-    userPoolClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
-    identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
-    ...(cognitoUserPoolProxyEndpoint && cognitoIdentityPoolProxyEndpoint
-      ? {
-          userPoolEndpoint: cognitoUserPoolProxyEndpoint,
-          identityPoolEndpoint: cognitoIdentityPoolProxyEndpoint,
-          region: import.meta.env.VITE_APP_REGION,
-        }
-      : {}),
-  };
-
-  console.log(h);
-
   Amplify.configure({
     Auth: {
       Cognito: {
