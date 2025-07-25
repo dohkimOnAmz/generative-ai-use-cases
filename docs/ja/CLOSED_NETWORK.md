@@ -69,7 +69,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ## デプロイ方法
 
-`closedNetwork...` オプションを設定した上で通常のデプロイ手順でデプロイしてください。ClosedNetworkStack\<環境名> というスタックが追加でデプロイされます。(便宜上、これ以降は \<環境名> を省略します。)
+`closedNetwork...` オプションを設定した上で [README.md](/README_ja.md) に記載されている通常の手順でデプロイしてください。ClosedNetworkStack\<環境名> というスタックが追加でデプロイされます。(便宜上、これ以降は \<環境名> を省略します。)
 GenU にアクセスするための URL は ClosedNetworkStack の WebUrl に出力されます。GenerativeAiUseCasesStack の WebUrl ではないことに注意してください。
 また、GenerativeAiUseCasesStack のデプロイが完了するまでは GenU にアクセスできません。
 

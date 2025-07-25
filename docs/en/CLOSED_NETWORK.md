@@ -69,7 +69,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ## Deployment Method
 
-After configuring the `closedNetwork...` options, deploy using the normal deployment procedure. An additional stack called ClosedNetworkStack\<environment name> will be deployed. (For convenience, \<environment name> will be omitted hereafter.)
+After configuring the `closedNetwork...` options, deploy using the normal procedure written in [README.md](/README.md). An additional stack called ClosedNetworkStack\<environment name> will be deployed. (For convenience, \<environment name> will be omitted hereafter.)
 The URL for accessing GenU is output in the WebUrl of ClosedNetworkStack. Note that it's not the WebUrl of GenerativeAiUseCasesStack.
 Also, GenU cannot be accessed until the deployment of GenerativeAiUseCasesStack is complete.
 
