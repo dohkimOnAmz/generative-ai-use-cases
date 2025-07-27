@@ -1,467 +1,27 @@
 import { Construct } from 'constructs';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
-import {
-  Effect,
-  Policy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-  ManagedPolicy,
-} from 'aws-cdk-lib/aws-iam';
+import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { AgentCoreConfiguration } from 'generative-ai-use-cases';
-import { CustomResource, Duration, Stack } from 'aws-cdk-lib';
-import { Provider } from 'aws-cdk-lib/custom-resources';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { Repository } from 'aws-cdk-lib/aws-ecr';
-import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
-import * as path from 'path';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
-
-export interface AgentCoreRuntimeConfig {
-  name: string;
-  instructions?: string;
-  memorySize?: number;
-  customRuntimeConfig?: Record<string, unknown>;
-  dockerPath?: string; // Docker file path of AgentCore Runtime
-  networkMode?: string; // PUBLIC
-  serverProtocol?: string; // HTTP, MCP
-  environmentVariables?: Record<string, string>;
-}
 
 export interface AgentCoreProps {
-  readonly agentCoreEnabled: boolean;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly idPool: IdentityPool;
-  readonly fileBucket: Bucket;
+  readonly genericRuntimeArn?: string; // ARN from the separate AgentCore stack
+  readonly genericRuntimeName?: string; // Name from the separate AgentCore stack
 }
 
-// UUID for Agent Core Runtime
-const AGENT_CORE_RUNTIME_UUID = 'B8F5E892-3A1C-4D2F-9B7E-6C8A5F9D2E1B';
-
 export class AgentCore extends Construct {
-  private _deployedGenericRuntimeArn?: string;
-  private _ecrRepository?: Repository;
-  private _mcpApiImageUri?: string;
-  private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
-
-  private _fileBucket?: Bucket;
+  private readonly _genericRuntimeArn?: string;
+  private readonly _genericRuntimeName?: string;
 
   constructor(scope: Construct, id: string, props: AgentCoreProps) {
     super(scope, id);
 
-    // Store the file bucket for S3 permissions
-    this._fileBucket = props.fileBucket;
-
-    // Default configuration for Generic AgentCore Runtime
-    this.genericRuntimeConfig = {
-      name: 'GenericAgentCoreRuntime',
-      instructions: 'You are a helpful assistant powered by AWS Bedrock.',
-      memorySize: 2048,
-      dockerPath: 'lambda-python/generic-agent-core-runtime',
-      networkMode: 'PUBLIC',
-      serverProtocol: 'HTTP',
-    };
-
-    // Deploy generic AgentCore Runtime if enabled
-    if (props.agentCoreEnabled) {
-      const result = this.deployGenericRuntime();
-      this._ecrRepository = result.repository;
-      this._mcpApiImageUri = result.imageUri;
-    }
+    this._genericRuntimeArn = props.genericRuntimeArn;
+    this._genericRuntimeName = props.genericRuntimeName;
 
     // Grant invoke permissions to identity pool
     this.grantInvokePermissions(props.idPool, props.agentCoreExternalRuntimes);
-  }
-
-  /**
-   * Deploy the generic AgentCore Runtime
-   */
-  private deployGenericRuntime(): { repository: Repository; imageUri: string } {
-    const dockerImageAsset = this.createDockerImageAsset();
-    const { customResourceRole, agentCoreRuntimeRole } = this.createIamRoles();
-    const customResourceProvider =
-      this.createCustomResourceProvider(customResourceRole);
-
-    const customResource = this.createAgentCoreRuntime(
-      'GenericAgentCoreRuntime',
-      this.genericRuntimeConfig,
-      agentCoreRuntimeRole,
-      customResourceProvider,
-      dockerImageAsset.imageUri
-    );
-
-    // Get the actual runtime ARN and ID from CustomResource response
-    this._deployedGenericRuntimeArn = customResource.getAttString(
-      'AgentCoreRuntimeArn'
-    );
-
-    return dockerImageAsset;
-  }
-
-  /**
-   * Create Docker image asset for the MCP API
-   */
-  private createDockerImageAsset(): {
-    repository: Repository;
-    imageUri: string;
-  } {
-    const dockerPath =
-      this.genericRuntimeConfig.dockerPath ||
-      'lambda-python/generic-agent-core-runtime';
-    const pathName = dockerPath.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-
-    const repository = new Repository(this, 'AgentCoreRuntimeRepository', {
-      repositoryName: `${pathName}-${Stack.of(this).stackName.toLowerCase()}`,
-      imageScanOnPush: true,
-    });
-
-    const dockerAsset = new DockerImageAsset(
-      this,
-      'AgentCoreRuntimeDockerAsset',
-      {
-        directory: path.join(__dirname, `../../${dockerPath}`),
-        platform: Platform.LINUX_ARM64, // AgentCore for ARM platform
-      }
-    );
-
-    return {
-      repository,
-      imageUri: dockerAsset.imageUri,
-    };
-  }
-
-  /**
-   * Create IAM roles for AgentCore operations
-   */
-  private createIamRoles(): {
-    customResourceRole: Role;
-    agentCoreRuntimeRole: Role;
-  } {
-    const customResourceRole = this.createCustomResourceRole();
-    const agentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
-
-    return { customResourceRole, agentCoreRuntimeRole };
-  }
-
-  /**
-   * Create IAM role for Custom Resource operations
-   */
-  private createCustomResourceRole(): Role {
-    const role = new Role(this, 'AgentCoreCustomResourceRole', {
-      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSLambdaBasicExecutionRole'
-        ),
-      ],
-    });
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'BedrockAgentCorePermissions',
-        effect: Effect.ALLOW,
-        actions: ['bedrock-agentcore:*'],
-        resources: ['*'],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'IAMPassRolePermissions',
-        effect: Effect.ALLOW,
-        actions: ['iam:PassRole'],
-        resources: ['*'],
-        conditions: {
-          StringEquals: {
-            'iam:PassedToService': 'bedrock-agentcore.amazonaws.com',
-          },
-        },
-      })
-    );
-
-    return role;
-  }
-
-  /**
-   * Create IAM role for AgentCore Runtime execution with comprehensive permissions
-   */
-  private createAgentCoreRuntimeRole(): Role {
-    const role = new Role(this, 'AgentCoreRuntimeRole', {
-      assumedBy: new ServicePrincipal('bedrock-agentcore.amazonaws.com', {
-        conditions: {
-          StringEquals: {
-            'aws:SourceAccount': Stack.of(this).account,
-          },
-          ArnLike: {
-            'aws:SourceArn': `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:*`,
-          },
-        },
-      }),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSLambdaBasicExecutionRole'
-        ),
-      ],
-    });
-
-    this.addBedrockPermissions(role);
-    this.addEcrPermissions(role);
-    this.addLoggingPermissions(role);
-    this.addMonitoringPermissions(role);
-    this.addWorkloadPermissions(role);
-    this.addS3Permissions(role);
-
-    return role;
-  }
-
-  /**
-   * Add Bedrock model access permissions
-   */
-  private addBedrockPermissions(role: Role): void {
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'BedrockPermissions',
-        effect: Effect.ALLOW,
-        actions: [
-          'bedrock:InvokeModel',
-          'bedrock:InvokeModelWithResponseStream',
-        ],
-        resources: ['*'],
-      })
-    );
-  }
-
-  /**
-   * Add ECR access permissions
-   */
-  private addEcrPermissions(role: Role): void {
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'ECRImageAccess',
-        effect: Effect.ALLOW,
-        actions: ['ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'],
-        resources: [
-          `arn:aws:ecr:${Stack.of(this).region}:${Stack.of(this).account}:repository/*`,
-        ],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'ECRTokenAccess',
-        effect: Effect.ALLOW,
-        actions: ['ecr:GetAuthorizationToken'],
-        resources: ['*'],
-      })
-    );
-  }
-
-  /**
-   * Add CloudWatch Logs permissions
-   */
-  private addLoggingPermissions(role: Role): void {
-    const logGroupArn = `arn:aws:logs:${Stack.of(this).region}:${Stack.of(this).account}:log-group:/aws/bedrock-agentcore/runtimes/*`;
-
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['logs:DescribeLogStreams', 'logs:CreateLogGroup'],
-        resources: [logGroupArn],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['logs:DescribeLogGroups'],
-        resources: [
-          `arn:aws:logs:${Stack.of(this).region}:${Stack.of(this).account}:log-group:*`,
-        ],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
-        resources: [`${logGroupArn}:log-stream:*`],
-      })
-    );
-  }
-
-  /**
-   * Add monitoring permissions (X-Ray, CloudWatch)
-   */
-  private addMonitoringPermissions(role: Role): void {
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: [
-          'xray:PutTraceSegments',
-          'xray:PutTelemetryRecords',
-          'xray:GetSamplingRules',
-          'xray:GetSamplingTargets',
-        ],
-        resources: ['*'],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['cloudwatch:PutMetricData'],
-        resources: ['*'],
-        conditions: {
-          StringEquals: {
-            'cloudwatch:namespace': 'bedrock-agentcore',
-          },
-        },
-      })
-    );
-  }
-
-  /**
-   * Add AgentCore workload access permissions
-   */
-  private addWorkloadPermissions(role: Role): void {
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'GetAgentAccessToken',
-        effect: Effect.ALLOW,
-        actions: [
-          'bedrock-agentcore:GetWorkloadAccessToken',
-          'bedrock-agentcore:GetWorkloadAccessTokenForJWT',
-          'bedrock-agentcore:GetWorkloadAccessTokenForUserId',
-        ],
-        resources: [
-          `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:workload-identity-directory/default`,
-          `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:workload-identity-directory/default/workload-identity/*`,
-        ],
-      })
-    );
-  }
-
-  /**
-   * Add S3 permissions for file bucket access
-   */
-  private addS3Permissions(role: Role): void {
-    if (this._fileBucket) {
-      // Grant write permissions to the file bucket
-      this._fileBucket.grantWrite(role);
-
-      // Add additional S3 permissions if needed
-      role.addToPolicy(
-        new PolicyStatement({
-          sid: 'S3BucketAccess',
-          effect: Effect.ALLOW,
-          actions: [
-            's3:GetObject',
-            's3:PutObject',
-            's3:ListBucket',
-            's3:DeleteObject',
-          ],
-          resources: [
-            this._fileBucket.bucketArn,
-            `${this._fileBucket.bucketArn}/*`,
-          ],
-        })
-      );
-    }
-  }
-
-  /**
-   * Get or create a singleton NodejsFunction using unique ID pattern
-   */
-  private getOrCreateSingletonFunction(
-    uniqueId: string,
-    functionName: string,
-    entry: string,
-    role: Role
-  ): NodejsFunction {
-    const stack = Stack.of(this);
-    const singletonId = `Singleton-${uniqueId}`;
-
-    // Try to find existing function in the stack scope
-    const existingConstruct = stack.node.tryFindChild(singletonId);
-
-    if (existingConstruct && existingConstruct instanceof NodejsFunction) {
-      // Reuse existing function
-      return existingConstruct;
-    }
-
-    // Create new NodejsFunction
-    return new NodejsFunction(stack, singletonId, {
-      functionName: `${functionName}-${Stack.of(this).stackName}-${uniqueId.slice(0, 8)}`,
-      description: `${functionName} CustomResource Lambda Function (Singleton)`,
-      runtime: Runtime.NODEJS_18_X,
-      entry,
-      handler: 'handler',
-      timeout: Duration.minutes(10),
-      role,
-      environment: {
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      },
-      bundling: {
-        minify: false,
-        target: 'es2020',
-        nodeModules: ['@aws-sdk/client-bedrock-agentcore-control'],
-      },
-    });
-  }
-
-  /**
-   * Create Custom Resource provider with custom singleton logic
-   */
-  private createCustomResourceProvider(customResourceRole: Role): Provider {
-    const lambdaFunction = this.getOrCreateSingletonFunction(
-      AGENT_CORE_RUNTIME_UUID,
-      'AgentCoreRuntime',
-      path.join(
-        __dirname,
-        '../../custom-resources/agent-core-runtime/index.ts'
-      ),
-      customResourceRole
-    );
-
-    return new Provider(this, 'AgentCoreRuntimeProvider', {
-      onEventHandler: lambdaFunction,
-    });
-  }
-
-  /**
-   * Create individual AgentCore Runtime using Custom Resource
-   */
-  private createAgentCoreRuntime(
-    id: string,
-    config: AgentCoreRuntimeConfig,
-    agentCoreRuntimeRole: Role,
-    customResourceProvider: Provider,
-    mcpApiImageUri: string
-  ): CustomResource {
-    if (!mcpApiImageUri) {
-      throw new Error(
-        `AgentCore Runtime '${config.name}' requires mcpApiImageUri to be provided`
-      );
-    }
-
-    const customConfig = { ...config.customRuntimeConfig };
-    customConfig.containerImageUri = mcpApiImageUri;
-
-    if (config.environmentVariables) {
-      customConfig.environmentVariables = config.environmentVariables;
-    }
-
-    return new CustomResource(this, id, {
-      serviceToken: customResourceProvider.serviceToken,
-      properties: {
-        AgentCoreRuntimeName: config.name,
-        RoleArn: agentCoreRuntimeRole.roleArn,
-        NetworkMode: config.networkMode || 'PUBLIC',
-        ServerProtocol: config.serverProtocol || 'HTTP',
-        CustomConfig: customConfig,
-      },
-    });
   }
 
   /**
@@ -472,44 +32,30 @@ export class AgentCore extends Construct {
     externalRuntimes: AgentCoreConfiguration[]
   ): void {
     const resources = [
-      ...(this._deployedGenericRuntimeArn
-        ? [this._deployedGenericRuntimeArn + '*']
-        : []),
+      ...(this._genericRuntimeArn ? [this._genericRuntimeArn + '*'] : []),
       ...externalRuntimes.map((runtime) => runtime.arn + '*'),
     ];
 
-    idPool.authenticatedRole.attachInlinePolicy(
-      new Policy(this, 'AgentCoreRuntimePolicy', {
-        statements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            actions: ['bedrock-agentcore:InvokeAgentRuntime'],
-            resources: resources,
-          }),
-        ],
-      })
-    );
-  }
-
-  /**
-   * Get ECR repository
-   */
-  public get ecrRepository(): Repository | undefined {
-    return this._ecrRepository;
-  }
-
-  /**
-   * Get MCP API image URI
-   */
-  public get mcpApiImageUri(): string | undefined {
-    return this._mcpApiImageUri;
+    if (resources.length > 0) {
+      idPool.authenticatedRole.attachInlinePolicy(
+        new Policy(this, 'AgentCoreRuntimePolicy', {
+          statements: [
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              actions: ['bedrock-agentcore:InvokeAgentRuntime'],
+              resources: resources,
+            }),
+          ],
+        })
+      );
+    }
   }
 
   /**
    * Get deployed generic runtime ARN
    */
   public get deployedGenericRuntimeArn(): string | undefined {
-    return this._deployedGenericRuntimeArn;
+    return this._genericRuntimeArn;
   }
 
   /**
@@ -517,8 +63,8 @@ export class AgentCore extends Construct {
    */
   public getAllRuntimeArns(): string[] {
     const arns: string[] = [];
-    if (this._deployedGenericRuntimeArn) {
-      arns.push(this._deployedGenericRuntimeArn);
+    if (this._genericRuntimeArn) {
+      arns.push(this._genericRuntimeArn);
     }
     // The external runtimes are passed as props, so we don't need to list them here.
     return arns;
@@ -529,8 +75,8 @@ export class AgentCore extends Construct {
    */
   public getDeployedRuntimeArns(): string[] {
     const arns: string[] = [];
-    if (this._deployedGenericRuntimeArn) {
-      arns.push(this._deployedGenericRuntimeArn);
+    if (this._genericRuntimeArn) {
+      arns.push(this._genericRuntimeArn);
     }
     return arns;
   }
@@ -539,13 +85,13 @@ export class AgentCore extends Construct {
    * Check if AgentCore is enabled and has any runtimes
    */
   public get hasRuntimes(): boolean {
-    return !!this._deployedGenericRuntimeArn;
+    return !!this._genericRuntimeArn;
   }
 
   /**
    * Get the generic runtime configuration
    */
-  public getGenericRuntimeConfig(): AgentCoreRuntimeConfig {
-    return { ...this.genericRuntimeConfig };
+  public getGenericRuntimeConfig(): { name: string } {
+    return { name: this._genericRuntimeName || 'GenericAgentCoreRuntime' };
   }
 }
