@@ -36,7 +36,6 @@ export class ClosedNetworkStack extends Stack {
       closedNetworkCreateResolverEndpoint,
       modelRegion,
       modelIds,
-      crossAccountBedrockRoleArn,
     } = props.params;
 
     if (this.region !== modelRegion) {
@@ -56,12 +55,6 @@ export class ClosedNetworkStack extends Stack {
     if (modelRegions.length !== 1 || modelRegions[0] !== this.region) {
       throw new Error(
         'You cannot specify the regions other than the app region if closedNetworkMode=true'
-      );
-    }
-
-    if (crossAccountBedrockRoleArn && crossAccountBedrockRoleArn.length > 0) {
-      throw new Error(
-        'You cannot specify crossAccountBedrockRoleArn if closedNetworkMode=true'
       );
     }
 
