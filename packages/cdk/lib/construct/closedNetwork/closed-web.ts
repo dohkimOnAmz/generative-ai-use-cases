@@ -90,6 +90,19 @@ export class ClosedWeb extends Construct {
       path: '/healthcheck',
     });
 
+    const target = service.service.autoScaleTaskCount({
+      minCapacity: 1,
+      maxCapacity: 20,
+    });
+
+    target.scaleOnCpuUtilization('CpuScaling', {
+      targetUtilizationPercent: 50,
+    });
+
+    target.scaleOnMemoryUtilization('MemoryScaling', {
+      targetUtilizationPercent: 50,
+    });
+
     bucket.grantRead(service.taskDefinition.taskRole);
 
     if (props.hostedZone) {

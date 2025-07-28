@@ -1040,6 +1040,89 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "ClosedWebServiceTaskCountTarget8545D676": {
+      "DependsOn": [
+        "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
+        "ClosedWebServiceTaskDefTaskRoleDB198F40",
+      ],
+      "Properties": {
+        "MaxCapacity": 20,
+        "MinCapacity": 1,
+        "ResourceId": {
+          "Fn::Join": [
+            "",
+            [
+              "service/",
+              {
+                "Ref": "ClosedWebCluster09BBE0C2",
+              },
+              "/",
+              {
+                "Fn::GetAtt": [
+                  "ClosedWebService1F389222",
+                  "Name",
+                ],
+              },
+            ],
+          ],
+        },
+        "RoleARN": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":iam::123456890123:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
+            ],
+          ],
+        },
+        "ScalableDimension": "ecs:service:DesiredCount",
+        "ServiceNamespace": "ecs",
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+    },
+    "ClosedWebServiceTaskCountTargetCpuScalingBFBF6899": {
+      "DependsOn": [
+        "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
+        "ClosedWebServiceTaskDefTaskRoleDB198F40",
+      ],
+      "Properties": {
+        "PolicyName": "ClosedNetworkStackClosedWebServiceTaskCountTargetCpuScaling82043AB4",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "ClosedWebServiceTaskCountTarget8545D676",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageCPUUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
+    "ClosedWebServiceTaskCountTargetMemoryScaling35B65A0C": {
+      "DependsOn": [
+        "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
+        "ClosedWebServiceTaskDefTaskRoleDB198F40",
+      ],
+      "Properties": {
+        "PolicyName": "ClosedNetworkStackClosedWebServiceTaskCountTargetMemoryScaling27188BEA",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": {
+          "Ref": "ClosedWebServiceTaskCountTarget8545D676",
+        },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ECSServiceAverageMemoryUtilization",
+          },
+          "TargetValue": 50,
+        },
+      },
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+    },
     "ClosedWebServiceTaskDef2F7838D3": {
       "Properties": {
         "ContainerDefinitions": [
