@@ -1,6 +1,5 @@
 import boto3
 import json
-import uvicorn
 import os
 import logging
 import shutil
@@ -20,7 +19,6 @@ from uuid import uuid4
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
@@ -71,9 +69,10 @@ class ModelInfo(BaseModel):
 
 # Global session ID
 session_id = None
+trace_id = None
 
 
-def create_session_id():
+def create_id():
     """Generate a unique session ID"""
     return str(uuid4())
 
@@ -148,6 +147,7 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
         filepath: The path to the uploading file
     """
     global session_id
+    global trace_id
 
     bucket = os.environ.get("FILE_BUCKET")
     if not bucket:
@@ -166,7 +166,7 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
 
     try:
         filename = os.path.basename(filepath)
-        key = f"agentcore/{session_id}/{filename}"
+        key = f"agentcore/{trace_id}/{filename}"
 
         s3 = boto3.client("s3", region_name=region)
         s3.upload_file(filepath, bucket, key)
@@ -239,11 +239,13 @@ async def invocations(request: Request):
 
     Expects request with messages, system_prompt, prompt, and model
     """
+
+    # Initialize 
     global session_id
+    global trace_id
     session_id = request.headers["x-amzn-bedrock-agentcore-runtime-session-id"]
-    if session_id is None:
-        session_id = create_session_id()
-    logger.info(f"New invocation session: {session_id}")
+    trace_id = request.headers["x-amzn-trace-id"]
+    logger.info(f"New invocation: {session_id} {trace_id}")
 
     # Ensure workspace directory exists
     create_ws_directory()
@@ -319,8 +321,5 @@ async def invocations(request: Request):
 
 
 if __name__ == "__main__":
-    logger.info("Starting Generic AgentCore Runtime on port 8080")
-    logger.info(f"AWS Region: {aws_creds.get('AWS_REGION', 'us-east-1')}")
-
-    # Start on port 8080 as required by AgentCore
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="warning", access_log=False)

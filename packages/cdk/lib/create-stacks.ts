@@ -87,7 +87,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     ? new AgentCoreStack(app, `AgentCoreStack${params.env}`, {
         env: {
           account: params.account,
-          region: params.agentCoreRegion || params.modelRegion,
+          region: params.agentCoreRegion,
         },
         params: params,
         crossRegionReferences: true,

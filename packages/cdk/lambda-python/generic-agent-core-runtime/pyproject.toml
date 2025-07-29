@@ -10,5 +10,5 @@ dependencies = [
   "fastapi",
   "uvicorn",
   "pydantic",
-  "aws-opentelemetry-distro",
+  "aws-opentelemetry-distro>=0.10.1",
 ]

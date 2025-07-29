@@ -2,6 +2,7 @@ import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { GenericAgentCore } from './construct/generic-agent-core';
 import { ProcessedStackInput } from './stack-input';
+import { BucketInfo } from 'generative-ai-use-cases';
 
 export interface AgentCoreStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -44,5 +45,19 @@ export class AgentCoreStack extends Stack {
    */
   public getGenericRuntimeConfig() {
     return this.genericAgentCore?.getGenericRuntimeConfig();
+  }
+
+  /**
+   * Get the file bucket for Agent Core Runtime
+   */
+  public get fileBucket() {
+    return this.genericAgentCore?.fileBucket;
+  }
+
+  /**
+   * Get the file bucket information (bucket name and region)
+   */
+  public get fileBucketInfo(): BucketInfo | undefined {
+    return this.genericAgentCore?.fileBucketInfo;
   }
 }

@@ -19,6 +19,7 @@ import {
   convertStrandsToGenU,
   convertToStrandsFormat,
 } from '../utils/strandsUtils';
+import { getRegionFromArn } from '../utils/arnUtils';
 
 // Get environment variables
 const region = import.meta.env.VITE_APP_REGION as string;
@@ -94,13 +95,15 @@ const useAgentCoreApi = (id: string) => {
           throw new Error('User is not authenticated');
         }
 
+        const clientRegion = getRegionFromArn(req.agentRuntimeArn) || region;
+
         // Create the Cognito Identity client
         const cognito = new CognitoIdentityClient({ region });
         const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
-        // Create the BedrockAgentCore client
+        // Create the BedrockAgentCore client with the determined region
         const client = new BedrockAgentCoreClient({
-          region,
+          region: clientRegion,
           credentials: fromCognitoIdentityPool({
             client: cognito,
             identityPoolId,
@@ -128,7 +131,7 @@ const useAgentCoreApi = (id: string) => {
             modelId:
               req.model.modelId ||
               'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-            region: req.model.region || region,
+            region: req.model.region || clientRegion,
           },
         };
 
@@ -138,7 +141,6 @@ const useAgentCoreApi = (id: string) => {
           qualifier: req.qualifier || 'DEFAULT',
           payload: JSON.stringify(agentCoreRequest),
         };
-        console.log('commandInput', commandInput);
 
         const command = new InvokeAgentRuntimeCommand(commandInput);
 

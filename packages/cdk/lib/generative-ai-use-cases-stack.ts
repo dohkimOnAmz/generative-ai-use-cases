@@ -84,6 +84,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      additionalS3Buckets: props.agentCoreStack?.fileBucket
+        ? [props.agentCoreStack.fileBucket]
+        : undefined,
       userPool: auth.userPool,
       idPool: auth.idPool,
       userPoolClient: auth.client,
@@ -201,6 +204,7 @@ export class GenerativeAiUseCasesStack extends Stack {
           }
         : undefined,
       agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
+      agentCoreRegion: params.agentCoreRegion,
       // Frontend
       hiddenUseCases: params.hiddenUseCases,
       // Custom Domain

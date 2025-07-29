@@ -6,12 +6,18 @@ import {
   ServicePrincipal,
   ManagedPolicy,
 } from 'aws-cdk-lib/aws-iam';
-import { CustomResource, Duration, Stack } from 'aws-cdk-lib';
+import { CustomResource, Duration, Stack, RemovalPolicy } from 'aws-cdk-lib';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
+import {
+  Bucket,
+  BlockPublicAccess,
+  BucketEncryption,
+} from 'aws-cdk-lib/aws-s3';
+import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
 
 export interface AgentCoreRuntimeConfig {
@@ -37,9 +43,19 @@ export class GenericAgentCore extends Construct {
   private _ecrRepository?: Repository;
   private _imageUri?: string;
   private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
+  private readonly _fileBucket: Bucket;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    // Create dedicated S3 bucket for Agent Core Runtime
+    this._fileBucket = new Bucket(this, 'AgentCoreFileBucket', {
+      bucketName: `agent-core-files-${Stack.of(this).account}-${Stack.of(this).region}`,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      encryption: BucketEncryption.S3_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
 
     // Default configuration for Generic AgentCore Runtime
     this.genericRuntimeConfig = {
@@ -49,6 +65,9 @@ export class GenericAgentCore extends Construct {
       dockerPath: 'lambda-python/generic-agent-core-runtime',
       networkMode: 'PUBLIC',
       serverProtocol: 'HTTP',
+      environmentVariables: {
+        FILE_BUCKET: this._fileBucket.bucketName,
+      },
     };
 
     // Deploy generic AgentCore Runtime
@@ -299,6 +318,26 @@ export class GenericAgentCore extends Construct {
       })
     );
 
+    // S3 File Bucket Access
+    this._fileBucket.grantReadWrite(role);
+
+    role.addToPolicy(
+      new PolicyStatement({
+        sid: 'S3BucketAccess',
+        effect: Effect.ALLOW,
+        actions: [
+          's3:GetObject',
+          's3:PutObject',
+          's3:ListBucket',
+          's3:DeleteObject',
+        ],
+        resources: [
+          this._fileBucket.bucketArn,
+          `${this._fileBucket.bucketArn}/*`,
+        ],
+      })
+    );
+
     return role;
   }
 
@@ -422,5 +461,22 @@ export class GenericAgentCore extends Construct {
    */
   public getGenericRuntimeConfig(): AgentCoreRuntimeConfig {
     return { ...this.genericRuntimeConfig };
+  }
+
+  /**
+   * Get the file bucket for Agent Core Runtime
+   */
+  public get fileBucket(): Bucket {
+    return this._fileBucket;
+  }
+
+  /**
+   * Get the file bucket information (bucket name and region)
+   */
+  public get fileBucketInfo(): BucketInfo {
+    return {
+      bucketName: this._fileBucket.bucketName,
+      region: Stack.of(this).region,
+    };
   }
 }

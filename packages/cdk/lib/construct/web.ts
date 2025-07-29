@@ -62,6 +62,7 @@ export interface WebProps {
   readonly agentCoreEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
+  readonly agentCoreRegion?: string;
 }
 
 export class Web extends Construct {

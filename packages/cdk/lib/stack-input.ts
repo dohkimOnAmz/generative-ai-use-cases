@@ -217,6 +217,8 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
       region: z.string(),
     })
   ),
+  // Processed agentCoreRegion (null -> modelRegion)
+  agentCoreRegion: z.string(),
 });
 
 export type StackInput = z.infer<typeof stackInputSchema>;
