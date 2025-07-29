@@ -33,6 +33,7 @@ export interface AgentCoreRuntimeConfig {
 
 export interface GenericAgentCoreProps {
   // Add any specific configuration props if needed
+  env: string;
 }
 
 // UUID for Agent Core Runtime
@@ -45,12 +46,13 @@ export class GenericAgentCore extends Construct {
   private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
   private readonly _fileBucket: Bucket;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: GenericAgentCoreProps) {
     super(scope, id);
+
+    const { env } = props;
 
     // Create dedicated S3 bucket for Agent Core Runtime
     this._fileBucket = new Bucket(this, 'AgentCoreFileBucket', {
-      bucketName: `agent-core-files-${Stack.of(this).account}-${Stack.of(this).region}`,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -59,7 +61,7 @@ export class GenericAgentCore extends Construct {
 
     // Default configuration for Generic AgentCore Runtime
     this.genericRuntimeConfig = {
-      name: 'GenericAgentCoreRuntime',
+      name: `GenericAgentCoreRuntime${env}`,
       instructions: 'You are a helpful assistant powered by AWS Bedrock.',
       memorySize: 2048,
       dockerPath: 'lambda-python/generic-agent-core-runtime',

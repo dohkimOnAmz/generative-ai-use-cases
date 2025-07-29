@@ -1,6 +1,7 @@
 import useChat from './useChat';
 import useAgentCoreApi, { AgentCoreRuntimeRequest } from './useAgentCoreApi';
-import { AgentCoreConfiguration, Model } from 'generative-ai-use-cases';
+import { AgentCoreConfiguration } from 'generative-ai-use-cases';
+import { findModelByModelId } from './useModel';
 
 // Get environment variables for separated generic and external runtimes
 const agentCoreEnabled = import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
@@ -30,6 +31,7 @@ const useAgentCore = (id: string) => {
     isEmpty,
     clear,
   } = useChat(id);
+
   const { postMessage, loading } = useAgentCoreApi(id);
 
   const invokeAgentRuntime = async (
@@ -39,11 +41,7 @@ const useAgentCore = (id: string) => {
     qualifier = 'DEFAULT',
     files?: File[]
   ) => {
-    const model: Model = {
-      type: 'bedrock',
-      modelId: getModelId() || 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-      region: (import.meta.env.VITE_APP_REGION as string) || 'us-east-1', // Use environment region
-    };
+    const model = findModelByModelId(getModelId());
 
     // Find the index of the last user message
     const lastUserMessageIndex = (() => {

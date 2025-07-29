@@ -18,7 +18,9 @@ export class AgentCoreStack extends Stack {
 
     // Deploy Generic AgentCore Runtime if enabled
     if (params.createGenericAgentCoreRuntime) {
-      this.genericAgentCore = new GenericAgentCore(this, 'GenericAgentCore');
+      this.genericAgentCore = new GenericAgentCore(this, 'GenericAgentCore', {
+        env: params.env,
+      });
 
       // Output the runtime ARN for cross-stack reference
       new CfnOutput(this, 'GenericAgentCoreRuntimeArn', {

@@ -23,6 +23,7 @@ import { getRegionFromArn } from '../utils/arnUtils';
 
 // Get environment variables
 const region = import.meta.env.VITE_APP_REGION as string;
+const modelRegion = import.meta.env.VITE_APP_MODEL_REGION as string;
 const identityPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID as string;
 const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID as string;
 
@@ -131,7 +132,7 @@ const useAgentCoreApi = (id: string) => {
             modelId:
               req.model.modelId ||
               'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-            region: req.model.region || clientRegion,
+            region: req.model.region || modelRegion,
           },
         };
 
