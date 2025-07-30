@@ -118,6 +118,7 @@ export class GenericAgentCore extends Construct {
     const repository = new Repository(this, 'AgentCoreRuntimeRepository', {
       repositoryName: `${pathName}-${Stack.of(this).stackName.toLowerCase()}`,
       imageScanOnPush: true,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const dockerAsset = new DockerImageAsset(

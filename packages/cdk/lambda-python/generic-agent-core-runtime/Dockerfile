@@ -22,6 +22,7 @@ RUN uv sync
 
 # Copy application files
 COPY app.py mcp.json ./
+COPY src/ ./src/
 
 # Expose port 8080 as required by AgentCore
 EXPOSE 8080
