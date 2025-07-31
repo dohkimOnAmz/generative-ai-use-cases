@@ -6,7 +6,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
     "ClosedWebServiceLoadBalancerDNS4C7B439A": {
       "Value": {
         "Fn::GetAtt": [
-          "ClosedWebServiceLB856E6E1D",
+          "ClosedWebAlb02DA384F",
           "DNSName",
         ],
       },
@@ -19,7 +19,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "http://",
             {
               "Fn::GetAtt": [
-                "ClosedWebServiceLB856E6E1D",
+                "ClosedWebAlb02DA384F",
                 "DNSName",
               ],
             },
@@ -167,7 +167,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "http://",
             {
               "Fn::GetAtt": [
-                "ClosedWebServiceLB856E6E1D",
+                "ClosedWebAlb02DA384F",
                 "DNSName",
               ],
             },
@@ -828,13 +828,117 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::EC2::Subnet",
     },
+    "ClosedWebAlb02DA384F": {
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internal",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "ClosedWebAlbSecurityGroup4036E135",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": [
+          {
+            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
+          },
+          {
+            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "ClosedWebAlbPublicListener2C7784BD": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "ClosedWebAlb02DA384F",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "ClosedWebAlbPublicListenerECSGroupB932E848": {
+      "Properties": {
+        "HealthCheckPath": "/healthcheck",
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "ClosedWebAlbSecurityGroup4036E135": {
+      "Properties": {
+        "GroupDescription": "Automatically created Security Group for ELB ClosedNetworkStackClosedWebAlb1D88C121",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "ClosedWebAlbSecurityGrouptoClosedNetworkStackClosedWebServiceSecurityGroup64DB8B7F8080BFB1DD6E": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "ClosedWebServiceSecurityGroupD2730E37",
+            "GroupId",
+          ],
+        },
+        "FromPort": 8080,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "ClosedWebAlbSecurityGroup4036E135",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 8080,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
     "ClosedWebCluster09BBE0C2": {
       "Type": "AWS::ECS::Cluster",
     },
     "ClosedWebService1F389222": {
       "DependsOn": [
-        "ClosedWebServiceLBPublicListenerECSGroupA59427C9",
-        "ClosedWebServiceLBPublicListener31C12C00",
+        "ClosedWebAlbPublicListenerECSGroupB932E848",
+        "ClosedWebAlbPublicListener2C7784BD",
         "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
         "ClosedWebServiceTaskDefTaskRoleDB198F40",
       ],
@@ -860,7 +964,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "ContainerName": "web",
             "ContainerPort": 8080,
             "TargetGroupArn": {
-              "Ref": "ClosedWebServiceLBPublicListenerECSGroupA59427C9",
+              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
             },
           },
         ],
@@ -891,110 +995,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::ECS::Service",
     },
-    "ClosedWebServiceLB856E6E1D": {
-      "Properties": {
-        "LoadBalancerAttributes": [
-          {
-            "Key": "deletion_protection.enabled",
-            "Value": "false",
-          },
-        ],
-        "Scheme": "internal",
-        "SecurityGroups": [
-          {
-            "Fn::GetAtt": [
-              "ClosedWebServiceLBSecurityGroupAF9B5973",
-              "GroupId",
-            ],
-          },
-        ],
-        "Subnets": [
-          {
-            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
-          },
-          {
-            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
-          },
-        ],
-        "Type": "application",
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-    },
-    "ClosedWebServiceLBPublicListener31C12C00": {
-      "Properties": {
-        "DefaultActions": [
-          {
-            "TargetGroupArn": {
-              "Ref": "ClosedWebServiceLBPublicListenerECSGroupA59427C9",
-            },
-            "Type": "forward",
-          },
-        ],
-        "LoadBalancerArn": {
-          "Ref": "ClosedWebServiceLB856E6E1D",
-        },
-        "Port": 80,
-        "Protocol": "HTTP",
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::Listener",
-    },
-    "ClosedWebServiceLBPublicListenerECSGroupA59427C9": {
-      "Properties": {
-        "HealthCheckPath": "/healthcheck",
-        "Port": 80,
-        "Protocol": "HTTP",
-        "TargetGroupAttributes": [
-          {
-            "Key": "stickiness.enabled",
-            "Value": "false",
-          },
-        ],
-        "TargetType": "ip",
-        "VpcId": {
-          "Ref": "ClosedVpcC15583C9",
-        },
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-    },
-    "ClosedWebServiceLBSecurityGroupAF9B5973": {
-      "Properties": {
-        "GroupDescription": "Automatically created Security Group for ELB ClosedNetworkStackClosedWebServiceLB157ADF43",
-        "SecurityGroupIngress": [
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Allow from anyone on port 80",
-            "FromPort": 80,
-            "IpProtocol": "tcp",
-            "ToPort": 80,
-          },
-        ],
-        "VpcId": {
-          "Ref": "ClosedVpcC15583C9",
-        },
-      },
-      "Type": "AWS::EC2::SecurityGroup",
-    },
-    "ClosedWebServiceLBSecurityGrouptoClosedNetworkStackClosedWebServiceSecurityGroup64DB8B7F808039AC2F7A": {
-      "Properties": {
-        "Description": "Load balancer to target",
-        "DestinationSecurityGroupId": {
-          "Fn::GetAtt": [
-            "ClosedWebServiceSecurityGroupD2730E37",
-            "GroupId",
-          ],
-        },
-        "FromPort": 8080,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "ClosedWebServiceLBSecurityGroupAF9B5973",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 8080,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
-    },
     "ClosedWebServiceSecurityGroupD2730E37": {
       "DependsOn": [
         "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
@@ -1015,7 +1015,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "ClosedWebServiceSecurityGroupfromClosedNetworkStackClosedWebServiceLBSecurityGroupEEBFD2B98080F50FD3A5": {
+    "ClosedWebServiceSecurityGroupfromClosedNetworkStackClosedWebAlbSecurityGroupD1B9221A8080E55E8C40": {
       "DependsOn": [
         "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
         "ClosedWebServiceTaskDefTaskRoleDB198F40",
@@ -1032,7 +1032,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
         "IpProtocol": "tcp",
         "SourceSecurityGroupId": {
           "Fn::GetAtt": [
-            "ClosedWebServiceLBSecurityGroupAF9B5973",
+            "ClosedWebAlbSecurityGroup4036E135",
             "GroupId",
           ],
         },

@@ -57,6 +57,18 @@ export class ClosedWeb extends Construct {
           }
         : {};
 
+    const loadBalancer = new ApplicationLoadBalancer(this, 'Alb', {
+      vpc: props.vpc,
+      internetFacing: false,
+      vpcSubnets: props.subnetIds
+        ? {
+            subnetFilters: [SubnetFilter.byIds(props.subnetIds)],
+          }
+        : {
+            subnetType: SubnetType.PRIVATE_ISOLATED,
+          },
+    });
+
     const service = new ApplicationLoadBalancedFargateService(this, 'Service', {
       cluster,
       cpu: 256,
@@ -71,6 +83,7 @@ export class ClosedWeb extends Construct {
           BUCKET_NAME: bucket.bucketName,
         },
       },
+      loadBalancer,
       publicLoadBalancer: false,
       runtimePlatform: {
         cpuArchitecture: CpuArchitecture.X86_64,
