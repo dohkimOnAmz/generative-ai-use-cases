@@ -46,34 +46,15 @@ const useAgentCore = (id: string) => {
   ) => {
     const model = findModelByModelId(getModelId());
 
-    // Find the index of the last user message
-    const lastUserMessageIndex = (() => {
-      for (let i = rawMessages.length - 1; i >= 0; i--) {
-        if (rawMessages[i].role === 'user') {
-          return i;
-        }
-      }
-      return -1;
-    })();
-
     // Get previous messages for context, excluding:
     // 1. System messages (will be sent as system_prompt)
-    // 2. The last user message (will be sent as prompt)
-    // 3. Empty assistant messages
+    // 2. Empty assistant messages
     const previousMessages = rawMessages
-      .filter((msg, index) => {
+      .filter((msg) => {
         // Exclude system messages
         if (msg.role === 'system') return false;
-
-        // Exclude the last user message
-        if (msg.role === 'user' && index === lastUserMessageIndex) {
-          return false;
-        }
-
         // Exclude empty assistant messages
-        if (msg.role === 'assistant' && msg.content.trim() === '') {
-          return false;
-        }
+        if (msg.role === 'assistant' && msg.content.trim() === '') return false;
 
         return true;
       })
