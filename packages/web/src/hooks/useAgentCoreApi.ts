@@ -16,7 +16,7 @@ import {
   StrandsContentBlock,
 } from 'generative-ai-use-cases';
 import {
-  convertStrandsToGenU,
+  StrandsStreamProcessor,
   convertToStrandsFormat,
 } from '../utils/strandsUtils';
 import { getRegionFromArn } from '../utils/arnUtils';
@@ -53,18 +53,24 @@ const useAgentCoreApi = (id: string) => {
   } = useChat(id);
   const { createMessages } = useChatApi();
 
-  // Process a chunk of Strands data and add it to the assistant message
-  const processChunk = useCallback(
-    (chunkText: string, model: Model) => {
-      // Convert Strands format to GenU format using the utility function
-      const processedText = convertStrandsToGenU(chunkText);
+  // Create a stream processor instance that maintains state across chunks
+  const streamProcessor = useCallback(() => new StrandsStreamProcessor(), []);
 
-      // Add the processed text to the assistant message
-      addChunkToAssistantMessage(
-        processedText,
-        undefined, // Agent Core Runtime doesn't have trace
-        model
-      );
+  // Process a chunk of Strands event data and add it to the assistant message
+  const processChunk = useCallback(
+    (eventText: string, model: Model, processor: StrandsStreamProcessor) => {
+      const processed = processor.processEvent(eventText);
+
+      if (processed) {
+        if (processed.text || processed.trace || processed.metadata) {
+          addChunkToAssistantMessage(
+            processed.text || '',
+            processed.trace || undefined,
+            model,
+            processed.metadata
+          );
+        }
+      }
     },
     [addChunkToAssistantMessage]
   );
@@ -82,16 +88,15 @@ const useAgentCoreApi = (id: string) => {
       setLoading(true);
       let isFirstChunk = true;
 
+      // Create a new stream processor for this request
+      const processor = streamProcessor();
+
       try {
         pushMessage('user', req.prompt);
-        pushMessage(
-          'assistant',
-          'Thinking...' // Simple loading message without translation key
-        );
+        pushMessage('assistant', 'Thinking...');
 
         // Get the ID token from the authenticated user
         const token = (await fetchAuthSession()).tokens?.idToken?.toString();
-
         if (!token) {
           throw new Error('User is not authenticated');
         }
@@ -126,9 +131,9 @@ const useAgentCoreApi = (id: string) => {
         const agentCoreRequest: AgentCoreRequest = {
           messages: strandsMessages,
           systemPrompt: req.system_prompt || '',
-          prompt: promptBlocks, // Include text and file content blocks
+          prompt: promptBlocks,
           model: {
-            type: 'bedrock', // Required by Model type
+            type: 'bedrock',
             modelId:
               req.model.modelId ||
               'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
@@ -144,8 +149,6 @@ const useAgentCoreApi = (id: string) => {
         };
 
         const command = new InvokeAgentRuntimeCommand(commandInput);
-
-        // Send the command and get the response
         const response = await client.send(command);
 
         // Handle streaming response
@@ -171,9 +174,9 @@ const useAgentCoreApi = (id: string) => {
               const chunkText = new TextDecoder('utf-8').decode(chunk);
               buffer += chunkText;
 
-              // Process complete lines (similar to iter_lines in Python)
+              // Process complete lines
               const lines = buffer.split('\n');
-              buffer = lines.pop() || ''; // Keep incomplete line in buffer
+              buffer = lines.pop() || '';
 
               for (const line of lines) {
                 if (line.trim()) {
@@ -181,12 +184,11 @@ const useAgentCoreApi = (id: string) => {
 
                   // Handle SSE format: "data: <content>"
                   if (line.startsWith('data: ')) {
-                    processedText = line.substring(6); // Remove "data: " prefix
+                    processedText = line.substring(6);
                   }
 
                   if (processedText.trim()) {
-                    // Process the chunk (conversion happens in processChunk)
-                    processChunk(processedText, req.model);
+                    processChunk(processedText, req.model, processor);
                   }
                 }
               }
@@ -198,10 +200,8 @@ const useAgentCoreApi = (id: string) => {
               if (buffer.startsWith('data: ')) {
                 processedText = buffer.substring(6);
               }
-
               if (processedText.trim()) {
-                // Process the chunk (conversion happens in processChunk)
-                processChunk(processedText, req.model);
+                processChunk(processedText, req.model, processor);
               }
             }
           } else {
@@ -211,7 +211,11 @@ const useAgentCoreApi = (id: string) => {
               pushMessage('assistant', '');
               isFirstChunk = false;
             }
-            processChunk(JSON.stringify(response, null, 2), req.model);
+            processChunk(
+              JSON.stringify(response, null, 2),
+              req.model,
+              processor
+            );
           }
         } else {
           // Fallback: if no response stream, stringify the entire response
@@ -220,10 +224,10 @@ const useAgentCoreApi = (id: string) => {
             pushMessage('assistant', '');
             isFirstChunk = false;
           }
-          processChunk(JSON.stringify(response, null, 2), req.model);
+          processChunk(JSON.stringify(response, null, 2), req.model, processor);
         }
 
-        // Save chat history similar to MCP
+        // Save chat history
         const chatId = await createChatIfNotExist();
         await setPredictedTitle();
         const toBeRecordedMessages = addMessageIdsToUnrecordedMessages();
@@ -233,26 +237,25 @@ const useAgentCoreApi = (id: string) => {
         replaceMessages(messages);
       } catch (error) {
         console.error('Error invoking AgentCore Runtime:', error);
-
-        // Show error message to user
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error occurred';
-        processChunk(`Error: ${errorMessage}`, req.model);
+        processChunk(`Error: ${errorMessage}`, req.model, processor);
       } finally {
         setLoading(false);
       }
     },
     [
       setLoading,
+      streamProcessor,
       pushMessage,
-      popMessage,
-      processChunk,
+      convertMessagesToStrandsFormat,
       createChatIfNotExist,
       setPredictedTitle,
       addMessageIdsToUnrecordedMessages,
       createMessages,
       replaceMessages,
-      convertMessagesToStrandsFormat,
+      popMessage,
+      processChunk,
     ]
   );
 

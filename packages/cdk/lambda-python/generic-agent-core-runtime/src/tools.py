@@ -10,6 +10,16 @@ from mcp import stdio_client, StdioServerParameters
 from typing import List, Any
 from .config import get_uv_environment, get_aws_credentials, WORKSPACE_DIR
 
+# Import strands-agents code interpreter tool
+try:
+    from strands_tools.code_interpreter import AgentCoreCodeInterpreter
+    CODE_INTERPRETER_AVAILABLE = True
+except ImportError as e:
+    CODE_INTERPRETER_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Strands code interpreter tool not available: {e}")
+    AgentCoreCodeInterpreter = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -112,8 +122,29 @@ class ToolManager:
         
         return upload_file_to_s3_and_retrieve_s3_url
     
+    def get_code_interpreter_tool(self) -> List[Any]:
+        """Get code interpreter tool if available"""
+        code_interpreter_tools = []
+        
+        if CODE_INTERPRETER_AVAILABLE and AgentCoreCodeInterpreter:
+            try:
+                aws_creds = get_aws_credentials()
+                region = aws_creds.get("AWS_REGION", "us-east-1")
+                code_interpreter = AgentCoreCodeInterpreter(region=region)
+                code_interpreter_tools.append(code_interpreter.code_interpreter)
+                logger.info("Added code_interpreter tool (AgentCoreCodeInterpreter)")
+            except Exception as e:
+                logger.warning(f"Failed to initialize AgentCoreCodeInterpreter: {e}")
+        
+        return code_interpreter_tools
+    
     def get_all_tools(self) -> List[Any]:
-        """Get all available tools (MCP + built-in)"""
+        """Get all available tools (MCP + built-in + code interpreter)"""
         mcp_tools = self.load_mcp_tools()
         upload_tool = self.get_upload_tool()
-        return mcp_tools + [upload_tool]
+        code_interpreter_tools = self.get_code_interpreter_tool()
+        
+        all_tools = mcp_tools + [upload_tool] + code_interpreter_tools
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 1, Code Interpreter: {len(code_interpreter_tools)})")
+        
+        return all_tools

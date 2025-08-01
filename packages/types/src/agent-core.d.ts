@@ -8,6 +8,8 @@ export type AgentCoreConfiguration = {
 // AgentCore Runtime Request (compatible with Strands)
 export type AgentCoreRequest = StrandsRequest;
 
+export type AgentCoreStreamResponse = StrandsStreamEvent;
+
 // ===
 // Strands type definition
 // https://github.com/strands-agents/sdk-python/blob/main/src/strands/types
@@ -25,6 +27,12 @@ export type StrandsRequest = {
 export type StrandsResponse = {
   message?: StrandsMessage;
 };
+
+export type StrandsStreamResponse = {
+  event: StrandsStreamEvent;
+};
+
+// Content
 
 // Strands role type (system is not included)
 export type StrandsRole = 'user' | 'assistant';
@@ -104,7 +112,7 @@ export type StrandsToolUseBlock = {
 // Tool result content block
 export type StrandsToolResultBlock = {
   toolResult: {
-    content: unknown;
+    content: StrandsContentBlock[];
   };
 };
 
@@ -152,3 +160,136 @@ export type StrandsContentBlock =
   | StrandsCachePointBlock
   | StrandsReasoningContentBlock
   | StrandsCitationsContentBlock;
+
+// Streaming
+
+// Supporting types for streaming events
+export type StrandsStopReason =
+  | 'end_turn'
+  | 'max_tokens'
+  | 'stop_sequence'
+  | 'tool_use';
+
+export type StrandsUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  cacheReadInputTokens?: number;
+  cacheWriteInputTokens?: number;
+};
+
+export type StrandsMetrics = {
+  latencyMs?: number;
+  [key: string]: any;
+};
+
+export type StrandsTrace = {
+  [key: string]: any;
+};
+
+// Content block start information
+export type StrandsContentBlockStart = StrandsContentBlock;
+
+// Message start event
+export type StrandsMessageStartEvent = {
+  role: StrandsRole;
+};
+
+// Content block start event
+export type StrandsContentBlockStartEvent = {
+  contentBlockIndex?: number;
+  start: StrandsContentBlockStart;
+};
+
+// Content block delta types
+export type StrandsContentBlockDeltaText = {
+  text: string;
+};
+
+export type StrandsContentBlockDeltaToolUse = {
+  input: string;
+};
+
+export type StrandsReasoningContentBlockDelta = {
+  redactedContent?: Uint8Array;
+  signature?: string;
+  text?: string;
+};
+
+export type StrandsContentBlockDelta = {
+  reasoningContent?: StrandsReasoningContentBlockDelta;
+  text?: string;
+  toolUse?: StrandsContentBlockDeltaToolUse;
+};
+
+// Content block delta event
+export type StrandsContentBlockDeltaEvent = {
+  contentBlockIndex?: number;
+  delta: StrandsContentBlockDelta;
+};
+
+// Content block stop event
+export type StrandsContentBlockStopEvent = {
+  contentBlockIndex?: number;
+};
+
+// Message stop event
+export type StrandsMessageStopEvent = {
+  additionalModelResponseFields?: any;
+  stopReason: StrandsStopReason;
+};
+
+// Metadata event
+export type StrandsMetadataEvent = {
+  metrics?: StrandsMetrics;
+  trace?: StrandsTrace;
+  usage: StrandsUsage;
+};
+
+// Exception event base
+export type StrandsExceptionEvent = {
+  message: string;
+};
+
+// Model stream error event
+export type StrandsModelStreamErrorEvent = StrandsExceptionEvent & {
+  originalMessage: string;
+  originalStatusCode: number;
+};
+
+// Redact content event
+export type StrandsRedactContentEvent = {
+  redactUserContentMessage?: string;
+  redactAssistantContentMessage?: string;
+};
+
+// Main stream event type (matches the Python StreamEvent TypedDict)
+export type StrandsStreamEvent = {
+  contentBlockDelta?: StrandsContentBlockDeltaEvent;
+  contentBlockStart?: StrandsContentBlockStartEvent;
+  contentBlockStop?: StrandsContentBlockStopEvent;
+  internalServerException?: StrandsExceptionEvent;
+  messageStart?: StrandsMessageStartEvent;
+  messageStop?: StrandsMessageStopEvent;
+  metadata?: StrandsMetadataEvent;
+  modelStreamErrorException?: StrandsModelStreamErrorEvent;
+  redactContent?: StrandsRedactContentEvent;
+  serviceUnavailableException?: StrandsExceptionEvent;
+  throttlingException?: StrandsExceptionEvent;
+  validationException?: StrandsExceptionEvent;
+};
+
+// Helper type to determine which event type is present
+export type StrandsStreamEventType =
+  | 'contentBlockDelta'
+  | 'contentBlockStart'
+  | 'contentBlockStop'
+  | 'internalServerException'
+  | 'messageStart'
+  | 'messageStop'
+  | 'metadata'
+  | 'modelStreamErrorException'
+  | 'redactContent'
+  | 'serviceUnavailableException'
+  | 'throttlingException'
+  | 'validationException';

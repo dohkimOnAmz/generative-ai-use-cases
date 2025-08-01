@@ -50,48 +50,4 @@ export class AgentCore extends Construct {
       );
     }
   }
-
-  /**
-   * Get deployed generic runtime ARN
-   */
-  public get deployedGenericRuntimeArn(): string | undefined {
-    return this._genericRuntimeArn;
-  }
-
-  /**
-   * Get all available runtime ARNs (deployed + external)
-   */
-  public getAllRuntimeArns(): string[] {
-    const arns: string[] = [];
-    if (this._genericRuntimeArn) {
-      arns.push(this._genericRuntimeArn);
-    }
-    // The external runtimes are passed as props, so we don't need to list them here.
-    return arns;
-  }
-
-  /**
-   * Get deployed runtime ARNs only
-   */
-  public getDeployedRuntimeArns(): string[] {
-    const arns: string[] = [];
-    if (this._genericRuntimeArn) {
-      arns.push(this._genericRuntimeArn);
-    }
-    return arns;
-  }
-
-  /**
-   * Check if AgentCore is enabled and has any runtimes
-   */
-  public get hasRuntimes(): boolean {
-    return !!this._genericRuntimeArn;
-  }
-
-  /**
-   * Get the generic runtime configuration
-   */
-  public getGenericRuntimeConfig(): { name: string } {
-    return { name: this._genericRuntimeName || 'GenericAgentCoreRuntime' };
-  }
 }

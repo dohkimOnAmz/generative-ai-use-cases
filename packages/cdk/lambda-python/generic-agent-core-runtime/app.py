@@ -4,8 +4,10 @@ import json
 import logging
 import traceback
 from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
 from src.agent import AgentManager
 from src.utils import create_ws_directory, clean_ws_directory, create_error_response
+from src.types import AgentCoreRequest
 
 # Configure root logger
 logging.basicConfig(
@@ -65,20 +67,25 @@ async def invocations(request: Request):
         prompt = request_data.get("prompt", "")
         model_info = request_data.get("model", {})
 
-        # Process request through agent manager
-        return await agent_manager.process_request(
-            messages=messages,
-            system_prompt=system_prompt,
-            prompt=prompt,
-            model_info=model_info
-        )
+        # Return streaming response
+        async def generate():
+            try:
+                async for chunk in agent_manager.process_request_streaming(
+                    messages=messages,
+                    system_prompt=system_prompt,
+                    prompt=prompt,
+                    model_info=model_info
+                ):
+                    yield chunk
+            finally:
+                clean_ws_directory()
 
+        return StreamingResponse(generate(), media_type="text/event-stream")
     except Exception as e:
         logger.error(f"Error processing request: {e}")
         logger.error(traceback.format_exc())
         return create_error_response(str(e))
     finally:
-        # Clean up workspace
         clean_ws_directory()
 
 

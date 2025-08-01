@@ -1,6 +1,9 @@
 import useChat from './useChat';
 import useAgentCoreApi, { AgentCoreRuntimeRequest } from './useAgentCoreApi';
-import { AgentCoreConfiguration } from 'generative-ai-use-cases';
+import {
+  AgentCoreConfiguration,
+  UnrecordedMessage,
+} from 'generative-ai-use-cases';
 import { findModelByModelId } from './useModel';
 
 // Get environment variables for separated generic and external runtimes
@@ -74,11 +77,16 @@ const useAgentCore = (id: string) => {
 
         return true;
       })
-      .map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-        extraData: msg.extraData,
-      }));
+      .map(
+        (msg): UnrecordedMessage => ({
+          role: msg.role,
+          content: msg.content,
+          trace: msg.trace,
+          extraData: msg.extraData,
+          llmType: msg.llmType,
+          metadata: msg.metadata,
+        })
+      );
 
     const request: AgentCoreRuntimeRequest = {
       agentRuntimeArn,

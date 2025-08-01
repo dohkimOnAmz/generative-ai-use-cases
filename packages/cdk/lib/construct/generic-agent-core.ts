@@ -9,7 +9,6 @@ import {
 import { CustomResource, Duration, Stack, RemovalPolicy } from 'aws-cdk-lib';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import {
@@ -19,6 +18,7 @@ import {
 } from 'aws-cdk-lib/aws-s3';
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 
 export interface AgentCoreRuntimeConfig {
   name: string;
@@ -341,6 +341,26 @@ export class GenericAgentCore extends Construct {
       })
     );
 
+    // Tools
+    role.addToPolicy(
+      new PolicyStatement({
+        sid: 'Tools',
+        effect: Effect.ALLOW,
+        actions: [
+          'bedrock-agentcore:CreateCodeInterpreter',
+          'bedrock-agentcore:StartCodeInterpreterSession',
+          'bedrock-agentcore:InvokeCodeInterpreter',
+          'bedrock-agentcore:StopCodeInterpreterSession',
+          'bedrock-agentcore:DeleteCodeInterpreter',
+          'bedrock-agentcore:ListCodeInterpreters',
+          'bedrock-agentcore:GetCodeInterpreter',
+          'bedrock-agentcore:GetCodeInterpreterSession',
+          'bedrock-agentcore:ListCodeInterpreterSessions',
+        ],
+        resources: ['*'],
+      })
+    );
+
     return role;
   }
 
@@ -368,7 +388,7 @@ export class GenericAgentCore extends Construct {
     return new NodejsFunction(stack, singletonId, {
       functionName: `${functionName}-${Stack.of(this).stackName}-${uniqueId.slice(0, 8)}`,
       description: `${functionName} CustomResource Lambda Function (Singleton)`,
-      runtime: Runtime.NODEJS_18_X,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry,
       handler: 'handler',
       timeout: Duration.minutes(10),

@@ -260,7 +260,7 @@ const AgentCorePage: React.FC = () => {
         )}
 
         {/* Selection Controls */}
-        <div className="mb-2 mt-2 flex w-full items-center justify-center gap-4">
+        <div className="mb-2 mt-2 flex w-full flex-col items-center justify-center gap-4 md:flex-row">
           {/* AgentCore Runtime Selection */}
           <div className="flex max-w-xl flex-col items-start px-4">
             <Select
@@ -271,7 +271,7 @@ const AgentCorePage: React.FC = () => {
           </div>
 
           {/* Model Selection */}
-          <div className="mt-2 flex items-end justify-center lg:mt-0 print:hidden">
+          <div className="flex items-end justify-center print:hidden">
             <Select
               value={modelId}
               onChange={setModelId}
