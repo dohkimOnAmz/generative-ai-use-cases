@@ -697,7 +697,8 @@ const envs: Record<string, Partial<StackInput>> = {
 
 AgentCore で作成したエージェントと連携するユースケースです。(Experimental: 予告なく破壊的変更を行うことがあります)
 
-`agentCoreEnabled` を有効化するとデフォルトの AgentCore Runtime がデプロイされユースケースが有効化されます。
+`createGenericAgentCoreRuntime` を有効化するとデフォルトの AgentCore Runtime がデプロイされます。
+デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
 
 `agentCoreExternalRuntimes` で外部で作成した AgentCore Runtime を利用することが可能です。
 
@@ -707,7 +708,8 @@ AgentCore で作成したエージェントと連携するユースケースで�
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    agentCoreEnabled: true,
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
     agentCoreExternalRuntimes: [
       {
         name: 'AgentCore1',
@@ -725,7 +727,8 @@ const envs: Record<string, Partial<StackInput>> = {
 
 {
   "context": {
-    "agentCoreEnabled": true,
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
     "agentCoreExternalRuntimes": [
       {
         "name": "AgentCore1",

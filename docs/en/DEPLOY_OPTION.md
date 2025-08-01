@@ -680,19 +680,21 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### Enabling AgentCore Use Cases
 
-This is a use case that integrates with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
+This is a use case for integrating with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
 
-Enabling `agentCoreEnabled` will deploy the default AgentCore Runtime and enable the use case.
+Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
+By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
 
-You can use externally created AgentCore Runtime with `agentCoreExternalRuntimes`.
+With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
 
-**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
 
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    agentCoreEnabled: true,
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
     agentCoreExternalRuntimes: [
       {
         name: 'AgentCore1',
@@ -703,14 +705,15 @@ const envs: Record<string, Partial<StackInput>> = {
 };
 ```
 
-**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 
 ```json
 // cdk.json
 
 {
   "context": {
-    "agentCoreEnabled": true,
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
     "agentCoreExternalRuntimes": [
       {
         "name": "AgentCore1",
