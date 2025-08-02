@@ -62,12 +62,16 @@ const MeetingMinutesTranscriptSegment: React.FC<
               {t('translate.translating')}
             </div>
           ) : translation ? (
-            <div className="rounded bg-blue-50 p-2 text-sm text-blue-700">
-              <span className="font-medium">
-                {t('translate.translation')}
-                {t('common.colon')}{' '}
-              </span>
-              {translation}
+            <div className="flex gap-2">
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="text-sm text-gray-500">
+                  {t('translate.translation')}
+                  {t('common.colon')}
+                </span>
+              </div>
+              <div className="flex-1 leading-relaxed text-gray-900">
+                {translation}
+              </div>
             </div>
           ) : null}
         </div>
