@@ -614,6 +614,7 @@ translate:
   model: 模型
   realtimeTranslation: 实时翻译
   result_placeholder: 翻译结果将显示在这里
+  target_language: 目标语言
   text_to_translate: 要翻译的文本
   title: 翻译
   translating: 翻译中...

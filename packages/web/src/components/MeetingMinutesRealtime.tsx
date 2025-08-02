@@ -80,6 +80,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [realtimeTranslationEnabled, setRealtimeTranslationEnabled] =
     useState(false);
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
+  const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
 
   // Translation hook
   const { availableModels, defaultModelId, translate, isTranslating } =
@@ -104,6 +105,28 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       { value: 'vi-VN', label: t('meetingMinutes.language_vietnamese') },
     ],
     [t]
+  );
+
+  // Target language options for translation (excluding 'auto')
+  const targetLanguageOptions = useMemo(
+    () => languageOptions.filter((option) => option.value !== 'auto'),
+    [languageOptions]
+  );
+
+  // Convert language code to language name for translation API
+  const getLanguageNameFromCode = useCallback(
+    (languageCode: string): string => {
+      const languageNameMapping: { [key: string]: string } = {
+        'ja-JP': 'Japanese',
+        'en-US': 'English',
+        'zh-CN': 'Chinese',
+        'ko-KR': 'Korean',
+        'th-TH': 'Thai',
+        'vi-VN': 'Vietnamese',
+      };
+      return languageNameMapping[languageCode] || 'Japanese';
+    },
+    []
   );
 
   // Speaker mapping
@@ -282,11 +305,14 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         }
 
         try {
+          const targetLanguageName = getLanguageNameFromCode(
+            selectedTargetLanguage
+          );
           const translation = await translate(
             segment.resultId,
             segmentText,
             selectedTranslationModel,
-            'Japanese'
+            targetLanguageName
           );
 
           if (translation) {
@@ -310,6 +336,8 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
     realtimeSegments,
     realtimeTranslationEnabled,
     selectedTranslationModel,
+    selectedTargetLanguage,
+    getLanguageNameFromCode,
     isTranslating,
     translate,
   ]);
@@ -443,22 +471,34 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             />
           </div>
           {realtimeTranslationEnabled && (
-            <div>
-              <label className="mb-2 block font-bold">
-                {t('translate.model')}
-              </label>
-              <Select
-                value={selectedTranslationModel}
-                onChange={setSelectedTranslationModel}
-                options={availableModels.map((modelId) => ({
-                  value: modelId,
-                  label: modelId.includes('claude-3-5-haiku')
-                    ? 'Claude 3.5 Haiku'
-                    : modelId.includes('nova-pro')
-                      ? 'Nova Pro'
-                      : modelId,
-                }))}
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('translate.model')}
+                </label>
+                <Select
+                  value={selectedTranslationModel}
+                  onChange={setSelectedTranslationModel}
+                  options={availableModels.map((modelId) => ({
+                    value: modelId,
+                    label: modelId.includes('claude-3-5-haiku')
+                      ? 'Claude 3.5 Haiku'
+                      : modelId.includes('nova-pro')
+                        ? 'Nova Pro'
+                        : modelId,
+                  }))}
+                />
+              </div>
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('translate.target_language')}
+                </label>
+                <Select
+                  value={selectedTargetLanguage}
+                  onChange={setSelectedTargetLanguage}
+                  options={targetLanguageOptions}
+                />
+              </div>
             </div>
           )}
         </div>

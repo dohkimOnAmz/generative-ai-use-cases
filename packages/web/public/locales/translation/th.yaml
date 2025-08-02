@@ -749,6 +749,7 @@ translate:
   model: โมเดล
   realtimeTranslation: การแปลแบบเรียลไทม์
   result_placeholder: ผลการแปลจะแสดงที่นี่
+  target_language: ภาษาเป้าหมาย
   text_to_translate: ข้อความที่จะแปล
   title: แปล
   translating: กำลังแปล...

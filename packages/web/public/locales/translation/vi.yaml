@@ -727,6 +727,7 @@ translate:
   model: Mô hình
   realtimeTranslation: Dịch thời gian thực
   result_placeholder: Kết quả dịch thuật sẽ được hiển thị ở đây
+  target_language: Ngôn ngữ đích
   text_to_translate: Văn bản muốn dịch
   title: Dịch thuật
   translating: Đang dịch...

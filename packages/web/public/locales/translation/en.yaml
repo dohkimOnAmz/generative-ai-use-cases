@@ -875,6 +875,7 @@ translate:
   model: Model
   realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
+  target_language: Target Language
   text_to_translate: Text to translate
   title: Translate
   translating: Translating...

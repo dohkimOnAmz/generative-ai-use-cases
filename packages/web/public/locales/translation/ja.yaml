@@ -714,6 +714,7 @@ translate:
   model: モデル
   realtimeTranslation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
+  target_language: 翻訳先言語
   text_to_translate: 翻訳したい文章
   title: 翻訳
   translating: 翻訳中...

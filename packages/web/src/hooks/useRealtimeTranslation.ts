@@ -52,7 +52,7 @@ const useRealtimeTranslation = () => {
 
       try {
         // Translate using the same mechanism as the Translation use case
-        const id = '/realtime-translate';
+        const id = '/translate';
         const prompter = getPrompter(modelId);
         const systemPrompt = prompter.systemContext(id);
         const translationPrompt = prompter.translatePrompt({
@@ -85,7 +85,7 @@ const useRealtimeTranslation = () => {
 
         // Remove output tags
         const translated = translatedWithTag
-          .replace(/(<o>|<\/output>)/g, '')
+          .replace(/(<output>|<\/output>|<output>|<\/o>)/g, '')
           .trim();
 
         return translated;
