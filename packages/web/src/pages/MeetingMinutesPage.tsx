@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Card from '../components/Card';
 import { PiMicrophoneBold, PiPencilLine, PiPaperclip } from 'react-icons/pi';
 import MeetingMinutesRealtime from '../components/MeetingMinutesRealtime';
@@ -28,6 +28,24 @@ const MeetingMinutesPage: React.FC = () => {
       [method]: text,
     }));
   };
+
+  // Memoized callback for microphone transcript changes
+  const handleMicrophoneTranscriptChange = useCallback(
+    (text: string) => handleTranscriptChange('microphone', text),
+    []
+  );
+
+  // Memoized callback for direct transcript changes
+  const handleDirectTranscriptChange = useCallback(
+    (text: string) => handleTranscriptChange('direct', text),
+    []
+  );
+
+  // Memoized callback for file transcript changes
+  const handleFileTranscriptChange = useCallback(
+    (text: string) => handleTranscriptChange('file', text),
+    []
+  );
 
   // Get current transcript text
   const currentTranscriptText = transcriptTexts[inputMethod];
@@ -95,9 +113,7 @@ const MeetingMinutesPage: React.FC = () => {
                   display: inputMethod === 'microphone' ? 'block' : 'none',
                 }}>
                 <MeetingMinutesRealtime
-                  onTranscriptChange={(text) =>
-                    handleTranscriptChange('microphone', text)
-                  }
+                  onTranscriptChange={handleMicrophoneTranscriptChange}
                 />
               </div>
               <div
@@ -105,17 +121,13 @@ const MeetingMinutesPage: React.FC = () => {
                   display: inputMethod === 'direct' ? 'block' : 'none',
                 }}>
                 <MeetingMinutesDirect
-                  onTranscriptChange={(text) =>
-                    handleTranscriptChange('direct', text)
-                  }
+                  onTranscriptChange={handleDirectTranscriptChange}
                 />
               </div>
               <div
                 style={{ display: inputMethod === 'file' ? 'block' : 'none' }}>
                 <MeetingMinutesFile
-                  onTranscriptChange={(text) =>
-                    handleTranscriptChange('file', text)
-                  }
+                  onTranscriptChange={handleFileTranscriptChange}
                 />
               </div>
             </div>
