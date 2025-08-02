@@ -571,6 +571,7 @@ meetingMinutes:
   last_generated: Tạo lần cuối {{time}}
   minutes_placeholder: Biên bản sẽ xuất hiện ở đây sau khi tạo
   model: Mô hình tạo biên bản cuộc họp
+  new_recording_session: Phiên ghi âm mới
   next_generation: Tạo tiếp theo
   next_generation_in: 'Tạo tiếp theo trong : '
   no_transcript: Không có bản chuyển đổi

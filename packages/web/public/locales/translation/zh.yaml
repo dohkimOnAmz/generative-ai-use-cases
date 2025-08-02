@@ -475,6 +475,7 @@ meetingMinutes:
   last_generated: 最后生成时间 {{time}}
   minutes_placeholder: 生成后会议纪要将显示在这里
   model: 会议纪要生成模型
+  new_recording_session: 新录音会话
   next_generation: 下次生成
   next_generation_in: '下次生成时间 :'
   no_transcript: 无转录文本

@@ -35,6 +35,7 @@ interface RealtimeSegment {
   isPartial: boolean;
   transcripts: Transcript[];
   translation?: string;
+  sessionId: number; // Session identifier for continuity
 }
 
 interface MeetingMinutesRealtimeProps {
@@ -90,6 +91,9 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   // Context states for translation accuracy improvement
   const [userDefinedContext, setUserDefinedContext] = useState('');
   const [systemGeneratedContext, setSystemGeneratedContext] = useState('');
+
+  // Simple session management
+  const [currentSessionId, setCurrentSessionId] = useState(0);
 
   // Translation hook
   const { availableModels, defaultModelId, translate, isTranslating } =
@@ -332,9 +336,13 @@ Respond in ${targetLanguageName}.`;
 
   // Real-time text output
   const realtimeText: string = useMemo(() => {
-    const sortedSegments = [...realtimeSegments].sort(
-      (a, b) => a.startTime - b.startTime
-    );
+    const sortedSegments = [...realtimeSegments].sort((a, b) => {
+      // Sort by session ID first, then by time within each session
+      if (a.sessionId !== b.sessionId) {
+        return a.sessionId - b.sessionId;
+      }
+      return a.startTime - b.startTime;
+    });
 
     return sortedSegments
       .map((segment) => {
@@ -409,10 +417,11 @@ Respond in ${targetLanguageName}.`;
         endTime: latestSegment.endTime,
         isPartial: latestSegment.isPartial,
         transcripts: latestSegment.transcripts,
+        sessionId: currentSessionId,
       };
       updateRealtimeSegments(segment);
     }
-  }, [micRawTranscripts, updateRealtimeSegments]);
+  }, [micRawTranscripts, updateRealtimeSegments, currentSessionId]);
 
   // Process screen audio raw transcripts
   useEffect(() => {
@@ -430,10 +439,16 @@ Respond in ${targetLanguageName}.`;
         endTime: latestSegment.endTime,
         isPartial: latestSegment.isPartial,
         transcripts: latestSegment.transcripts,
+        sessionId: currentSessionId,
       };
       updateRealtimeSegments(segment);
     }
-  }, [screenRawTranscripts, enableScreenAudio, updateRealtimeSegments]);
+  }, [
+    screenRawTranscripts,
+    enableScreenAudio,
+    updateRealtimeSegments,
+    currentSessionId,
+  ]);
 
   // Handle translation for completed segments
   useEffect(() => {
@@ -545,6 +560,10 @@ Respond in ${targetLanguageName}.`;
     stopScreenTranscription();
     clearMicTranscripts();
     clearScreenTranscripts();
+
+    // Reset session state for fresh start
+    setCurrentSessionId(0);
+
     onTranscriptChange?.('');
   }, [
     stopMicTranscription,
@@ -556,7 +575,10 @@ Respond in ${targetLanguageName}.`;
 
   // Start transcription
   const onClickExecStartTranscription = useCallback(async () => {
-    setRealtimeSegments([]);
+    // Simple session management - just increment session ID when recording starts
+    setCurrentSessionId((prev) => prev + 1);
+
+    // Clear only the hooks' internal state, but preserve our segments
     clearMicTranscripts();
     clearScreenTranscripts();
 
@@ -819,23 +841,47 @@ Respond in ${targetLanguageName}.`;
             </div>
           ) : (
             [...realtimeSegments]
-              .sort((a, b) => a.startTime - b.startTime)
-              .map((segment, index) => (
-                <MeetingMinutesTranscriptSegment
-                  key={`${segment.resultId}-${segment.source}-${index}`}
-                  startTime={segment.startTime}
-                  transcripts={segment.transcripts}
-                  speakerMapping={speakerMapping}
-                  isPartial={segment.isPartial}
-                  formatTime={formatTime}
-                  translation={segment.translation}
-                  isTranslating={isTranslating(
-                    segment.resultId,
-                    selectedTranslationModel
-                  )}
-                  translationEnabled={realtimeTranslationEnabled}
-                />
-              ))
+              .sort((a, b) => {
+                // Sort by session ID first, then by time within each session
+                if (a.sessionId !== b.sessionId) {
+                  return a.sessionId - b.sessionId;
+                }
+                return a.startTime - b.startTime;
+              })
+              .map((segment, index, sortedSegments) => {
+                const prevSegment =
+                  index > 0 ? sortedSegments[index - 1] : null;
+                const isNewSession =
+                  prevSegment && segment.sessionId !== prevSegment.sessionId;
+
+                return (
+                  <React.Fragment
+                    key={`${segment.resultId}-${segment.source}-${index}`}>
+                    {isNewSession && (
+                      <div className="my-4 flex items-center px-2">
+                        <div className="grow border-t border-gray-300"></div>
+                        <div className="mx-4 rounded-full border border-blue-200 bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                          {t('meetingMinutes.new_recording_session')}
+                        </div>
+                        <div className="grow border-t border-gray-300"></div>
+                      </div>
+                    )}
+                    <MeetingMinutesTranscriptSegment
+                      startTime={segment.startTime}
+                      transcripts={segment.transcripts}
+                      speakerMapping={speakerMapping}
+                      isPartial={segment.isPartial}
+                      formatTime={formatTime}
+                      translation={segment.translation}
+                      isTranslating={isTranslating(
+                        segment.resultId,
+                        selectedTranslationModel
+                      )}
+                      translationEnabled={realtimeTranslationEnabled}
+                    />
+                  </React.Fragment>
+                );
+              })
           )}
         </div>
       </div>

@@ -549,6 +549,7 @@ meetingMinutes:
   last_generated: 最後の生成時刻 {{time}}
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: 議事録生成モデル
+  new_recording_session: 新しい録音セッション
   next_generation: 次回生成
   next_generation_in: '次回生成まで : '
   no_transcript: 文字起こしがありません

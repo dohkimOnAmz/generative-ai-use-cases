@@ -687,6 +687,7 @@ meetingMinutes:
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
   model: Meeting Minutes Generation Model
+  new_recording_session: New Recording Session
   next_generation: Next Generation
   next_generation_in: 'Next generation in : '
   no_transcript: No Transcript

@@ -587,6 +587,7 @@ meetingMinutes:
   last_generated: สร้างล่าสุดเมื่อ {{time}}
   minutes_placeholder: รายงานการประชุมจะปรากฏที่นี่หลังจากสร้าง
   model: โมเดลสร้างรายงานการประชุม
+  new_recording_session: เซสชันการบันทึกใหม่
   next_generation: การสร้างครั้งถัดไป
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   no_transcript: ไม่มีบันทึกการถอดความ
