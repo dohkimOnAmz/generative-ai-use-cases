@@ -761,11 +761,7 @@ Respond in ${targetLanguageName}.`;
                     onChange={setSelectedTranslationModel}
                     options={availableModels.map((modelId) => ({
                       value: modelId,
-                      label: modelId.includes('claude-3-5-haiku')
-                        ? 'Claude 3.5 Haiku'
-                        : modelId.includes('nova-pro')
-                          ? 'Nova Pro'
-                          : modelId,
+                      label: MODELS.modelDisplayName(modelId),
                     }))}
                   />
                 </div>
