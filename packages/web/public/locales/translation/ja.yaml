@@ -523,7 +523,6 @@ mcp_chat:
 meetingMinutes:
   auto_generate: 自動生成
   clear_minutes: 議事録をクリア
-  connection_lost_instruction: WebSocket接続が失われました。ネットワーク接続を確認して再接続してください。
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
   frequency: 生成頻度
@@ -548,7 +547,6 @@ meetingMinutes:
   language_thai: タイ語
   language_vietnamese: ベトナム語
   last_generated: 最後の生成時刻 {{time}}
-  mic_status: マイク
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: 議事録生成モデル
   new_recording_session: 新しい録音セッション
@@ -558,7 +556,6 @@ meetingMinutes:
   partial_indicator: (...)
   record_transcribe: 音声認識
   screen_audio_error: スクリーン音声エラー
-  screen_status: スクリーン
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
@@ -569,7 +566,6 @@ meetingMinutes:
   style_transcription: 文字起こし
   title: 議事録生成
   transcript: 文字起こし
-  websocket_connection_lost: WebSocket接続が失われました
 model:
   parameters:
     reasoning: Reasoning

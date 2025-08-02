@@ -450,7 +450,6 @@ language:
 meetingMinutes:
   auto_generate: 自动生成
   clear_minutes: 清除会议纪要
-  connection_lost_instruction: WebSocket连接已断开。请检查网络连接并尝试重新连接。
   custom_prompt: 自定义提示
   custom_prompt_placeholder: 输入用于生成会议纪要的自定义提示...
   frequency: 生成频率
@@ -474,7 +473,6 @@ meetingMinutes:
   language_thai: 泰语
   language_vietnamese: 越南语
   last_generated: 最后生成时间 {{time}}
-  mic_status: 麦克风
   minutes_placeholder: 生成后会议纪要将显示在这里
   model: 会议纪要生成模型
   new_recording_session: 新录音会话
@@ -484,7 +482,6 @@ meetingMinutes:
   partial_indicator: (...)
   record_transcribe: 录音和转录
   screen_audio_error: 屏幕音频错误
-  screen_status: 屏幕
   speech_recognition: 语音识别
   style: 会议纪要风格
   style_custom: 自定义
@@ -495,7 +492,6 @@ meetingMinutes:
   style_transcription: 转录
   title: 会议纪要生成器
   transcript: 转录文本
-  websocket_connection_lost: WebSocket连接已断开
 model:
   parameters:
     reasoning: 推理

@@ -53,59 +53,6 @@ const useScreenAudio = () => {
   const [preparedDisplayStream, setPreparedDisplayStream] =
     useState<MediaStream | null>(null);
 
-  // Connection status monitoring
-  const [isConnected, setIsConnected] = useState(true);
-  const [connectionError, setConnectionError] = useState<string>('');
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-
-  // Initialize AudioContext for notifications
-  const initializeAudioContext = () => {
-    if (!audioContext) {
-      try {
-        const ctx = new AudioContext();
-        setAudioContext(ctx);
-        return ctx;
-      } catch (error) {
-        console.warn('Failed to initialize AudioContext:', error);
-        return null;
-      }
-    }
-    return audioContext;
-  };
-
-  // Play audio notification
-  const playNotificationSound = () => {
-    const ctx = initializeAudioContext();
-    if (!ctx) return;
-
-    try {
-      // Resume AudioContext if suspended (required by browser autoplay policies)
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-
-      // Create a simple beep sound (800Hz for 0.5 seconds)
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-      oscillator.type = 'sine';
-
-      // Fade in and out to avoid harsh clicks
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
-      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.5);
-    } catch (error) {
-      console.warn('Failed to play notification sound:', error);
-    }
-  };
-
   // Check browser support
   useEffect(() => {
     const supported =
@@ -202,8 +149,6 @@ const useScreenAudio = () => {
     });
 
     try {
-      setIsConnected(true);
-      setConnectionError('');
       const response = await transcribeClient.send(command);
 
       if (response.TranscriptResultStream) {
@@ -287,16 +232,6 @@ const useScreenAudio = () => {
       }
     } catch (error) {
       console.error('Screen audio transcription error:', error);
-
-      // Set connection status and error
-      setIsConnected(false);
-      setConnectionError(
-        'Screen audio WebSocket connection to AWS Transcribe has been lost'
-      );
-
-      // Trigger audio notification
-      playNotificationSound();
-
       setError('Screen audio transcription failed');
       stopTranscription();
     } finally {
@@ -493,9 +428,6 @@ const useScreenAudio = () => {
     isSupported,
     error,
     rawTranscripts,
-    isConnected,
-    connectionError,
-    playNotificationSound,
   };
 };
 
