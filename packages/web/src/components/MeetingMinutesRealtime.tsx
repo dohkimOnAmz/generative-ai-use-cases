@@ -242,6 +242,20 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   // Recording states
   const isRecording = micRecording || screenRecording;
 
+  // Calculate responsive transcript container height
+  const getTranscriptHeight = useCallback(() => {
+    const baseClasses =
+      'w-full overflow-y-auto rounded border border-black/30 p-1.5 min-h-64';
+
+    if (isRecording) {
+      // Recording: Settings hidden, more space available
+      return `${baseClasses} max-h-72 sm:max-h-80 lg:max-h-[60vh]`;
+    } else {
+      // Not recording: Settings visible, less space available
+      return `${baseClasses} max-h-56 sm:max-h-64 lg:max-h-[30vh]`;
+    }
+  }, [isRecording]);
+
   // Clear function
   const handleClear = useCallback(() => {
     setRealtimeSegments([]);
@@ -319,59 +333,65 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
               </Button>
             )}
           </div>
-          <ScreenAudioToggle
-            enabled={enableScreenAudio}
-            onToggle={setEnableScreenAudio}
-            isSupported={isScreenAudioSupported}
-          />
+          {!isRecording && (
+            <ScreenAudioToggle
+              enabled={enableScreenAudio}
+              onToggle={setEnableScreenAudio}
+              isSupported={isScreenAudioSupported}
+            />
+          )}
         </div>
       </div>
 
       {/* Language Selection */}
-      <div className="mb-4 px-2">
-        <label className="mb-2 block font-bold">
-          {t('meetingMinutes.language')}
-        </label>
-        <Select
-          value={languageCode}
-          onChange={setLanguageCode}
-          options={languageOptions}
-        />
-      </div>
+      {!isRecording && (
+        <div className="mb-4 px-2">
+          <label className="mb-2 block font-bold">
+            {t('meetingMinutes.language')}
+          </label>
+          <Select
+            value={languageCode}
+            onChange={setLanguageCode}
+            options={languageOptions}
+          />
+        </div>
+      )}
 
       {/* Speaker Recognition Parameters */}
-      <ExpandableField
-        label={t('transcribe.detailed_parameters')}
-        className="mb-4"
-        notItem={true}>
-        <div className="grid grid-cols-2 gap-2 pt-2">
-          <Switch
-            label={t('transcribe.speaker_recognition')}
-            checked={speakerLabel}
-            onSwitch={setSpeakerLabel}
-          />
-          {speakerLabel && (
-            <RangeSlider
-              className=""
-              label={t('transcribe.max_speakers')}
-              min={2}
-              max={10}
-              value={maxSpeakers}
-              onChange={setMaxSpeakers}
-              help={t('transcribe.max_speakers_help')}
+      {!isRecording && (
+        <ExpandableField
+          label={t('transcribe.detailed_parameters')}
+          className="mb-4"
+          notItem={true}>
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <Switch
+              label={t('transcribe.speaker_recognition')}
+              checked={speakerLabel}
+              onSwitch={setSpeakerLabel}
             />
-          )}
-        </div>
-        {speakerLabel && (
-          <div className="mt-2">
-            <Textarea
-              placeholder={t('transcribe.speaker_names')}
-              value={speakers}
-              onChange={setSpeakers}
-            />
+            {speakerLabel && (
+              <RangeSlider
+                className=""
+                label={t('transcribe.max_speakers')}
+                min={2}
+                max={10}
+                value={maxSpeakers}
+                onChange={setMaxSpeakers}
+                help={t('transcribe.max_speakers_help')}
+              />
+            )}
           </div>
-        )}
-      </ExpandableField>
+          {speakerLabel && (
+            <div className="mt-2">
+              <Textarea
+                placeholder={t('transcribe.speaker_names')}
+                value={speakers}
+                onChange={setSpeakers}
+              />
+            </div>
+          )}
+        </ExpandableField>
+      )}
 
       {/* Screen Audio Error Display */}
       {screenAudioError && (
@@ -408,13 +428,12 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           ref={transcriptContainerRef}
           onScroll={(e) => {
             const target = e.target as HTMLDivElement;
-            const isAtBottom =
-              Math.abs(
-                target.scrollHeight - target.clientHeight - target.scrollTop
-              ) < 3;
+            const distanceFromBottom =
+              target.scrollHeight - target.clientHeight - target.scrollTop;
+            const isAtBottom = distanceFromBottom < 80; // About 3-4 lines tolerance
             isAtBottomRef.current = isAtBottom;
           }}
-          className="min-h-96 w-full overflow-y-auto rounded border border-black/30 p-1.5">
+          className={getTranscriptHeight()}>
           {realtimeSegments.length === 0 ? (
             <div className="py-8 text-center text-gray-500">
               {t('transcribe.result_placeholder')}
