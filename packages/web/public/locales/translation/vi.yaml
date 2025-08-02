@@ -546,6 +546,7 @@ language:
 meetingMinutes:
   auto_generate: Tự động tạo
   clear_minutes: Xóa biên bản
+  connection_lost_instruction: Kết nối WebSocket bị mất. Vui lòng kiểm tra kết nối mạng và thử kết nối lại.
   custom_prompt: Lời nhắc tùy chỉnh
   custom_prompt_placeholder: Nhập lời nhắc tùy chỉnh để tạo biên bản cuộc họp...
   frequency: Tần suất tạo
@@ -569,6 +570,7 @@ meetingMinutes:
   language_thai: Tiếng Thái
   language_vietnamese: Tiếng Việt
   last_generated: Tạo lần cuối {{time}}
+  mic_status: Micro
   minutes_placeholder: Biên bản sẽ xuất hiện ở đây sau khi tạo
   model: Mô hình tạo biên bản cuộc họp
   new_recording_session: Phiên ghi âm mới
@@ -578,6 +580,7 @@ meetingMinutes:
   partial_indicator: (...)
   record_transcribe: Ghi âm và chuyển đổi
   screen_audio_error: Lỗi âm thanh màn hình
+  screen_status: Màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
   style_custom: Tùy chỉnh
@@ -588,6 +591,7 @@ meetingMinutes:
   style_transcription: Chuyển đổi
   title: Trình tạo biên bản cuộc họp
   transcript: Bản chuyển đổi
+  websocket_connection_lost: Kết nối WebSocket bị mất
 model:
   parameters:
     reasoning: Reasoning

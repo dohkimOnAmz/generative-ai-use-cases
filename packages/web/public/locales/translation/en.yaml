@@ -662,6 +662,7 @@ mcp_chat:
 meetingMinutes:
   auto_generate: Auto Generate
   clear_minutes: Clear Minutes
+  connection_lost_instruction: The WebSocket connection has been lost. Please check your network connection and try reconnecting.
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
   frequency: Generation Frequency
@@ -685,6 +686,7 @@ meetingMinutes:
   language_thai: Thai
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
+  mic_status: Mic
   minutes_placeholder: Minutes will appear here after generation
   model: Meeting Minutes Generation Model
   new_recording_session: New Recording Session
@@ -694,6 +696,7 @@ meetingMinutes:
   partial_indicator: (...)
   record_transcribe: Record & Transcribe
   screen_audio_error: Screen Audio Error
+  screen_status: Screen
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
@@ -704,6 +707,7 @@ meetingMinutes:
   style_transcription: Transcription
   title: Meeting Minutes Generator
   transcript: Transcript
+  websocket_connection_lost: WebSocket Connection Lost
 model:
   parameters:
     reasoning: Reasoning

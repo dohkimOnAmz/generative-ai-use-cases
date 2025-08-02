@@ -562,6 +562,7 @@ language:
 meetingMinutes:
   auto_generate: สร้างอัตโนมัติ
   clear_minutes: ล้างรายงานการประชุม
+  connection_lost_instruction: การเชื่อมต่อ WebSocket หลุด โปรดตรวจสอบการเชื่อมต่อเครือข่ายและลองเชื่อมต่อใหม่
   custom_prompt: พรอมต์แบบกำหนดเอง
   custom_prompt_placeholder: ป้อนพรอมต์แบบกำหนดเองสำหรับการสร้างรายงานการประชุม...
   frequency: ความถี่ในการสร้าง
@@ -585,6 +586,7 @@ meetingMinutes:
   language_thai: ไทย
   language_vietnamese: เวียดนาม
   last_generated: สร้างล่าสุดเมื่อ {{time}}
+  mic_status: ไมโครโฟน
   minutes_placeholder: รายงานการประชุมจะปรากฏที่นี่หลังจากสร้าง
   model: โมเดลสร้างรายงานการประชุม
   new_recording_session: เซสชันการบันทึกใหม่
@@ -594,6 +596,7 @@ meetingMinutes:
   partial_indicator: (...)
   record_transcribe: บันทึกและถอดความ
   screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
+  screen_status: หน้าจอ
   speech_recognition: การรู้จำเสียงพูด
   style: รูปแบบรายงานการประชุม
   style_custom: กำหนดเอง
@@ -604,6 +607,7 @@ meetingMinutes:
   style_transcription: การถอดความ
   title: ตัวสร้างรายงานการประชุม
   transcript: บันทึกการถอดความ
+  websocket_connection_lost: การเชื่อมต่อ WebSocket หลุด
 model:
   parameters:
     reasoning: การให้เหตุผล
