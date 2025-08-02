@@ -610,16 +610,21 @@ translate:
   additional_context_placeholder: 您可以输入希望额外考虑的点（如随意程度等）
   auto_detect_language: 自动检测语言
   auto_translate: 自动翻译
+  contextHelp: 上下文信息通过提供会议背景信息来帮助提高翻译准确性。
   continue_output: 继续输出
   enter_text: 请输入
   model: 实时翻译模型
   realtimeTranslation: 实时翻译
   result_placeholder: 翻译结果将显示在这里
+  systemGeneratedContext: 系统生成上下文
+  systemGeneratedContextPlaceholder: 基于会议内容自动生成的上下文
   target_language: 实时翻译语言
   text_to_translate: 要翻译的文本
   title: 翻译
   translating: 翻译中...
   translation: 翻译
+  userDefinedContext: 用户定义上下文
+  userDefinedContextPlaceholder: 输入上下文以提高翻译准确性（例如：会议主题、专业术语等）
 useCaseBuilder:
   accessError: 访问错误
   addInputExample: 添加输入示例

@@ -745,16 +745,21 @@ translate:
   additional_context_placeholder: คุณสามารถป้อนประเด็นเพิ่มเติมที่ต้องการพิจารณา (เช่น ความไม่เป็นทางการ ฯลฯ)
   auto_detect_language: ตรวจจับภาษาอัตโนมัติ
   auto_translate: แปลอัตโนมัติ
+  contextHelp: ข้อมูลบริบทช่วยเพิ่มความแม่นยำในการแปลโดยให้ข้อมูลพื้นฐานเกี่ยวกับการประชุม
   continue_output: ดำเนินการต่อ
   enter_text: ป้อนข้อความ
   model: โมเดลการแปลแบบเรียลไทม์
   realtimeTranslation: การแปลแบบเรียลไทม์
   result_placeholder: ผลการแปลจะแสดงที่นี่
+  systemGeneratedContext: บริบทที่สร้างโดยระบบ
+  systemGeneratedContextPlaceholder: บริบทที่สร้างขึ้นอัตโนมัติจากเนื้อหาการประชุม
   target_language: ภาษาการแปลแบบเรียลไทม์
   text_to_translate: ข้อความที่จะแปล
   title: แปล
   translating: กำลังแปล...
   translation: การแปล
+  userDefinedContext: บริบทที่ผู้ใช้กำหนด
+  userDefinedContextPlaceholder: ป้อนบริบทเพื่อเพิ่มความแม่นยำในการแปล (เช่น หัวข้อการประชุม คำศัพท์เทคนิค ฯลฯ)
 useCaseBuilder:
   accessError: ข้อผิดพลาดในการเข้าถึง
   addInputExample: เพิ่มตัวอย่างอินพุต

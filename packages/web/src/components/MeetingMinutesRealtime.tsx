@@ -23,6 +23,8 @@ import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import useMicrophone from '../hooks/useMicrophone';
 import useScreenAudio from '../hooks/useScreenAudio';
 import useRealtimeTranslation from '../hooks/useRealtimeTranslation';
+import useChatApi from '../hooks/useChatApi';
+import { MODELS } from '../hooks/useModel';
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -46,6 +48,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const { t, i18n } = useTranslation();
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
+  const generateSystemContextRef = useRef<(() => Promise<void>) | null>(null);
 
   // Microphone and screen audio hooks
   const {
@@ -84,9 +87,159 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
   const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
 
+  // Context states for translation accuracy improvement
+  const [userDefinedContext, setUserDefinedContext] = useState('');
+  const [systemGeneratedContext, setSystemGeneratedContext] = useState('');
+
   // Translation hook
   const { availableModels, defaultModelId, translate, isTranslating } =
     useRealtimeTranslation();
+
+  // Hook for generating system context
+  const { predict } = useChatApi();
+
+  // Generate system context based on transcript history
+  const generateSystemContext = useCallback(async () => {
+    const currentlyRecording = micRecording || screenRecording;
+
+    if (
+      !realtimeTranslationEnabled ||
+      !currentlyRecording ||
+      realtimeSegments.length === 0
+    ) {
+      return;
+    }
+
+    try {
+      // Get transcript text from recent segments
+      const transcriptText = realtimeSegments
+        .filter(
+          (segment) => !segment.isPartial && segment.transcripts.length > 0
+        )
+        .sort((a, b) => a.startTime - b.startTime)
+        .map((segment) =>
+          segment.transcripts
+            .map((transcript) => transcript.transcript)
+            .join(' ')
+        )
+        .join(' ')
+        .trim();
+
+      if (!transcriptText || transcriptText.length < 50) {
+        return;
+      }
+
+      const { modelIds } = MODELS;
+      const firstModelId = modelIds[0];
+
+      if (!firstModelId) {
+        console.error('No models available for system context generation');
+        return;
+      }
+
+      const { findModelByModelId } = await import('../hooks/useModel');
+      const model = findModelByModelId(firstModelId);
+
+      if (!model) {
+        console.error('Model not found:', firstModelId);
+        return;
+      }
+
+      // Get target language name for context generation
+      const getLanguageNameFromCodeLocal = (languageCode: string): string => {
+        const languageNameMapping: { [key: string]: string } = {
+          'ja-JP': 'Japanese',
+          'en-US': 'English',
+          'zh-CN': 'Chinese',
+          'ko-KR': 'Korean',
+          'th-TH': 'Thai',
+          'vi-VN': 'Vietnamese',
+        };
+        return languageNameMapping[languageCode] || 'Japanese';
+      };
+      const targetLanguageName = getLanguageNameFromCodeLocal(
+        selectedTargetLanguage
+      );
+
+      const systemPrompt = `You are an AI assistant that analyzes meeting transcripts to generate context for translation improvement.
+Based on the provided transcript, generate a brief context (2-3 sentences) about what kind of meeting this is, the main topics being discussed, and any technical terms or domain-specific language being used.
+Focus on information that would help improve translation accuracy.
+Respond in ${targetLanguageName}.`;
+
+      const messages = [
+        {
+          role: 'system' as const,
+          content: systemPrompt,
+        },
+        {
+          role: 'user' as const,
+          content: `Please analyze this meeting transcript and provide context for translation improvement:\n\n${transcriptText}`,
+        },
+      ];
+
+      const result = await predict({
+        model,
+        messages,
+        id: '/meeting-context',
+      });
+
+      setSystemGeneratedContext(result.trim());
+    } catch (error) {
+      console.error('Failed to generate system context:', error);
+    }
+  }, [
+    realtimeTranslationEnabled,
+    micRecording,
+    screenRecording,
+    realtimeSegments,
+    selectedTargetLanguage,
+    predict,
+  ]);
+
+  // Update ref with latest function
+  generateSystemContextRef.current = generateSystemContext;
+
+  // Timer for generating system context every minute
+  useEffect(() => {
+    const currentlyRecording = micRecording || screenRecording;
+
+    if (!realtimeTranslationEnabled || !currentlyRecording) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (generateSystemContextRef.current) {
+        generateSystemContextRef.current();
+      }
+    }, 60000); // 1 minute = 60,000ms
+
+    // Initial generation after 30 seconds to get some content
+    const initialTimeout = setTimeout(() => {
+      if (generateSystemContextRef.current) {
+        generateSystemContextRef.current();
+      }
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialTimeout);
+    };
+  }, [realtimeTranslationEnabled, micRecording, screenRecording]);
+
+  // Get context from recent segments for translation
+  const getRecentSegmentsContext = useCallback((): string => {
+    const recentSegments = realtimeSegments
+      .filter((segment) => !segment.isPartial && segment.transcripts.length > 0)
+      .sort((a, b) => a.startTime - b.startTime)
+      .slice(-10); // Get last 10 segments
+
+    return recentSegments
+      .map((segment) =>
+        segment.transcripts.map((transcript) => transcript.transcript).join(' ')
+      )
+      .join(' ')
+      .trim();
+  }, [realtimeSegments]);
 
   // Set default translation model on mount
   useEffect(() => {
@@ -310,11 +463,32 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           const targetLanguageName = getLanguageNameFromCode(
             selectedTargetLanguage
           );
+
+          // Build combined context for translation
+          const contexts = [];
+          if (userDefinedContext.trim()) {
+            contexts.push(`User-defined context: ${userDefinedContext.trim()}`);
+          }
+          if (systemGeneratedContext.trim()) {
+            contexts.push(
+              `System-generated context: ${systemGeneratedContext.trim()}`
+            );
+          }
+
+          const recentSegmentsText = getRecentSegmentsContext();
+          if (recentSegmentsText) {
+            contexts.push(`Recent conversation context: ${recentSegmentsText}`);
+          }
+
+          const combinedContext =
+            contexts.length > 0 ? contexts.join('\n\n') : undefined;
+
           const translation = await translate(
             segment.resultId,
             segmentText,
             selectedTranslationModel,
-            targetLanguageName
+            targetLanguageName,
+            combinedContext
           );
 
           if (translation) {
@@ -342,6 +516,9 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
     getLanguageNameFromCode,
     isTranslating,
     translate,
+    getRecentSegmentsContext,
+    systemGeneratedContext,
+    userDefinedContext,
   ]);
 
   // Recording states
@@ -514,6 +691,47 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Translation Context - Only show when real-time translation is ON and recording */}
+      {realtimeTranslationEnabled && isRecording && (
+        <div className="mb-4 px-2">
+          <div className="mb-2">
+            <h3 className="text-sm font-bold text-gray-700">
+              {t('translate.contextHelp')}
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {/* User-defined Context */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                {t('translate.userDefinedContext')}
+              </label>
+              <Textarea
+                placeholder={t('translate.userDefinedContextPlaceholder')}
+                value={userDefinedContext}
+                onChange={setUserDefinedContext}
+                rows={3}
+                maxHeight={80} // About 3 lines
+              />
+            </div>
+
+            {/* System-generated Context */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                {t('translate.systemGeneratedContext')}
+              </label>
+              <Textarea
+                placeholder={t('translate.systemGeneratedContextPlaceholder')}
+                value={systemGeneratedContext}
+                onChange={() => {}} // Read-only
+                rows={3}
+                maxHeight={80} // About 3 lines
+                disabled={true}
+              />
+            </div>
           </div>
         </div>
       )}

@@ -710,16 +710,21 @@ translate:
   additional_context_placeholder: 追加で考慮してほしい点を入力することができます（カジュアルさ等）
   auto_detect_language: 言語を自動検出
   auto_translate: 自動翻訳
+  contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
   enter_text: 入力してください
   model: リアルタイム翻訳モデル
   realtimeTranslation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
+  systemGeneratedContext: システム自動コンテキスト
+  systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト
   target_language: リアルタイム翻訳言語
   text_to_translate: 翻訳したい文章
   title: 翻訳
   translating: 翻訳中...
   translation: 翻訳
+  userDefinedContext: ユーザー定義コンテキスト
+  userDefinedContextPlaceholder: 翻訳精度向上のためのコンテキストを入力（会議の話題、専門用語など）
 useCaseBuilder:
   accessError: アクセスエラー
   addInputExample: 入力例を追加

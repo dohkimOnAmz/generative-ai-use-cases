@@ -871,16 +871,21 @@ translate:
   additional_context_placeholder: You can enter additional points to consider (e.g., casualness, etc.)
   auto_detect_language: Auto detect language
   auto_translate: Auto translate
+  contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
   continue_output: Continue output
   enter_text: Enter text
   model: Real-time Translation Model
   realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
+  systemGeneratedContext: System-generated Context
+  systemGeneratedContextPlaceholder: Auto-generated context based on the meeting content
   target_language: Real-time Translation Language
   text_to_translate: Text to translate
   title: Translate
   translating: Translating...
   translation: Translation
+  userDefinedContext: User-defined Context
+  userDefinedContextPlaceholder: 'Enter context to improve translation accuracy (e.g., meeting topic, technical terms, etc.)'
 useCaseBuilder:
   accessError: Access Error
   addInputExample: Add Input Example

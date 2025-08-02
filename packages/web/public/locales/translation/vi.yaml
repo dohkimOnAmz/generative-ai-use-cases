@@ -723,16 +723,21 @@ translate:
   additional_context_placeholder: Có thể nhập các điểm bổ sung muốn xem xét (như tính thân mật, v.v.)
   auto_detect_language: Tự động phát hiện ngôn ngữ
   auto_translate: Dịch tự động
+  contextHelp: Thông tin ngữ cảnh giúp cải thiện độ chính xác dịch thuật bằng cách cung cấp thông tin nền về cuộc họp.
   continue_output: Xuất tiếp tục
   enter_text: Vui lòng nhập
   model: Mô hình dịch thời gian thực
   realtimeTranslation: Dịch thời gian thực
   result_placeholder: Kết quả dịch thuật sẽ được hiển thị ở đây
+  systemGeneratedContext: Ngữ cảnh được tạo bởi hệ thống
+  systemGeneratedContextPlaceholder: Ngữ cảnh được tạo tự động dựa trên nội dung cuộc họp
   target_language: Ngôn ngữ dịch thời gian thực
   text_to_translate: Văn bản muốn dịch
   title: Dịch thuật
   translating: Đang dịch...
   translation: Bản dịch
+  userDefinedContext: Ngữ cảnh do người dùng định nghĩa
+  userDefinedContextPlaceholder: 'Nhập ngữ cảnh để cải thiện độ chính xác dịch thuật (ví dụ: chủ đề cuộc họp, thuật ngữ chuyên môn, v.v.)'
 useCaseBuilder:
   accessError: Lỗi truy cập
   addInputExample: Thêm ví dụ đầu vào

@@ -40,7 +40,8 @@ const useRealtimeTranslation = () => {
       segmentId: string,
       sentence: string,
       modelId: string,
-      targetLanguage: string = 'Japanese'
+      targetLanguage: string = 'Japanese',
+      context?: string
     ): Promise<string | null> => {
       const translationKey = `${segmentId}-${modelId}`;
 
@@ -58,7 +59,7 @@ const useRealtimeTranslation = () => {
         const translationPrompt = prompter.translatePrompt({
           sentence,
           language: targetLanguage,
-          context: undefined,
+          context,
         });
         const model = findModelByModelId(modelId);
 
