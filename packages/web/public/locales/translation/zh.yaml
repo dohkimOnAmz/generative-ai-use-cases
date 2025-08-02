@@ -477,6 +477,7 @@ meetingMinutes:
   next_generation: 下次生成
   next_generation_in: '下次生成时间 :'
   no_transcript: 无转录文本
+  partial_indicator: (...)
   record_transcribe: 录音和转录
   screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别

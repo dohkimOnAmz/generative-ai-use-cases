@@ -17,6 +17,7 @@ import RangeSlider from './RangeSlider';
 import ExpandableField from './ExpandableField';
 import Textarea from './Textarea';
 import ScreenAudioToggle from './ScreenAudioToggle';
+import MeetingMinutesTranscriptSegment from './MeetingMinutesTranscriptSegment';
 import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import useMicrophone from '../hooks/useMicrophone';
 import useScreenAudio from '../hooks/useScreenAudio';
@@ -40,7 +41,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   onTranscriptChange,
 }) => {
   const { t, i18n } = useTranslation();
-  const transcriptTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
 
   // Microphone and screen audio hooks
@@ -159,18 +160,18 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   // Auto scroll to bottom when transcript updates if user was at bottom
   useEffect(() => {
     if (
-      transcriptTextareaRef.current &&
+      transcriptContainerRef.current &&
       isAtBottomRef.current &&
-      realtimeText
+      realtimeSegments.length > 0
     ) {
       setTimeout(() => {
-        if (transcriptTextareaRef.current) {
-          transcriptTextareaRef.current.scrollTop =
-            transcriptTextareaRef.current.scrollHeight;
+        if (transcriptContainerRef.current) {
+          transcriptContainerRef.current.scrollTop =
+            transcriptContainerRef.current.scrollHeight;
         }
       }, 10);
     }
-  }, [realtimeText]);
+  }, [realtimeSegments]);
 
   // Text existence check
   const hasTranscriptText = useMemo(() => {
@@ -403,24 +404,36 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             </div>
           )}
         </div>
-        <textarea
-          ref={transcriptTextareaRef}
-          value={realtimeText}
+        <div
+          ref={transcriptContainerRef}
           onScroll={(e) => {
-            const target = e.target as HTMLTextAreaElement;
+            const target = e.target as HTMLDivElement;
             const isAtBottom =
               Math.abs(
                 target.scrollHeight - target.clientHeight - target.scrollTop
               ) < 3;
-            if (isAtBottomRef.current) {
-              isAtBottomRef.current = isAtBottom;
-            }
+            isAtBottomRef.current = isAtBottom;
           }}
-          placeholder={t('transcribe.result_placeholder')}
-          rows={10}
-          className="min-h-96 w-full resize-none rounded border border-black/30 p-1.5 outline-none"
-          readOnly
-        />
+          className="min-h-96 w-full overflow-y-auto rounded border border-black/30 p-1.5">
+          {realtimeSegments.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              {t('transcribe.result_placeholder')}
+            </div>
+          ) : (
+            [...realtimeSegments]
+              .sort((a, b) => a.startTime - b.startTime)
+              .map((segment, index) => (
+                <MeetingMinutesTranscriptSegment
+                  key={`${segment.resultId}-${segment.source}-${index}`}
+                  startTime={segment.startTime}
+                  transcripts={segment.transcripts}
+                  speakerMapping={speakerMapping}
+                  isPartial={segment.isPartial}
+                  formatTime={formatTime}
+                />
+              ))
+          )}
+        </div>
       </div>
     </div>
   );

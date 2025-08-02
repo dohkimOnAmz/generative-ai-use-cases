@@ -689,6 +689,7 @@ meetingMinutes:
   next_generation: Next Generation
   next_generation_in: 'Next generation in : '
   no_transcript: No Transcript
+  partial_indicator: (...)
   record_transcribe: Record & Transcribe
   screen_audio_error: Screen Audio Error
   speech_recognition: Speech Recognition

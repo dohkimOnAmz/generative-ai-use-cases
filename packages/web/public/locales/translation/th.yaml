@@ -589,6 +589,7 @@ meetingMinutes:
   next_generation: การสร้างครั้งถัดไป
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   no_transcript: ไม่มีบันทึกการถอดความ
+  partial_indicator: (...)
   record_transcribe: บันทึกและถอดความ
   screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   speech_recognition: การรู้จำเสียงพูด

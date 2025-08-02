@@ -573,6 +573,7 @@ meetingMinutes:
   next_generation: Tạo tiếp theo
   next_generation_in: 'Tạo tiếp theo trong : '
   no_transcript: Không có bản chuyển đổi
+  partial_indicator: (...)
   record_transcribe: Ghi âm và chuyển đổi
   screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói

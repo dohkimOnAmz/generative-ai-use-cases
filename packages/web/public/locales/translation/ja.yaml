@@ -551,6 +551,7 @@ meetingMinutes:
   next_generation: 次回生成
   next_generation_in: '次回生成まで : '
   no_transcript: 文字起こしがありません
+  partial_indicator: (...)
   record_transcribe: 音声認識
   screen_audio_error: スクリーン音声エラー
   speech_recognition: 音声認識

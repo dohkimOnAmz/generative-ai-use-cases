@@ -14,7 +14,7 @@ const MeetingMinutesPage: React.FC = () => {
   // State management
   const [inputMethod, setInputMethod] = useState<InputMethod>('microphone');
   const [isGenerationPanelCollapsed, setIsGenerationPanelCollapsed] =
-    useState(true);
+    useState(false);
   const [transcriptTexts, setTranscriptTexts] = useState({
     microphone: '',
     direct: '',
