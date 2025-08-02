@@ -8,11 +8,23 @@ interface MeetingMinutesTranscriptSegmentProps {
   speakerMapping: { [key: string]: string };
   isPartial: boolean;
   formatTime: (seconds: number) => string;
+  translation?: string;
+  isTranslating?: boolean;
+  translationEnabled?: boolean;
 }
 
 const MeetingMinutesTranscriptSegment: React.FC<
   MeetingMinutesTranscriptSegmentProps
-> = ({ startTime, transcripts, speakerMapping, isPartial, formatTime }) => {
+> = ({
+  startTime,
+  transcripts,
+  speakerMapping,
+  isPartial,
+  formatTime,
+  translation,
+  isTranslating,
+  translationEnabled,
+}) => {
   const { t } = useTranslation();
   return (
     <div className="mb-4 rounded-lg bg-gray-200 p-3">
@@ -41,6 +53,25 @@ const MeetingMinutesTranscriptSegment: React.FC<
           </div>
         </div>
       ))}
+
+      {/* Translation Display */}
+      {translationEnabled && (
+        <div className="mt-3 border-t border-gray-300 pt-3">
+          {isTranslating ? (
+            <div className="text-sm italic text-gray-500">
+              {t('translate.translating')}
+            </div>
+          ) : translation ? (
+            <div className="rounded bg-blue-50 p-2 text-sm text-blue-700">
+              <span className="font-medium">
+                {t('translate.translation')}
+                {t('common.colon')}{' '}
+              </span>
+              {translation}
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 };

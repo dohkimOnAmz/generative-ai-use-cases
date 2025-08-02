@@ -724,9 +724,13 @@ translate:
   auto_translate: Dịch tự động
   continue_output: Xuất tiếp tục
   enter_text: Vui lòng nhập
+  model: Mô hình
+  realtimeTranslation: Dịch thời gian thực
   result_placeholder: Kết quả dịch thuật sẽ được hiển thị ở đây
   text_to_translate: Văn bản muốn dịch
-  title: Dịch thuậ
+  title: Dịch thuật
+  translating: Đang dịch...
+  translation: Bản dịch
 useCaseBuilder:
   accessError: Lỗi truy cập
   addInputExample: Thêm ví dụ đầu vào

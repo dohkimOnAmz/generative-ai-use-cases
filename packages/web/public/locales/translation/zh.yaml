@@ -611,9 +611,13 @@ translate:
   auto_translate: 自动翻译
   continue_output: 继续输出
   enter_text: 请输入
+  model: 模型
+  realtimeTranslation: 实时翻译
   result_placeholder: 翻译结果将显示在这里
   text_to_translate: 要翻译的文本
   title: 翻译
+  translating: 翻译中...
+  translation: 翻译
 useCaseBuilder:
   accessError: 访问错误
   addInputExample: 添加输入示例

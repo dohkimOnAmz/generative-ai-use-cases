@@ -872,9 +872,13 @@ translate:
   auto_translate: Auto translate
   continue_output: Continue output
   enter_text: Enter text
+  model: Model
+  realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
   text_to_translate: Text to translate
   title: Translate
+  translating: Translating...
+  translation: Translation
 useCaseBuilder:
   accessError: Access Error
   addInputExample: Add Input Example

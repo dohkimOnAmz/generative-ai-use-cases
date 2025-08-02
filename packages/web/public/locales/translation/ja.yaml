@@ -711,9 +711,13 @@ translate:
   auto_translate: 自動翻訳
   continue_output: 続きを出力
   enter_text: 入力してください
+  model: モデル
+  realtimeTranslation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
   text_to_translate: 翻訳したい文章
   title: 翻訳
+  translating: 翻訳中...
+  translation: 翻訳
 useCaseBuilder:
   accessError: アクセスエラー
   addInputExample: 入力例を追加

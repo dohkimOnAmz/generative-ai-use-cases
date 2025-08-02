@@ -21,6 +21,7 @@ import MeetingMinutesTranscriptSegment from './MeetingMinutesTranscriptSegment';
 import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import useMicrophone from '../hooks/useMicrophone';
 import useScreenAudio from '../hooks/useScreenAudio';
+import useRealtimeTranslation from '../hooks/useRealtimeTranslation';
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -30,6 +31,7 @@ interface RealtimeSegment {
   endTime: number;
   isPartial: boolean;
   transcripts: Transcript[];
+  translation?: string;
 }
 
 interface MeetingMinutesRealtimeProps {
@@ -73,6 +75,22 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [realtimeSegments, setRealtimeSegments] = useState<RealtimeSegment[]>(
     []
   );
+
+  // Translation states
+  const [realtimeTranslationEnabled, setRealtimeTranslationEnabled] =
+    useState(false);
+  const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
+
+  // Translation hook
+  const { availableModels, defaultModelId, translate, isTranslating } =
+    useRealtimeTranslation();
+
+  // Set default translation model on mount
+  useEffect(() => {
+    if (!selectedTranslationModel && defaultModelId) {
+      setSelectedTranslationModel(defaultModelId);
+    }
+  }, [defaultModelId, selectedTranslationModel]);
 
   // Language options
   const languageOptions = useMemo(
@@ -239,6 +257,63 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
     }
   }, [screenRawTranscripts, enableScreenAudio, updateRealtimeSegments]);
 
+  // Handle translation for completed segments
+  useEffect(() => {
+    if (!realtimeTranslationEnabled || !selectedTranslationModel) {
+      return;
+    }
+
+    const handleTranslation = async () => {
+      const segmentsNeedingTranslation = realtimeSegments.filter(
+        (segment) =>
+          !segment.isPartial &&
+          !segment.translation &&
+          !isTranslating(segment.resultId, selectedTranslationModel)
+      );
+
+      for (const segment of segmentsNeedingTranslation) {
+        const segmentText = segment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
+        if (!segmentText) {
+          continue;
+        }
+
+        try {
+          const translation = await translate(
+            segment.resultId,
+            segmentText,
+            selectedTranslationModel,
+            'Japanese'
+          );
+
+          if (translation) {
+            setRealtimeSegments((prev) =>
+              prev.map((seg) =>
+                seg.resultId === segment.resultId &&
+                seg.source === segment.source
+                  ? { ...seg, translation }
+                  : seg
+              )
+            );
+          }
+        } catch (error) {
+          console.error('Failed to translate segment:', error);
+        }
+      }
+    };
+
+    handleTranslation();
+  }, [
+    realtimeSegments,
+    realtimeTranslationEnabled,
+    selectedTranslationModel,
+    isTranslating,
+    translate,
+  ]);
+
   // Recording states
   const isRecording = micRecording || screenRecording;
 
@@ -357,6 +432,38 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         </div>
       )}
 
+      {/* Real-time Translation Settings */}
+      {!isRecording && (
+        <div className="mb-4 px-2">
+          <div className="mb-3">
+            <Switch
+              label={t('translate.realtimeTranslation')}
+              checked={realtimeTranslationEnabled}
+              onSwitch={setRealtimeTranslationEnabled}
+            />
+          </div>
+          {realtimeTranslationEnabled && (
+            <div>
+              <label className="mb-2 block font-bold">
+                {t('translate.model')}
+              </label>
+              <Select
+                value={selectedTranslationModel}
+                onChange={setSelectedTranslationModel}
+                options={availableModels.map((modelId) => ({
+                  value: modelId,
+                  label: modelId.includes('claude-3-5-haiku')
+                    ? 'Claude 3.5 Haiku'
+                    : modelId.includes('nova-pro')
+                      ? 'Nova Pro'
+                      : modelId,
+                }))}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Speaker Recognition Parameters */}
       {!isRecording && (
         <ExpandableField
@@ -449,6 +556,12 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                   speakerMapping={speakerMapping}
                   isPartial={segment.isPartial}
                   formatTime={formatTime}
+                  translation={segment.translation}
+                  isTranslating={isTranslating(
+                    segment.resultId,
+                    selectedTranslationModel
+                  )}
+                  translationEnabled={realtimeTranslationEnabled}
                 />
               ))
           )}

@@ -746,9 +746,13 @@ translate:
   auto_translate: แปลอัตโนมัติ
   continue_output: ดำเนินการต่อ
   enter_text: ป้อนข้อความ
+  model: โมเดล
+  realtimeTranslation: การแปลแบบเรียลไทม์
   result_placeholder: ผลการแปลจะแสดงที่นี่
   text_to_translate: ข้อความที่จะแปล
   title: แปล
+  translating: กำลังแปล...
+  translation: การแปล
 useCaseBuilder:
   accessError: ข้อผิดพลาดในการเข้าถึง
   addInputExample: เพิ่มตัวอย่างอินพุต
