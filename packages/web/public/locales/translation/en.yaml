@@ -61,6 +61,7 @@ common:
   not_available: Not available
   not_selected: Not selected
   optional: Optional
+  other: Other
   previous: Previous
   required: Required
   reviewComplete: Review completed
@@ -675,7 +676,7 @@ meetingMinutes:
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_frequency: Generation Frequency
   generation_success: Meeting minutes generated successfully
-  language: Language
+  language: Transcription Language
   language_auto: Auto Detect
   language_chinese: Chinese
   language_english: English
@@ -685,7 +686,7 @@ meetingMinutes:
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
-  model: Model
+  model: Meeting Minutes Generation Model
   next_generation: Next Generation
   next_generation_in: 'Next generation in : '
   no_transcript: No Transcript
@@ -872,10 +873,10 @@ translate:
   auto_translate: Auto translate
   continue_output: Continue output
   enter_text: Enter text
-  model: Model
+  model: Real-time Translation Model
   realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
-  target_language: Target Language
+  target_language: Real-time Translation Language
   text_to_translate: Text to translate
   title: Translate
   translating: Translating...

@@ -59,6 +59,7 @@ common:
   not_available: ไม่พร้อมใช้งาน
   not_selected: ไม่ได้เลือก
   optional: ไม่บังคับ
+  other: อื่นๆ
   previous: ก่อนหน้า
   required: จำเป็น
   reviewComplete: การตรวจสอบเสร็จสิ้น
@@ -575,7 +576,7 @@ meetingMinutes:
   generation_error: ไม่สามารถสร้างรายงานการประชุมได้ กรุณาลองอีกครั้ง
   generation_frequency: ความถี่ในการสร้าง
   generation_success: สร้างรายงานการประชุมสำเร็จ
-  language: ภาษา
+  language: ภาษาการถอดเสียง
   language_auto: ตรวจจับอัตโนมัติ
   language_chinese: จีน
   language_english: อังกฤษ
@@ -585,7 +586,7 @@ meetingMinutes:
   language_vietnamese: เวียดนาม
   last_generated: สร้างล่าสุดเมื่อ {{time}}
   minutes_placeholder: รายงานการประชุมจะปรากฏที่นี่หลังจากสร้าง
-  model: โมเดล
+  model: โมเดลสร้างรายงานการประชุม
   next_generation: การสร้างครั้งถัดไป
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   no_transcript: ไม่มีบันทึกการถอดความ
@@ -746,10 +747,10 @@ translate:
   auto_translate: แปลอัตโนมัติ
   continue_output: ดำเนินการต่อ
   enter_text: ป้อนข้อความ
-  model: โมเดล
+  model: โมเดลการแปลแบบเรียลไทม์
   realtimeTranslation: การแปลแบบเรียลไทม์
   result_placeholder: ผลการแปลจะแสดงที่นี่
-  target_language: ภาษาเป้าหมาย
+  target_language: ภาษาการแปลแบบเรียลไทม์
   text_to_translate: ข้อความที่จะแปล
   title: แปล
   translating: กำลังแปล...

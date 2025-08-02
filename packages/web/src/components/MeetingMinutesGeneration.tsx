@@ -174,7 +174,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
   return (
     <div
       className={`overflow-hidden transition-all duration-500 ease-in-out ${
-        isCollapsed ? 'max-h-16' : 'max-h-screen'
+        isCollapsed ? 'max-h-16' : 'min-h-96'
       }`}>
       {isCollapsed ? (
         // Collapsed UI
@@ -202,48 +202,50 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
 
           {/* Meeting Minutes Configuration */}
           <div className="mb-4">
-            <div className="mb-4">
-              <label className="mb-2 block font-bold">
-                {t('meetingMinutes.style')}
-              </label>
-              <Select
-                value={minutesStyle}
-                onChange={(value) =>
-                  setMinutesStyle(value as typeof minutesStyle)
-                }
-                options={[
-                  {
-                    value: 'faq',
-                    label: t('meetingMinutes.style_faq'),
-                  },
-                  {
-                    value: 'summary',
-                    label: t('meetingMinutes.style_summary'),
-                  },
-                  {
-                    value: 'detail',
-                    label: t('meetingMinutes.style_detail'),
-                  },
-                  {
-                    value: 'custom',
-                    label: t('meetingMinutes.style_custom'),
-                  },
-                ]}
-              />
-            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('meetingMinutes.style')}
+                </label>
+                <Select
+                  value={minutesStyle}
+                  onChange={(value) =>
+                    setMinutesStyle(value as typeof minutesStyle)
+                  }
+                  options={[
+                    {
+                      value: 'faq',
+                      label: t('meetingMinutes.style_faq'),
+                    },
+                    {
+                      value: 'summary',
+                      label: t('meetingMinutes.style_summary'),
+                    },
+                    {
+                      value: 'detail',
+                      label: t('meetingMinutes.style_detail'),
+                    },
+                    {
+                      value: 'custom',
+                      label: t('meetingMinutes.style_custom'),
+                    },
+                  ]}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label className="mb-2 block font-bold">
-                {t('meetingMinutes.model')}
-              </label>
-              <Select
-                value={modelId}
-                onChange={setModelId}
-                options={availableModels.map((id) => ({
-                  value: id,
-                  label: modelDisplayName(id),
-                }))}
-              />
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('meetingMinutes.model')}
+                </label>
+                <Select
+                  value={modelId}
+                  onChange={setModelId}
+                  options={availableModels.map((id) => ({
+                    value: id,
+                    label: modelDisplayName(id),
+                  }))}
+                />
+              </div>
             </div>
 
             {minutesStyle === 'custom' && (
@@ -255,6 +257,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
                   placeholder={t('meetingMinutes.custom_prompt_placeholder')}
                   value={customPrompt}
                   onChange={setCustomPrompt}
+                  maxHeight={80}
                 />
               </div>
             )}

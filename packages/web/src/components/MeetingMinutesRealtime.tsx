@@ -17,6 +17,7 @@ import RangeSlider from './RangeSlider';
 import ExpandableField from './ExpandableField';
 import Textarea from './Textarea';
 import ScreenAudioToggle from './ScreenAudioToggle';
+import MicAudioToggle from './MicAudioToggle';
 import MeetingMinutesTranscriptSegment from './MeetingMinutesTranscriptSegment';
 import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import useMicrophone from '../hooks/useMicrophone';
@@ -72,6 +73,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [maxSpeakers, setMaxSpeakers] = useState(4);
   const [speakers, setSpeakers] = useState('');
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
+  const [enableMicAudio, setEnableMicAudio] = useState(true);
   const [realtimeSegments, setRealtimeSegments] = useState<RealtimeSegment[]>(
     []
   );
@@ -393,16 +395,21 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       if (screenStream) {
         startTranscriptionWithStream(screenStream, langCode, speakerLabel);
       }
-      startMicTranscription(langCode, speakerLabel);
+      if (enableMicAudio) {
+        startMicTranscription(langCode, speakerLabel);
+      }
     } catch (error) {
       console.error('Failed to start synchronized recording:', error);
-      startMicTranscription(langCode, speakerLabel);
+      if (enableMicAudio) {
+        startMicTranscription(langCode, speakerLabel);
+      }
     }
   }, [
     languageCode,
     speakerLabel,
     startMicTranscription,
     enableScreenAudio,
+    enableMicAudio,
     isScreenAudioSupported,
     prepareScreenCapture,
     startTranscriptionWithStream,
@@ -418,7 +425,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           <div className="flex justify-center">
             {isRecording ? (
               <Button
-                className="h-10 w-full"
+                className="h-10"
                 onClick={() => {
                   stopMicTranscription();
                   stopScreenTranscription();
@@ -428,7 +435,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
               </Button>
             ) : (
               <Button
-                className="h-10 w-full"
+                className="h-10"
                 onClick={onClickExecStartTranscription}
                 outlined={true}>
                 <PiMicrophoneBold className="mr-2 h-5 w-5" />
@@ -437,77 +444,84 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             )}
           </div>
           {!isRecording && (
-            <ScreenAudioToggle
-              enabled={enableScreenAudio}
-              onToggle={setEnableScreenAudio}
-              isSupported={isScreenAudioSupported}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Language Selection */}
-      {!isRecording && (
-        <div className="mb-4 px-2">
-          <label className="mb-2 block font-bold">
-            {t('meetingMinutes.language')}
-          </label>
-          <Select
-            value={languageCode}
-            onChange={setLanguageCode}
-            options={languageOptions}
-          />
-        </div>
-      )}
-
-      {/* Real-time Translation Settings */}
-      {!isRecording && (
-        <div className="mb-4 px-2">
-          <div className="mb-3">
-            <Switch
-              label={t('translate.realtimeTranslation')}
-              checked={realtimeTranslationEnabled}
-              onSwitch={setRealtimeTranslationEnabled}
-            />
-          </div>
-          {realtimeTranslationEnabled && (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block font-bold">
-                  {t('translate.model')}
-                </label>
-                <Select
-                  value={selectedTranslationModel}
-                  onChange={setSelectedTranslationModel}
-                  options={availableModels.map((modelId) => ({
-                    value: modelId,
-                    label: modelId.includes('claude-3-5-haiku')
-                      ? 'Claude 3.5 Haiku'
-                      : modelId.includes('nova-pro')
-                        ? 'Nova Pro'
-                        : modelId,
-                  }))}
-                />
-              </div>
-              <div>
-                <label className="mb-2 block font-bold">
-                  {t('translate.target_language')}
-                </label>
-                <Select
-                  value={selectedTargetLanguage}
-                  onChange={setSelectedTargetLanguage}
-                  options={targetLanguageOptions}
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <MicAudioToggle
+                enabled={enableMicAudio}
+                onToggle={setEnableMicAudio}
+              />
+              <ScreenAudioToggle
+                enabled={enableScreenAudio}
+                onToggle={setEnableScreenAudio}
+                isSupported={isScreenAudioSupported}
+              />
+              <div className="ml-0.5 mt-2">
+                <Switch
+                  label={t('translate.realtimeTranslation')}
+                  checked={realtimeTranslationEnabled}
+                  onSwitch={setRealtimeTranslationEnabled}
                 />
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Language Selection and Translation Settings */}
+      {!isRecording && (
+        <div className="mb-4 px-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Left column: Transcription language */}
+            <div>
+              <label className="mb-2 block font-bold">
+                {t('meetingMinutes.language')}
+              </label>
+              <Select
+                value={languageCode}
+                onChange={setLanguageCode}
+                options={languageOptions}
+              />
+            </div>
+
+            {/* Right column: Real-time translation settings (vertically arranged) */}
+            {realtimeTranslationEnabled && (
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-2 block font-bold">
+                    {t('translate.target_language')}
+                  </label>
+                  <Select
+                    value={selectedTargetLanguage}
+                    onChange={setSelectedTargetLanguage}
+                    options={targetLanguageOptions}
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block font-bold">
+                    {t('translate.model')}
+                  </label>
+                  <Select
+                    value={selectedTranslationModel}
+                    onChange={setSelectedTranslationModel}
+                    options={availableModels.map((modelId) => ({
+                      value: modelId,
+                      label: modelId.includes('claude-3-5-haiku')
+                        ? 'Claude 3.5 Haiku'
+                        : modelId.includes('nova-pro')
+                          ? 'Nova Pro'
+                          : modelId,
+                    }))}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Speaker Recognition Parameters */}
       {!isRecording && (
         <ExpandableField
-          label={t('transcribe.detailed_parameters')}
+          label={t('common.other')}
           className="mb-4"
           notItem={true}>
           <div className="grid grid-cols-2 gap-2 pt-2">
