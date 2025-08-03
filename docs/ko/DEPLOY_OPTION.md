@@ -1497,3 +1497,544 @@ const envs: Record<string, Partial<StackInput>> = {
 이는 Cognito에 이미 생성된 사용자에게는 영향을 주지 않습니다. 가입하거나 생성하려는 새 사용자에게만 적용됩니다.
 
 구성 예제
+- `amazon.com` 도메인의 이메일 주소로만 가입을 허용하는 예제
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedSignUpEmailDomains: ['amazon.com'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com"] // null에서 허용된 도메인을 지정하여 활성화
+  }
+}
+```
+
+- `amazon.com` 또는 `amazon.jp` 도메인의 이메일 주소로 가입을 허용하는 예제
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedSignUpEmailDomains: ['amazon.com', 'amazon.jp'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"] // null에서 허용된 도메인을 지정하여 활성화
+  }
+}
+```
+
+### AWS WAF 제한 활성화
+
+#### IP 주소 제한
+
+IP 주소로 웹 앱 액세스를 제한하려면 AWS WAF IP 주소 제한을 활성화할 수 있습니다. `allowedIpV4AddressRanges`에 허용된 IPv4 CIDR을 배열로 지정하고 `allowedIpV6AddressRanges`에 허용된 IPv6 CIDR을 배열로 지정할 수 있습니다.
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedIpV4AddressRanges: ['192.168.0.0/24'],
+    allowedIpV6AddressRanges: ['2001:0db8::/32'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "allowedIpV4AddressRanges": ["192.168.0.0/24"], // null에서 허용된 CIDR 목록을 지정하여 활성화
+    "allowedIpV6AddressRanges": ["2001:0db8::/32"] // null에서 허용된 CIDR 목록을 지정하여 활성화
+  }
+}
+```
+
+#### 지리적 제한
+
+원산지 국가별로 웹 앱 액세스를 제한하려면 AWS WAF 지리적 제한을 활성화할 수 있습니다. `allowedCountryCodes`에 허용된 국가를 국가 코드 배열로 지정할 수 있습니다.
+국가 코드는 [Wikipedia의 ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2)를 참조하세요.
+
+"IP 주소 제한"도 구성된 경우 "허용된 IP 주소에 포함된 소스 IP 주소 **AND** 허용된 국가에서의 액세스"만 허용됩니다.
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedCountryCodes: ['JP'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "allowedCountryCodes": ["JP"] // null에서 허용된 국가 목록을 지정하여 활성화
+  }
+}
+```
+
+`allowedIpV4AddressRanges`, `allowedIpV6AddressRanges`, `allowedCountryCodes` 중 하나를 지정하고 `npm run cdk:deploy`를 다시 실행하면 WAF 스택이 us-east-1에 배포됩니다 (AWS WAF V2는 현재 CloudFront와 함께 사용할 때 us-east-1만 지원). us-east-1에서 CDK를 사용한 적이 없다면 배포 전에 다음 명령을 실행하여 부트스트랩하세요:
+
+```bash
+npx -w packages/cdk cdk bootstrap --region us-east-1
+```
+
+### SAML 인증
+
+Google Workspace 또는 Microsoft Entra ID (이전 Azure Active Directory)와 같은 IdP에서 제공하는 SAML 인증 기능과 통합할 수 있습니다. 자세한 통합 절차는 다음과 같습니다:
+
+- [Google Workspace와 SAML 통합](SAML_WITH_GOOGLE_WORKSPACE.md)
+- [Microsoft Entra ID와 SAML 통합](SAML_WITH_ENTRA_ID.md)
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    samlAuthEnabled: true,
+    samlCognitoDomainName:
+      'your-preferred-name.auth.ap-northeast-1.amazoncognito.com',
+    samlCognitoFederatedIdentityProviderName: 'EntraID',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "samlAuthEnabled": true,
+    "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
+    "samlCognitoFederatedIdentityProviderName": "EntraID"
+  }
+}
+```
+
+- samlAuthEnabled: `true`로 설정하면 SAML 전용 인증 화면으로 전환됩니다. Cognito 사용자 풀을 사용한 기존 인증은 더 이상 사용할 수 없습니다.
+- samlCognitoDomainName: Cognito의 App integration에 설정할 Cognito 도메인 이름을 지정합니다.
+- samlCognitoFederatedIdentityProviderName: Cognito의 Sign-in experience에 설정할 Identity Provider 이름을 지정합니다.
+
+### 가드레일
+
+Converse API를 사용할 때 (즉, 텍스트 출력을 생성하는 생성형 AI 모델) 가드레일을 적용할 수 있습니다. 이를 구성하려면 `guardrailEnabled`를 `true`로 변경하고 재배포합니다.
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    guardrailEnabled: true,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "guardrailEnabled": true
+  }
+}
+```
+
+기본 가드레일은 일본어 대화에서 효과가 입증된 민감한 정보 필터를 적용합니다. 사용자 정의 단어 필터와 민감한 정보 필터용 정규 표현식도 작동하는 것을 확인했으므로 필요에 따라 `packages/cdk/lib/construct/guardrail.ts`를 수정하세요. 자세한 내용은 [Amazon Bedrock용 가드레일](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)과 [CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html)을 참조하세요.
+
+> [!NOTE]
+> 가드레일을 활성화한 후 비활성화하려면 `guardrailEnabled: false`로 설정하고 재배포합니다. 이렇게 하면 생성형 AI 호출 시 가드레일이 비활성화되지만 가드레일 자체는 남아있습니다. 관리 콘솔을 열고 modelRegion의 CloudFormation에서 `GuardrailStack` 스택을 삭제하여 완전히 제거할 수 있습니다. 가드레일이 남아있어도 비용이 발생하지 않지만 사용하지 않는 리소스는 삭제하는 것이 좋습니다.
+
+## 비용 관련 설정
+
+### Kendra 인덱스 자동 생성 및 삭제 일정 설정
+
+GenerativeAiUseCasesDashboardStack에서 생성된 Kendra 인덱스를 미리 정해진 일정에 따라 자동으로 생성하고 삭제하는 설정을 구성합니다. 이는 Kendra 인덱스 가동 시간에 따라 발생하는 사용료를 줄이는 데 도움이 됩니다. Kendra 인덱스를 생성한 후 이 저장소에서 기본적으로 생성된 S3 데이터 소스와 자동으로 동기화됩니다.
+
+이 기능은 `ragEnabled`가 `true`이고 `kendraIndexArn`이 `null`인 경우에만 효과적입니다 (즉, 외부에서 생성된 Kendra 인덱스에서는 작동하지 않습니다).
+
+다음 예제와 같이 구성합니다:
+
+- `kendraIndexScheduleEnabled`를 `true`로 설정하면 일정 설정이 활성화되고 `false`로 설정하면 해당 배포부터 일정이 비활성화됩니다.
+- `kendraIndexScheduleCreateCron`과 `kendraIndexScheduleDeleteCron`을 사용하여 Cron 형식으로 생성 및 삭제 시작 시간을 지정합니다.
+  - Cron 형식에 대한 자세한 내용은 [이 문서](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html)를 참조하세요. 하지만 EventBridge 사양을 준수하기 위해 시간을 UTC로 지정하세요. 현재 minute, hour, month, weekDay만 지정할 수 있습니다. 이러한 항목은 반드시 지정해야 하며 다른 항목은 지정해도 무시됩니다.
+  - `null`로 설정하면 생성/삭제가 실행되지 않습니다. 하나만 `null`로 설정하거나 (하나만 구성) 둘 다 `null`로 설정할 수 있습니다 (아무것도 실행하지 않음).
+
+아래 예제는 JST 월-금 오전 8시에 인덱스 생성을 시작하고 JST 월-금 오후 8시에 삭제를 시작하도록 구성합니다.
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    kendraIndexScheduleEnabled: true,
+    kendraIndexScheduleCreateCron: {
+      minute: '0',
+      hour: '23',
+      month: '*',
+      weekDay: 'SUN-THU',
+    },
+    kendraIndexScheduleDeleteCron: {
+      minute: '0',
+      hour: '11',
+      month: '*',
+      weekDay: 'MON-FRI',
+    },
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "kendraIndexScheduleEnabled": true,
+    "kendraIndexScheduleCreateCron": {
+      "minute": "0",
+      "hour": "23",
+      "month": "*",
+      "weekDay": "SUN-THU"
+    },
+    "kendraIndexScheduleDeleteCron": {
+      "minute": "0",
+      "hour": "11",
+      "month": "*",
+      "weekDay": "MON-FRI"
+    }
+  }
+}
+```
+
+Kendra 인덱스가 삭제되어도 RAG 기능은 계속 켜져 있습니다. 웹 애플리케이션(GenU)에서 RAG 관련 메뉴가 계속 표시됩니다. RAG 채팅을 실행할 때 인덱스가 존재하지 않아 오류가 발생하며 "인덱스 생성/삭제 일정을 확인하세요"라는 오류 메시지가 표시됩니다.
+
+일정 관리에는 EventBridge 규칙이 사용되고 프로세스 제어에는 Step Functions가 사용됩니다. EventBridge 규칙을 수동으로 비활성화하여 일정을 중지할 수 있습니다. Step Functions 상태 머신을 수동으로 실행하여 인덱스를 생성하거나 삭제할 수도 있습니다.
+
+> [!NOTE]
+>
+> - 인덱스 재생성 후에는 기본 S3 데이터 소스만 추가됩니다.
+>   - 인덱스 생성 후 다른 데이터 소스를 추가한 경우, 인덱스가 삭제될 때 함께 삭제되며 인덱스가 재생성될 때 재생성되지 않으므로 다시 추가해야 합니다.
+>   - 이 저장소의 CDK 내에서 데이터 소스를 추가한 경우, 데이터 소스는 생성되지만 동기화되지 않습니다. CDK로 추가된 데이터 소스를 동기화하려면 수동으로 동기화하거나 [코드](/packages/cdk/lib/construct/rag.ts)를 수정하여 Step Functions 상태 머신의 대상으로 추가하세요.
+> - Kendra 인덱스 생성 시작부터 사용 가능해질 때까지 시간이 걸립니다. 구체적으로 인덱스 생성과 데이터 소스 동기화에 시간이 걸립니다. 따라서 **RAG 채팅을 사용하기 시작할 특정 시간이 있다면 그보다 일찍 시작 시간을 설정하세요**. 이는 리소스 가용성, 데이터 소스 유형, 문서 크기/수에 따라 달라지므로 정확한 가동 시간 설정이 필요한 경우 실제 소요 시간을 확인하세요.
+>   - 대략적인 가이드라인으로 인덱스 생성에 약 30분, 수백 개의 텍스트 파일이 있는 S3 데이터 소스 동기화에 약 10분이 걸립니다 (이는 추정치입니다). (이를 기준으로 40분 일찍 설정하게 됩니다.)
+>   - 외부 서비스를 데이터 소스로 사용할 때는 필요한 시간이 크게 달라질 수 있으므로 특히 주의하세요. API 호출 제한도 염두에 두세요.
+> - 이는 설정된 시간 외에 인덱스가 중지된다는 것을 보장하지 않으며, 단순히 일정에 따라 시작/종료를 실행합니다. 배포 및 일정 타이밍에 주의하세요.
+>   - 예를 들어, 오후 9시에 오후 8시에 삭제하는 설정을 배포하면 그 시점에서는 삭제되지 않고 다음 날 오후 8시에 삭제가 시작됩니다.
+>   - 스택을 생성할 때 (GenerativeAiUseCasesStack이 존재하지 않을 때 cdk:deploy 실행), `ragEnabled`가 `true`이면 Kendra 인덱스가 생성됩니다. 일정 시간이 설정되어 있어도 인덱스가 생성됩니다. 인덱스는 다음 삭제 일정 시간까지 생성된 상태로 유지됩니다.
+> - 현재 시작/종료 오류를 알리는 기능은 없습니다.
+> - 인덱스가 재생성될 때마다 IndexId와 DataSourceId가 변경됩니다. 다른 서비스에서 이를 참조하는 경우 이러한 변경사항에 적응해야 합니다.
+
+## 모니터링 대시보드 활성화
+
+입력/출력 토큰 수와 최근 프롬프트를 집계하는 대시보드를 생성합니다.
+**이 대시보드는 GenU에 내장되지 않고 Amazon CloudWatch 대시보드입니다.**
+Amazon CloudWatch 대시보드는 [관리 콘솔](https://console.aws.amazon.com/cloudwatch/home#dashboards)에서 볼 수 있습니다.
+대시보드를 보려면 관리 콘솔에 로그인하고 대시보드를 볼 수 있는 권한이 있는 IAM 사용자를 생성해야 합니다.
+
+`dashboard`를 `true`로 설정합니다. (기본값은 `false`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    dashboard: true,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "dashboard": true
+  }
+}
+```
+
+변경 후 `npm run cdk:deploy`로 재배포하여 변경사항을 적용합니다. `modelRegion`에 지정된 지역에 `GenerativeAiUseCasesDashboardStack`이라는 스택이 배포됩니다. 출력 값은 다음 단계에서 사용됩니다.
+
+다음으로 Amazon Bedrock 로그 출력을 구성합니다. [Amazon Bedrock 설정](https://console.aws.amazon.com/bedrock/home#settings)을 열고 Model invocation logging을 활성화합니다. Select the logging destinations에서 CloudWatch Logs only를 선택합니다. (S3에도 출력하려면 Both S3 and CloudWatch Logs를 선택할 수도 있습니다.) Log group name에는 `npm run cdk:deploy` 중에 출력된 `GenerativeAiUseCasesDashboardStack.BedrockLogGroup`을 지정합니다. (예: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) 임의의 이름으로 새 Service role을 생성합니다. Model invocation logging 설정은 `modelRegion`으로 지정된 지역에서 구성해야 합니다.
+
+구성 후 `npm run cdk:deploy` 중에 출력된 `GenerativeAiUseCasesDashboardStack.DashboardUrl`을 엽니다.
+
+> [!NOTE]
+> 모니터링 대시보드를 활성화한 후 비활성화하려면 `dashboard: false`로 설정하고 재배포합니다. 이렇게 하면 모니터링 대시보드가 비활성화되지만 `GenerativeAiUseCasesDashboardStack` 자체는 남아있습니다. 완전히 제거하려면 관리 콘솔을 열고 modelRegion의 CloudFormation에서 `GenerativeAiUseCasesDashboardStack` 스택을 삭제하세요.
+
+## 사용자 정의 도메인 사용
+
+웹사이트 URL에 사용자 정의 도메인을 사용할 수 있습니다. 동일한 AWS 계정의 Route53에 공개 호스팅 영역이 이미 생성되어 있어야 합니다. 공개 호스팅 영역에 대해서는 다음을 참조하세요: [공개 호스팅 영역 작업 - Amazon Route 53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)
+
+동일한 AWS 계정에 공개 호스팅 영역이 없는 경우 AWS ACM SSL 인증서 검증을 위한 DNS 레코드를 수동으로 추가하거나 이메일 검증을 사용할 수도 있습니다. 이러한 방법을 사용하려면 사용자 정의를 위한 CDK 문서를 참조하세요: [aws-cdk-lib.aws_certificatemanager 모듈 · AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html)
+
+다음 값을 설정합니다:
+
+- `hostName` ... 웹사이트의 호스트명. A 레코드는 CDK에서 생성되므로 미리 생성할 필요가 없습니다
+- `domainName` ... 사전 생성된 공개 호스팅 영역의 도메인 이름
+- `hostedZoneId` ... 사전 생성된 공개 호스팅 영역의 ID
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    hostName: 'genai',
+    domainName: 'example.com',
+    hostedZoneId: 'XXXXXXXXXXXXXXXXXXXX',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "hostName": "genai",
+    "domainName": "example.com",
+    "hostedZoneId": "XXXXXXXXXXXXXXXXXXXX"
+  }
+}
+```
+
+## 다른 AWS 계정에서 Bedrock 사용
+
+> [!NOTE]
+> Flow Chat 사용 사례와 프롬프트 최적화 도구는 다른 AWS 계정 사용을 지원하지 않으며 실행 중 오류가 발생할 수 있습니다.
+
+다른 AWS 계정에서 Bedrock을 사용할 수 있습니다. 전제 조건으로 GenU의 초기 배포가 완료되어야 합니다.
+
+다른 AWS 계정에서 Bedrock을 사용하려면 해당 계정에 하나의 IAM 역할을 생성해야 합니다. IAM 역할의 이름은 임의로 지정할 수 있지만, 다른 계정에서 생성된 IAM 역할의 Principal에 다음 IAM 역할 이름들(GenU 배포 중에 생성됨)을 지정해야 합니다:
+
+- `GenerativeAiUseCasesStack-APIPredictTitleService`
+- `GenerativeAiUseCasesStack-APIPredictService`
+- `GenerativeAiUseCasesStack-APIPredictStreamService`
+- `GenerativeAiUseCasesStack-APIGenerateImageService`
+- `GenerativeAiUseCasesStack-APIGenerateVideoService`
+- `GenerativeAiUseCasesStack-APIListVideoJobsService`
+- `GenerativeAiUseCasesStack-SpeechToSpeechTaskService`
+- `GenerativeAiUseCasesStack-RagKnowledgeBaseRetrieve` (Knowledge Base 사용 시에만)
+- `GenerativeAiUseCasesStack-APIGetFileDownloadSigned` (Knowledge Base 사용 시에만)
+
+Principal 지정 방법에 대한 자세한 내용은 다음을 참조하세요: [AWS JSON 정책 요소: Principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html)
+
+<details>
+  <summary>Principal 구성 예제 (다른 계정에서 설정)</summary>
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictTitleServiceXXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictServiceXXXXXXXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictStreamServiceXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGenerateImageServiceXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGenerateVideoServiceXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIListVideoJobsServiceXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-SpeechToSpeechTaskService-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-RagKnowledgeBaseRetrieveX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGetFileDownloadSignedU-XXXXXXXXXXXX"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+</details>
+
+<details>
+  <summary>정책 구성 예제 (다른 계정에서 설정)</summary>
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowBedrockInvokeModel",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock:Invoke*",
+        "bedrock:Rerank",
+        "bedrock:GetInferenceProfile",
+        "bedrock:GetAsyncInvoke",
+        "bedrock:ListAsyncInvokes",
+        "bedrock:GetAgent*",
+        "bedrock:ListAgent*"
+      ],
+      "Resource": ["*"]
+    },
+    {
+      "Sid": "AllowS3PutObjectToVideoTempBucket",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject"],
+      "Resource": ["arn:aws:s3:::<video-temp-bucket-name>/*"]
+    },
+    {
+      "Sid": "AllowBedrockRetrieveFromKnowledgeBase",
+      "Effect": "Allow",
+      "Action": ["bedrock:RetrieveAndGenerate*", "bedrock:Retrieve*"],
+      "Resource": [
+        "arn:aws:bedrock:<region>:<account-id>:knowledge-base/<knowledge-base-id>"
+      ]
+    },
+    {
+      "Sid": "AllowS3GetPresignedUrl",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject*"],
+      "Resource": ["arn:aws:s3:::<knowledge-base-datasource-bucket-name>/*"]
+    }
+  ]
+}
+```
+
+</details>
+
+다음 매개변수를 설정합니다:
+
+- `crossAccountBedrockRoleArn` ... 다른 계정에서 미리 생성된 IAM 역할의 ARN
+
+Knowledge Base를 사용할 때는 다음 추가 매개변수가 필요합니다:
+
+- `ragKnowledgeBaseEnabled` ... Knowledge Base를 활성화하려면 `true`로 설정
+- `ragKnowledgeBaseId` ... 다른 계정에서 미리 생성된 Knowledge Base ID
+  - Knowledge Base는 `modelRegion`에 존재해야 합니다
+
+Agent Chat 사용 사례를 사용할 때는 다음 추가 매개변수가 필요합니다:
+
+- `agents` ... Bedrock Agent 구성 목록으로 다음 속성을 가집니다:
+  - `displayName` ... 에이전트의 표시 이름
+  - `agentId` ... 다른 계정에서 미리 생성된 Agent ID
+  - `aliasId` ... 다른 계정에서 미리 생성된 Agent Alias ID
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    crossAccountBedrockRoleArn:
+      'arn:aws:iam::AccountID:role/PreCreatedRoleName',
+    // Knowledge Base 사용 시에만
+    ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseId: 'YOUR_KNOWLEDGE_BASE_ID',
+    // 에이전트 사용 시에만
+    agents: [
+      {
+        displayName: 'YOUR AGENT NAME',
+        agentId: 'YOUR_AGENT_ID',
+        aliasId: 'YOUR_AGENT_ALIAS_ID',
+      },
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "crossAccountBedrockRoleArn": "arn:aws:iam::AccountID:role/PreCreatedRoleName",
+    // Knowledge Base 사용 시에만
+    "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseId": "YOUR_KNOWLEDGE_BASE_ID",
+    // 에이전트 사용 시에만
+    "agents": [
+      {
+        "displayName": "YOUR AGENT NAME",
+        "agentId": "YOUR_AGENT_ID",
+        "aliasId": "YOUR_AGENT_ALIAS_ID"
+      }
+    ]
+  }
+}
+```
+
+설정을 변경한 후 `npm run cdk:deploy`를 실행하여 변경사항을 적용합니다.
+
+## 동일한 계정에서 여러 환경 배포
+
+동일한 계정에서 여러 환경을 배포할 때는 서로 다른 스택 이름으로 배포해야 합니다.
+
+`env`를 설정하면 각 스택 이름에 접미사로 추가되어 별도의 환경으로 배포됩니다.
+
+`env`는 `parameter.ts`의 환경 결정에도 사용되며, `env`로 지정된 환경이 `parameter.ts`에 존재하면 `parameter.ts`의 값으로 모든 매개변수가 덮어쓰여집니다. `env`로 지정된 환경이 `parameter.ts`에 존재하지 않으면 `cdk.json`의 `context`에 있는 매개변수로 애플리케이션이 배포됩니다.
+
+다음 값을 설정합니다:
+
+- `env` ... 환경 이름 (기본값: "" (빈 문자열))
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "env": "<환경 이름>"
+  }
+}
+```
+
+또는 배포할 때 **명령에서 context를 지정**할 수 있습니다:
+
+```
+npm run cdk:deploy -- -c env=<환경 이름>
+```
+
+구성 예제
+
+```json
+// cdk.json
+{
+  "context": {
+    "env": "dev"
+  }
+}
+```
