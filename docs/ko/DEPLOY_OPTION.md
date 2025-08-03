@@ -898,3 +898,602 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "us.deepseek.r1-v1:0",
 "us.writer.palmyra-x5-v1:0",
+"us.writer.palmyra-x4-v1:0",
+"amazon.titan-text-premier-v1:0",
+"us.meta.llama4-maverick-17b-instruct-v1:0",
+"us.meta.llama4-scout-17b-instruct-v1:0",
+"us.meta.llama3-3-70b-instruct-v1:0",
+"us.meta.llama3-2-90b-instruct-v1:0",
+"us.meta.llama3-2-11b-instruct-v1:0",
+"us.meta.llama3-2-3b-instruct-v1:0",
+"us.meta.llama3-2-1b-instruct-v1:0",
+"meta.llama3-1-405b-instruct-v1:0",
+"meta.llama3-1-70b-instruct-v1:0",
+"meta.llama3-1-8b-instruct-v1:0",
+"meta.llama3-70b-instruct-v1:0",
+"meta.llama3-8b-instruct-v1:0",
+"cohere.command-r-plus-v1:0",
+"cohere.command-r-v1:0",
+"mistral.mistral-large-2407-v1:0",
+"mistral.mistral-large-2402-v1:0",
+"mistral.mistral-small-2402-v1:0",
+"us.mistral.pixtral-large-2502-v1:0",
+"eu.mistral.pixtral-large-2502-v1:0",
+"anthropic.claude-v2:1",
+"anthropic.claude-v2",
+"anthropic.claude-instant-v1",
+"mistral.mixtral-8x7b-instruct-v0:1",
+"mistral.mistral-7b-instruct-v0:2",
+"amazon.nova-pro-v1:0",
+"amazon.nova-lite-v1:0",
+"amazon.nova-micro-v1:0",
+"us.amazon.nova-premier-v1:0",
+"us.amazon.nova-pro-v1:0",
+"us.amazon.nova-lite-v1:0",
+"us.amazon.nova-micro-v1:0",
+"eu.amazon.nova-pro-v1:0",
+"eu.amazon.nova-lite-v1:0",
+"eu.amazon.nova-micro-v1:0",
+"apac.amazon.nova-pro-v1:0",
+"apac.amazon.nova-lite-v1:0",
+"apac.amazon.nova-micro-v1:0"
+```
+
+이 솔루션은 다음 음성-음성 모델을 지원합니다:
+
+```
+amazon.nova-sonic-v1:0
+```
+
+이 솔루션은 다음 이미지 생성 모델을 지원합니다:
+
+```
+"amazon.nova-canvas-v1:0",
+"amazon.titan-image-generator-v2:0",
+"amazon.titan-image-generator-v1",
+"stability.sd3-large-v1:0",
+"stability.sd3-5-large-v1:0",
+"stability.stable-image-core-v1:0",
+"stability.stable-image-core-v1:1",
+"stability.stable-image-ultra-v1:0",
+"stability.stable-image-ultra-v1:1",
+"stability.stable-diffusion-xl-v1",
+```
+
+이 솔루션은 다음 비디오 생성 모델을 지원합니다:
+
+```
+"amazon.nova-reel-v1:0",
+"amazon.nova-reel-v1:1",
+"luma.ray-v2:0"
+```
+
+**지정한 모델이 지정된 지역에서 활성화되어 있는지 확인하세요.**
+
+### 여러 지역의 모델 동시 사용
+
+기본적으로 GenU는 `modelRegion`의 모델을 사용합니다. 특정 지역에서만 사용 가능한 최신 모델을 사용하려면 `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds`, `speechToSpeechModelIds`에서 `{modelId: '<model name>', region: '<region code>'}`를 지정하여 지정된 지역에서 해당 특정 모델을 호출할 수 있습니다.
+
+> [!NOTE]
+> [모니터링 대시보드](#enabling-monitoring-dashboard)와 여러 지역의 모델을 모두 사용하는 경우, 기본 대시보드 설정은 기본 지역(`modelRegion`) 외부의 모델에 대한 프롬프트 로그를 표시하지 않습니다.
+>
+> 단일 대시보드에서 모든 지역의 프롬프트 로그를 보려면 다음과 같은 추가 구성이 필요합니다:
+>
+> 1. 각 지역의 Amazon Bedrock 설정에서 "모델 호출 로깅"을 수동으로 활성화
+> 2. CloudWatch 대시보드에 위젯을 추가하여 각 지역의 로그를 집계
+
+#### 예제: 도쿄 지역을 기본으로 사용하면서 버지니아 북부 및 오레곤 지역의 최신 모델도 사용
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'ap-northeast-1',
+    modelIds: [
+      {
+        modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        region: 'us-east-1',
+      },
+      'apac.anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      {
+        modelId: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        region: 'us-east-1',
+      },
+      'apac.amazon.nova-pro-v1:0',
+      'apac.amazon.nova-lite-v1:0',
+      'apac.amazon.nova-micro-v1:0',
+      { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
+      { modelId: 'us.writer.palmyra-x5-v1:0', region: 'us-west-2' },
+      {
+        modelId: 'us.meta.llama4-maverick-17b-instruct-v1:0',
+        region: 'us-east-1',
+      },
+      {
+        modelId: 'us.meta.llama4-scout-17b-instruct-v1:0',
+        region: 'us-east-1',
+      },
+      { modelId: 'us.mistral.pixtral-large-2502-v1:0', region: 'us-east-1' },
+    ],
+    imageGenerationModelIds: [
+      'amazon.nova-canvas-v1:0',
+      { modelId: 'stability.sd3-5-large-v1:0', region: 'us-west-2' },
+      { modelId: 'stability.stable-image-core-v1:1', region: 'us-west-2' },
+      { modelId: 'stability.stable-image-ultra-v1:1', region: 'us-west-2' },
+    ],
+    videoGenerationModelIds: [
+      'amazon.nova-reel-v1:0',
+      { modelId: 'luma.ray-v2:0', region: 'us-west-2' },
+    ],
+    speechToSpeechModelIds: [
+      { modelId: 'amazon.nova-sonic-v1:0', region: 'us-east-1' },
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+{
+  "context": {
+    "modelRegion": "ap-northeast-1",
+    "modelIds": [
+      {
+        "modelId": "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        "region": "us-east-1"
+      },
+      "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      {
+        "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        "region": "us-east-1"
+      },
+      "apac.amazon.nova-pro-v1:0",
+      "apac.amazon.nova-lite-v1:0",
+      "apac.amazon.nova-micro-v1:0",
+      {
+        "modelId": "us.deepseek.r1-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.writer.palmyra-x5-v1:0",
+        "region": "us-west-2"
+      },
+      {
+        "modelId": "us.meta.llama4-maverick-17b-instruct-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.meta.llama4-scout-17b-instruct-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.mistral.pixtral-large-2502-v1:0",
+        "region": "us-east-1"
+      }
+    ],
+    "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0",
+      {
+        "modelId": "stability.sd3-5-large-v1:0",
+        "region": "us-west-2"
+      },
+      {
+        "modelId": "stability.stable-image-core-v1:1",
+        "region": "us-west-2"
+      },
+      {
+        "modelId": "stability.stable-image-ultra-v1:1",
+        "region": "us-west-2"
+      }
+    ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0",
+      {
+        "modelId": "luma.ray-v2:0",
+        "region": "us-west-2"
+      }
+    ],
+    "speechToSpeechModelIds": [
+      {
+        "modelId": "amazon.nova-sonic-v1:0",
+        "region": "us-east-1"
+      }
+    ]
+  }
+}
+```
+
+### 예제: us-east-1 (버지니아)에서 Amazon Bedrock 모델 사용
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    modelIds: [
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
+      'amazon.nova-pro-v1:0',
+      'amazon.nova-lite-v1:0',
+      'amazon.nova-micro-v1:0',
+      'amazon.titan-text-premier-v1:0',
+      'meta.llama3-70b-instruct-v1:0',
+      'meta.llama3-8b-instruct-v1:0',
+      'cohere.command-r-plus-v1:0',
+      'cohere.command-r-v1:0',
+      'us.mistral.pixtral-large-2502-v1:0',
+      'mistral.mistral-large-2402-v1:0',
+    ],
+    imageGenerationModelIds: [
+      'amazon.nova-canvas-v1:0',
+      'amazon.titan-image-generator-v2:0',
+      'amazon.titan-image-generator-v1',
+      'stability.stable-diffusion-xl-v1',
+    ],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:1'],
+    speechToSpeechModelIds: ['amazon.nova-sonic-v1:0'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-east-1",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "amazon.nova-pro-v1:0",
+      "amazon.nova-lite-v1:0",
+      "amazon.nova-micro-v1:0",
+      "amazon.titan-text-premier-v1:0",
+      "meta.llama3-70b-instruct-v1:0",
+      "meta.llama3-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2402-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0",
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.stable-diffusion-xl-v1"
+    ],
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:1"],
+    "speechToSpeechModelIds": ["amazon.nova-sonic-v1:0"]
+  }
+}
+```
+
+### 예제: us-west-2 (오레곤)에서 Amazon Bedrock 모델 사용
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-west-2',
+    modelIds: [
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'anthropic.claude-3-5-haiku-20241022-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-opus-20240229-v1:0',
+      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
+      'meta.llama3-1-70b-instruct-v1:0',
+      'meta.llama3-1-8b-instruct-v1:0',
+      'cohere.command-r-plus-v1:0',
+      'cohere.command-r-v1:0',
+      'mistral.mistral-large-2407-v1:0',
+    ],
+    imageGenerationModelIds: [
+      'amazon.titan-image-generator-v2:0',
+      'amazon.titan-image-generator-v1',
+      'stability.sd3-large-v1:0',
+      'stability.sd3-5-large-v1:0',
+      'stability.stable-image-core-v1:0',
+      'stability.stable-image-core-v1:1',
+      'stability.stable-image-ultra-v1:0',
+      'stability.stable-image-ultra-v1:1',
+      'stability.stable-diffusion-xl-v1',
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-haiku-20241022-v1:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "meta.llama3-1-70b-instruct-v1:0",
+      "meta.llama3-1-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.sd3-large-v1:0",
+      "stability.sd3-5-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1"
+    ]
+  }
+}
+```
+
+### 예제: us (버지니아 북부 또는 오레곤)에서 Amazon Bedrock의 교차 지역 추론 모델 사용
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-west-2',
+    modelIds: [
+      "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.deepseek.r1-v1:0",
+      "us.writer.palmyra-x5-v1:0",
+      "us.writer.palmyra-x4-v1:0",
+      "us.meta.llama4-maverick-17b-instruct-v1:0",
+      "us.meta.llama4-scout-17b-instruct-v1:0",
+      "us.meta.llama3-2-11b-instruct-v1:0",
+      "us.meta.llama3-2-3b-instruct-v1:0",
+      "us.meta.llama3-2-1b-instruct-v1:0",
+      "us.amazon.nova-premier-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0",
+    ],
+    imageGenerationModelIds: [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.sd3-large-v1:0",
+      "stability.sd3-5-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "modelIds": [
+      "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.deepseek.r1-v1:0",
+      "us.writer.palmyra-x5-v1:0",
+      "us.writer.palmyra-x4-v1:0",
+      "us.meta.llama4-maverick-17b-instruct-v1:0",
+      "us.meta.llama4-scout-17b-instruct-v1:0",
+      "us.meta.llama3-2-11b-instruct-v1:0",
+      "us.meta.llama3-2-3b-instruct-v1:0",
+      "us.meta.llama3-2-1b-instruct-v1:0",
+      "us.amazon.nova-premier-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.sd3-large-v1:0",
+      "stability.sd3-5-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1"
+    ]
+  }
+}
+```
+
+### 예제: ap-northeast-1 (도쿄)에서 Amazon Bedrock 모델 사용
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, StackInput> = {
+  dev: {
+    modelRegion: 'ap-northeast-1',
+    modelIds: [
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
+    ],
+    imageGenerationModelIds: ['amazon.nova-canvas-v1:0'],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "ap-northeast-1",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0"
+    ],
+    "imageGenerationModelIds": ["amazon.nova-canvas-v1:0"],
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
+  }
+}
+```
+
+## Amazon SageMaker를 사용한 사용자 정의 모델 사용
+
+Amazon SageMaker 엔드포인트에 배포된 대화형 언어 모델을 사용할 수 있습니다. 이 솔루션은 [Hugging Face의 Text Generation Inference (TGI) LLM 추론 컨테이너](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/)를 사용하는 SageMaker 엔드포인트를 지원합니다. 이상적으로는 사용자와 어시스턴트가 번갈아 가며 말하는 채팅 형식 프롬프트를 지원하는 모델이어야 합니다. 현재 Amazon SageMaker 엔드포인트에서는 이미지 생성 사용 사례가 지원되지 않습니다.
+
+TGI 컨테이너를 사용하여 SageMaker 엔드포인트에 모델을 배포하는 방법은 두 가지입니다:
+
+**SageMaker JumpStart에서 사전 패키지된 모델 배포**
+
+SageMaker JumpStart는 패키지된 오픈 소스 대화형 언어 모델의 원클릭 배포를 제공합니다. SageMaker Studio의 JumpStart 화면에서 이러한 모델을 열고 "Deploy" 버튼을 클릭하여 배포할 수 있습니다. 제공되는 일본어 모델의 예는 다음과 같습니다:
+
+- [SageMaker JumpStart Elyza Japanese Llama 2 7B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
+- [SageMaker JumpStart Elyza Japanese Llama 2 13B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
+- [SageMaker JumpStart CyberAgentLM2 7B Chat](https://aws.amazon.com/jp/blogs/news/cyberagentlm2-on-sagemaker-jumpstart/)
+- [SageMaker JumpStart Stable LM Instruct Alpha 7B v2](https://aws.amazon.com/jp/blogs/news/japanese-stable-lm-instruct-alpha-7b-v2-from-stability-ai-is-now-available-in-amazon-sagemaker-jumpstart/)
+- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+
+**SageMaker SDK를 사용하여 몇 줄의 코드로 배포**
+
+[AWS와 Hugging Face의 파트너십](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/) 덕분에 SageMaker SDK를 사용하여 Hugging Face의 모델 ID를 지정하기만 하면 모델을 배포할 수 있습니다.
+
+모델의 Hugging Face 페이지에서 _Deploy_ > _Amazon SageMaker_를 선택하면 모델 배포를 위한 코드를 볼 수 있습니다. 이 코드를 복사하여 실행하면 모델이 배포됩니다. (모델에 따라 인스턴스 크기나 `SM_NUM_GPUS`와 같은 매개변수를 조정해야 할 수 있습니다. 배포가 실패하면 CloudWatch Logs에서 로그를 확인할 수 있습니다.)
+
+> [!NOTE]
+> 배포할 때 한 가지 수정이 필요합니다: 엔드포인트 이름이 GenU 애플리케이션에 표시되고 모델의 프롬프트 템플릿을 결정하는 데 사용됩니다(다음 섹션에서 설명). 따라서 구별 가능한 엔드포인트 이름을 지정해야 합니다.
+> 배포할 때 `huggingface_model.deploy()`에 `endpoint_name="<구별 가능한 엔드포인트 이름>"`을 인수로 추가하세요.
+
+![Hugging Face 모델 페이지의 Deploy에서 Amazon SageMaker 선택](../assets/DEPLOY_OPTION/HF_Deploy.png)
+![Hugging Face 모델 페이지의 배포 스크립트 가이드](../assets/DEPLOY_OPTION/HF_Deploy2.png)
+
+### 배포된 모델을 호출하도록 GenU 구성
+
+대상 솔루션에서 배포된 SageMaker 엔드포인트를 사용하려면 다음과 같이 지정합니다:
+
+endpointNames는 SageMaker 엔드포인트 이름의 목록입니다. (예: `["elyza-llama-2", "rinna"]`)
+
+백엔드에서 프롬프트를 구성할 때 사용되는 프롬프트 템플릿을 지정하려면 엔드포인트 이름에 프롬프트 유형을 포함해야 합니다. (예: `llama-2`, `rinna` 등) 자세한 내용은 `packages/cdk/lambda/utils/models.ts`를 참조하세요. 필요에 따라 프롬프트 템플릿을 추가하세요.
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    endpointNames: [
+      'jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16',
+      'jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16',
+    ],
+  },
+};
+```
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "<SageMaker Endpoint Region>",
+    "endpointNames": ["<SageMaker Endpoint Name>"]
+  }
+}
+```
+
+**예제: Rinna 3.6B와 Bilingual Rinna 4B 사용**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "endpointNames": [
+      "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16",
+      "jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"
+    ]
+  }
+}
+```
+
+**예제: ELYZA-japanese-Llama-2-7b-instruct 사용**
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "endpointNames": ["elyza-japanese-llama-2-7b-inference"]
+  }
+}
+```
+
+## 보안 관련 설정
+
+### 자체 가입 비활성화
+
+`selfSignUpEnabled`를 `false`로 설정합니다. (기본값은 `true`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    selfSignUpEnabled: false,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "selfSignUpEnabled": false
+  }
+}
+```
+
+### 가입용 이메일 도메인 제한
+
+`allowedSignUpEmailDomains`에 허용된 도메인 목록을 지정합니다 (기본값은 `null`).
+
+값을 문자열 목록으로 지정하고 각 문자열에 "@"를 포함하지 마세요. 사용자의 이메일 도메인이 허용된 도메인 중 하나와 일치하면 가입할 수 있습니다. `null`을 지정하면 제한이 없어 모든 도메인이 허용됩니다. `[]`를 지정하면 모든 도메인이 금지되어 어떤 이메일 주소도 등록할 수 없습니다.
+
+구성되면 허용되지 않은 도메인의 사용자가 웹 가입 화면에서 "계정 생성"을 시도할 때 오류가 발생하여 GenU에 가입할 수 없습니다. 또한 AWS Management Console의 Cognito 서비스 화면에서 "사용자 생성"을 시도해도 오류가 발생합니다.
+
+이는 Cognito에 이미 생성된 사용자에게는 영향을 주지 않습니다. 가입하거나 생성하려는 새 사용자에게만 적용됩니다.
+
+구성 예제
