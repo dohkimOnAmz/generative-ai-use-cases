@@ -1,5 +1,5 @@
 ---
-template: home_en.html
+template: home_ko.html
 title: Generative AI Use Cases (GenU)
 social:
   cards_layout_options:
