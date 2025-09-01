@@ -1,6 +1,9 @@
 agent:
   drop_files: 파일을 업로드하려면 드롭하세요
   title: 에이전트 채팅
+agent_core:
+  start_conversation: AgentCore와 대화 시작
+  title: AgentCore
 auth:
   loading: 로딩 중...
   login: 로그인
@@ -464,6 +467,9 @@ landing:
         에이전트 채팅 사용 사례에서는 Amazon Bedrock용 에이전트를 사용하여 작업을 실행하거나
         Amazon Bedrock용 지식 베이스의 벡터 데이터베이스를 참조할 수 있습니다.
       title: 에이전트 채팅
+    agent_core:
+      description: AgentCore 채팅은 Bedrock AgentCore로 생성된 다양한 에이전트를 활용하는 기능입니다.
+      title: AgentCore
     chat:
       description: >-
         채팅 형식으로 LLM과 대화형 대화를 할 수 있습니다. 세부적인 사용 사례와 새로운 사용 사례에
@@ -1132,10 +1138,6 @@ videoAnalyzer:
 voiceChat:
   close: 세션 닫기
   default_system_prompt: 당신은 AI 어시스턴트입니다.
-  experimental_warning: >-
-    음성 채팅은 아직 실험 단계입니다. 아키텍처 등이 향후 변경될 수 있습니다.
-    대화 기록은 저장되지 않습니다. 지원되는 언어는 영어만입니다.
-  experimental_warning_title: 음성 채팅에 대해
   im_listening: 듣고 있습니다...
   start: 새 세션 시작
   title: 음성 채팅
