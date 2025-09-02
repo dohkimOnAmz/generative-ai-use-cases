@@ -1,5 +1,5 @@
 agent:
-  drop_files: 파일을 업로드하려면 드롭하세요
+  drop_files: 파일을 드롭하여 업로드
   title: 에이전트 채팅
 agent_core:
   start_conversation: AgentCore와 대화 시작
@@ -12,15 +12,15 @@ chat:
   advanced_options: 고급 옵션
   create_link: 링크 생성
   create_link_message: >-
-    링크를 생성하면 이 애플리케이션에 로그인할 수 있는 모든 사용자와 대화 기록을 공유하게 됩니다.
+    링크를 생성하면 이 애플리케이션에 로그인할 수 있는 모든 사용자와 대화 기록을 공유합니다.
   create_system_prompt: 시스템 프롬프트 생성
-  delete_chat_confirmation: 정말로 "{{title}}" 채팅을 삭제하시겠습니까?
+  delete_chat_confirmation: 채팅 "{{title}}"을(를) 삭제하시겠습니까?
   delete_confirmation: 삭제 확인
   delete_link: 링크 삭제
   delete_link_message: 링크를 삭제하여 대화 기록 공유를 중단할 수 있습니다.
-  drop_files: 파일을 여기에 드롭하세요
-  hint_cmd_enter: ⌘ + Enter로 제출
-  hint_ctrl_enter: Ctrl + Enter로 제출
+  drop_files: 파일을 여기에 드롭
+  hint_cmd_enter: ⌘ + Enter로 전송
+  hint_ctrl_enter: Ctrl + Enter로 전송
   history: 대화 기록
   initialize: 초기화
   model_parameters: 모델 매개변수
@@ -90,7 +90,7 @@ diagram:
   input_placeholder: 다이어그램 생성용 텍스트를 입력하세요
   invalid_syntax: 잘못된 구문
   markdown_edit: 마크다운 편집
-  mermaid_syntax: 여기에 Mermaid 구문
+  mermaid_syntax: Mermaid 구문은 여기
   model: 모델
   other_diagram_types: 다른 다이어그램 유형 보기
   png_error: 'PNG 출력 오류: '
@@ -106,29 +106,31 @@ diagram:
   title: 다이어그램 생성
   types:
     AI:
-      content: 색상을 사용하여 일반적인 회사 비용 생산 흐름을 설명해주세요.
+      content: 일반적인 회사 비용 생산 흐름을 색상과 함께 그려주세요.
       description: AI가 최적의 다이어그램 유형을 선택하도록 합니다
       exampleTitle: 비용 흐름 예시
     architecture:
       content: >-
-        클라우드 기반 웹 애플리케이션의 아키텍처 다이어그램을 생성하세요.
+        클라우드 기반 웹 애플리케이션의 아키텍처 다이어그램을 만드세요.
 
-        다음 구성 요소를 포함하세요: 프론트엔드 백엔드 데이터베이스 캐시 로드 밸런서 CDN
+        다음 구성 요소를 포함하세요: 프론트엔드 백엔드 데이터베이스 캐시 로드 밸런서
+        CDN
       desc: 아키텍처 다이어그램은 시스템 구조를 나타냅니다
       exampleTitle: 웹 앱 아키텍처 예시
       title: 아키텍처 다이어그램
     blockdiagram:
       content: >-
-        스마트폰의 하드웨어 구성 요소를 보여주는 블록 다이어그램을 생성하세요.
+        스마트폰의 하드웨어 구성 요소를 보여주는 블록 다이어그램을 만드세요.
 
-        다음 요소들을 포함하세요: 프로세서 메모리 저장소 디스플레이 카메라 다양한 센서
+        다음 요소를 포함하세요: 프로세서 메모리 저장소 디스플레이 카메라 각종
+        센서
       desc: 블록 다이어그램은 시스템 구성 요소를 나타냅니다
       exampleTitle: 스마트폰 구성 요소 예시
       title: 블록 다이어그램
     classdiagram:
       content: |-
-        전자상거래 사이트의 도메인 모델을 생성하세요.
-        다음 클래스들을 포함하세요: User Product Order CartItem
+        전자상거래 사이트의 도메인 모델을 만드세요.
+        다음 클래스를 포함하세요: User Product Order CartItem
         각 클래스는 적절한 속성과 메서드를 가져야 합니다.
       desc: 클래스 다이어그램은 객체 지향 클래스 구조를 나타냅니다
       exampleTitle: 전자상거래 모델 예시
@@ -137,77 +139,87 @@ diagram:
       content: >-
         블로그 시스템의 데이터베이스 설계를 보여주세요.
 
-        다음 테이블들과 그들 간의 적절한 관계를 포함하세요: posts users comments categories tags
+        다음 테이블들 간의 적절한 관계를 포함하세요: posts
+        users comments categories tags
       desc: ER 다이어그램은 데이터베이스 엔티티와 관계를 나타냅니다
       exampleTitle: 블로그 DB 설계 예시
       title: ER 다이어그램
     flowchart:
       content: >-
-        아침 루틴을 위한 플로우차트를 만들고 싶습니다. 다음 단계들을 포함해주세요:
+        아침 루틴을 위한 플로우차트를 만들고 싶습니다. 다음 단계를 포함해주세요:
 
         일어나기, 침대에서 나오기, 세수하기, 양치하기, 아침 먹기, 옷 입기, 집 나가기.
 
-        "시간이 여유가 있나요?"라는 결정 지점을 포함하여, 시간이 있으면 나가기 전에 "커피 마시기" 단계를 추가하고,
-        시간이 없으면 바로 "집 나가기"로 진행하도록 하세요.
+        '시간이 여유가 있나요?'라는 결정 지점을 포함하여, 시간이 있으면
+        집을 나가기 전에 '커피 마시기' 단계를 추가하세요. 시간이 없으면
+        바로 '집 나가기'로 진행하세요.
 
         간결하고 읽기 쉽게 만들어주세요.
-      desc: 플로우차트는 프로세스나 워크플로우를 시각화합니다
+      desc: 플로우차트는 프로세스나 워크플로를 시각화합니다
       exampleTitle: 아침 루틴 예시
       title: 플로우차트
     ganttchart:
       content: >-
-        웹 애플리케이션 개발 프로젝트의 일정을 보여주는 간트 차트를 생성하세요.
+        웹 애플리케이션 개발 프로젝트의 일정을 보여주는 간트 차트를 만드세요.
 
-        요구사항 수집, 설계, 개발, 테스트, 배포 단계를 포함하세요.
+        요구사항 수집, 설계, 개발, 테스트,
+        배포 단계를 포함하세요.
       desc: 간트 차트는 프로젝트 일정을 시각화합니다
       exampleTitle: 개발 일정 예시
       title: 간트 차트
     gitgraph:
       content: >-
-        메인 브랜치에서 두 개의 기능 브랜치(로그인 기능과 프로필 편집 기능)가 분기되는 개발 플로우를 보여주는 git 그래프를 생성하세요.
+        메인 브랜치에서 두 개의 기능 브랜치(로그인 기능과 프로필 편집 기능)가
+        분기되는 개발 플로우를 보여주는 git 그래프를 만드세요.
 
-        로그인 기능 개발에는 폼 구현과 검증과 같은 여러 커밋이 포함되며, 최종적으로 Pull Request를 통해 메인 브랜치에 병합됩니다.
+        로그인 기능 개발에는 폼 구현과 검증 같은 여러 커밋이 포함되며
+        최종적으로 Pull Request를 통해 메인 브랜치에 병합됩니다.
 
-        한편, 프로필 편집 기능 개발 중에는 메인 브랜치에 적용된 최신 변경사항을 통합해야 하는 필요가 있습니다.
+        한편, 프로필 편집 기능 개발 중에는 메인 브랜치에 적용된
+        최신 변경사항을 통합해야 할 필요가 있습니다.
 
-        각 병합 지점에서는 "로그인 기능 #123 검토 및 병합"과 같은 실제 프로젝트 워크플로우와 유사한 커밋 메시지를 포함하세요.
+        각 병합 지점에서 'Reviewed and merged login feature #123'과 같은
+        실제 프로젝트 워크플로를 닮은 커밋 메시지를 포함하세요.
       desc: Git 그래프는 브랜치와 병합 기록을 시각화합니다
       exampleTitle: 개발 플로우 예시
       title: Git 그래프
     mindmap:
       content: >-
-        생성형 AI의 다양한 사용 사례를 설명하는 마인드맵을 만들어주세요.
-      desc: 마인드맵은 관련 개념이나 아이디어를 계층적으로 구성합니다
+        생성형 AI의 다양한 사용 사례를 보여주는 마인드맵을 만들어주세요.
+      desc: 마인드맵은 관련 개념이나 아이디어를 계층적으로 정리합니다
       exampleTitle: 생성형 AI 사용 사례 예시
       title: 마인드맵
     networkpacket:
       content: >-
-        HTTP 요청 패킷의 구조를 보여주는 다이어그램을 생성하세요.
+        HTTP 요청 패킷의 구조를 보여주는 다이어그램을 만드세요.
         헤더와 본문의 주요 요소를 포함하세요.
       desc: 네트워크 패킷 다이어그램은 데이터 구조를 나타냅니다
       exampleTitle: HTTP 패킷 예시
       title: 네트워크 패킷 다이어그램
     piechart:
       content: >-
-        도쿄의 20-30대 사람들의 통근 방법을 보여주는 파이 차트를 만들고 싶습니다.
+        도쿄의 20대, 30대 사람들의 통근 방법을 보여주는 원형 차트를 만들고 싶습니다.
 
-        다음 다섯 가지 방법에 대해 적절한 비율을 설정해주세요: 기차, 자전거, 도보, 자동차, 버스.
+        다음 다섯 가지 방법에 대해 적절한 비율을 설정해주세요: 기차,
+        자전거, 도보, 자동차, 버스.
 
-        제목은 "도쿄 20-30대 통근 방법"이어야 합니다.
-      desc: 파이 차트는 전체에 대한 비율을 보여줍니다
+        제목은 '도쿄 20-30대 통근 방법'으로 해주세요.
+      desc: 원형 차트는 전체에 대한 비율을 보여줍니다
       exampleTitle: 통근 방법 예시
-      title: 파이 차트
+      title: 원형 차트
     quadrantchart:
       content: >-
-        소셜 미디어 플랫폼을 비교하는 사분면 차트를 생성하세요. 제목은 "소셜 미디어 플랫폼 분석"이어야 합니다.
-        X축은 "텍스트 중심"에서 "시각적 중심"까지, Y축은 "전문적"에서 "캐주얼"까지입니다.
+        소셜 미디어 플랫폼을 비교하는 사분면 차트를 만드세요. 제목은
+        '소셜 미디어 플랫폼 분석'이어야 합니다. X축은 '텍스트 중심'에서
+        '시각적 중심'까지, Y축은 '전문적'에서 '캐주얼'까지입니다.
 
-        사분면을 다음과 같이 라벨링하세요: 우상단: "시각적 캐주얼" 좌상단: "텍스트 캐주얼"
-        좌하단: "텍스트 전문적" 우하단: "시각적 전문적"
+        사분면에 다음과 같이 라벨을 붙이세요: 우상단: '시각적 캐주얼' 좌상단:
+        '텍스트 캐주얼' 좌하단: '텍스트 전문적' 우하단: '시각적 전문적'
 
-        다음 소셜 미디어 플랫폼들을 배치하세요: 트위터: 다소 텍스트 중심이고 적당히 캐주얼,
-        인스타그램: 매우 시각적이고 상당히 캐주얼, 링크드인: 텍스트 중심이고 매우 전문적,
-        틱톡: 매우 시각적이고 가장 캐주얼, 페이스북: 두 축 모두 중간 정도.
+        다음 소셜 미디어 플랫폼을 배치하세요: Twitter: 다소 텍스트 중심이고
+        적당히 캐주얼, Instagram: 매우 시각적이고 상당히 캐주얼, LinkedIn:
+        텍스트 중심이고 매우 전문적, TikTok: 매우 시각적이고 가장 캐주얼,
+        Facebook: 두 축의 중간 정도.
 
         가능하면 각 플랫폼에 다른 색상을 사용하세요.
       desc: 사분면 차트는 두 축을 따라 항목을 분류합니다
@@ -217,59 +229,67 @@ diagram:
       content: >-
         스마트 홈 시스템의 주요 기능 요구사항을 보여주세요.
 
-        조명 제어, 온도 관리, 보안, 에너지 효율성에 대한 요구사항을 포함하세요.
+        조명 제어, 온도 관리, 보안, 에너지 효율성에 대한
+        요구사항을 포함하세요.
       desc: 요구사항 다이어그램은 시스템 요구사항과 관계를 나타냅니다
       exampleTitle: 스마트 홈 요구사항 예시
       title: 요구사항 다이어그램
     sankeychart:
       content: >-
-        웹사이트를 통한 사용자 플로우를 보여주는 산키 차트를 생성하세요.
+        웹사이트를 통한 사용자 플로우를 보여주는 산키 차트를 만드세요.
         랜딩 페이지에서 시작하여 페이지 전환과 이탈률을 보여주세요.
-      desc: 산키 차트는 비례적 너비로 플로우를 보여줍니다
+      desc: 산키 차트는 비례 폭으로 플로우를 보여줍니다
       exampleTitle: 사용자 플로우 예시
       title: 산키 차트
     sequencediagram:
       content: >-
-        사용자가 로그인 버튼을 클릭할 때부터 인증이 완료될 때까지의 플로우를 보여주는
-        웹 애플리케이션의 시퀀스 다이어그램을 생성하세요.
+        사용자가 로그인 버튼을 클릭한 때부터 인증이 완료될 때까지의
+        플로우를 보여주는 웹 애플리케이션용 시퀀스 다이어그램을 만드세요.
 
-        다음 세 구성 요소를 포함하세요: 프론트엔드, 인증 서버, 데이터베이스.
+        다음 세 구성 요소를 포함하세요: 프론트엔드, 인증 서버,
+        데이터베이스.
       desc: 시퀀스 다이어그램은 시간에 따른 구성 요소 간의 상호작용을 보여줍니다
       exampleTitle: 로그인 플로우 예시
       title: 시퀀스 다이어그램
     statediagram:
       content: >-
-        온라인 쇼핑 카트의 상태 다이어그램을 생성하세요.
+        온라인 쇼핑 카트의 상태 다이어그램을 만드세요.
 
-        "비어있음", "아이템 추가됨", "결제 진행 중", "결제 완료"와 같은 상태를 포함하세요.
+        '비어있음', '상품 추가됨', '체크아웃 진행 중',
+        '결제 완료'와 같은 상태를 포함하세요.
       desc: 상태 다이어그램은 시스템 상태 변화를 나타냅니다
       exampleTitle: 카트 상태 예시
       title: 상태 다이어그램
     timeline:
       content: >-
-        2000년부터 2020년까지 소셜 미디어의 주요 발전과 전환점을 보여주는 타임라인을 생성하세요.
+        2000년부터 2020년까지 소셜 미디어의 주요 발전과 전환점을
+        보여주는 타임라인을 만드세요.
 
-        다음 요소들을 포함하세요: 블로깅의 부상 사진 공유 플랫폼의 등장 마이크로블로깅의 도입
-        비디오 공유 서비스의 발전 모바일 우선 소셜 네트워크의 확산 짧은 형태 비디오 플랫폼의 부상
+        다음 요소들을 포함하세요: 블로깅의 부상 사진 공유 플랫폼의 등장
+        마이크로블로깅의 도입 비디오 공유 서비스의 발전 모바일 우선
+        소셜 네트워크의 확산 짧은 형태 비디오 플랫폼의 부상
 
-        각 전환점에 대해 해당 기간에 발생한 1-2개의 중요한 기술 혁신이나 사회적 변화
-        (예: 스마트폰 채택, 고속 모바일 인터넷)를 추가하세요.
-      desc: 타임라인은 시간순으로 이벤트를 표시합니다
+        각 전환점에 대해 해당 시기에 발생한 1-2개의 중요한 기술 혁신이나
+        사회적 변화(예: 스마트폰 보급, 고속 모바일 인터넷)를 추가하세요.
+      desc: 타임라인은 시간순으로 사건을 표시합니다
       exampleTitle: 소셜 미디어 진화 예시
       title: 타임라인
     userjourney:
       content: >-
-        온라인 쇼핑 사이트에서의 고객 경험에 대한 사용자 여정 다이어그램을 생성하세요.
+        온라인 쇼핑 사이트에서의 고객 경험을 위한 사용자 여정 다이어그램을 만드세요.
 
-        다음 단계들을 포함하세요: 제품 검색 제품 보기 카트 추가 결제 결제 배송 추적
+        다음 단계들을 포함하세요: 상품 검색 상품 보기 카트 추가
+        체크아웃 결제 배송 추적
       desc: 사용자 여정은 고객 경험 플로우를 매핑합니다
       exampleTitle: 구매 경험 예시
       title: 사용자 여정
     xychart:
       content: >-
-        지난 10년간 일본의 평균 수면 시간과 근무 시간 간의 관계를 보여주는 XY 차트를 생성하세요.
+        지난 10년간 일본의 평균 수면 시간과 근무 시간 간의 관계를
+        보여주는 XY 차트를 만드세요.
 
-        X축은 일일 평균 근무 시간, Y축은 일일 평균 수면 시간으로 사용하여 각 연도의 데이터 포인트를 표시하세요.
+        X축은 일일 평균 근무 시간, Y축은 일일 평균 수면 시간으로 사용하여
+        각 연도의 데이터 포인트를 플롯하세요.
       desc: XY 차트는 두 변수 간의 관계를 보여줍니다
       exampleTitle: 수면 vs 근무 시간 예시
       title: XY 차트
@@ -285,44 +305,52 @@ feedback:
   reason_error: 이유를 선택해주세요.
   reason_title: 이 응답을 평가한 이유를 알려주세요.
   reasons:
-    harmful: 유해하거나 공격적임
+    harmful: 유해하거나 공격적
     inaccurate: 부정확함
     other: 기타
     outdated: 오래된 정보
 files:
   error:
-    fileCountExceeded: 파일을 {{maxCount}}개 이하로 제한해주세요
-    fileSizeExceeded: '{{fileName}}이(가) 최대 파일 크기 {{maxSize}} MB를 초과했습니다.'
-    imageCountExceeded: 이미지 파일을 {{maxCount}}개 이하로 제한해주세요
+    fileCountExceeded: 파일 수를 {{maxCount}}개 이하로 제한해주세요
+    fileSizeExceeded: '{{fileName}}이(가) 최대 파일 크기 {{maxSize}} MB를 초과합니다.'
+    imageCountExceeded: 이미지 파일 수를 {{maxCount}}개 이하로 제한해주세요
     invalidExtension: >-
-      {{fileName}}은(는) 지원되지 않는 확장자입니다. 허용되는 확장자는 {{acceptedExtensions}}입니다
+      {{fileName}}은(는) 지원되지 않는 확장자입니다. 허용되는 확장자는
+      {{acceptedExtensions}}입니다
     invalidImageDimension: >-
-      허용되는 이미지 파일 크기는 {{allowedDimensions}}입니다 (업로드된 이미지 크기는 {{uploadedDimension}}입니다)
-    mimeMismatch: '{{fileName}}의 파일 유형이 확장자와 일치하지 않습니다.'
+      허용되는 이미지 파일 크기는 {{allowedDimensions}}입니다 (업로드된 이미지
+      크기는 {{uploadedDimension}}입니다)
+    mimeMismatch: '{{fileName}}의 파일 형식이 확장자와 일치하지 않습니다.'
     modelNotSupported: 이 모델은 파일을 지원하지 않습니다.
-    videoCountExceeded: 비디오 파일을 {{maxCount}}개 이하로 제한해주세요
+    videoCountExceeded: 비디오 파일 수를 {{maxCount}}개 이하로 제한해주세요
 flow:
   title: 플로우 채팅
 generateImage:
   add_color: 색상 추가
   assistant:
     error_message: 프롬프트 생성에 실패했습니다. 다시 시도해주세요.
-    error_title: 오류가 발생했습니다
-    generating_image: 이미지 생성 중...
-    generating_prompt: 프롬프트 생성 중...
+    error_title: 오류가 발생하였습니다.
+    generating_image: 이미지 생성중...
+    generating_prompt: 프롬프트 생성중...
     help: >-
-      이미지 생성을 위한 프롬프트를 생성합니다. 원하는 것을 어시스턴트에게 말하면,
-      AI가 이미지를 생성하기 위한 프롬프트와 네거티브 프롬프트를 생성합니다.
-    hint_1: "'귀여운 고양이 이미지 생성'과 같은 간단한 지시로 시작하세요."
-    hint_2: "'수채화 스타일로' 또는 '사실적으로'와 같은 스타일 지정이 효과적입니다."
+      이미지 생성을 위한 프롬프트를 만듭니다. AI에게 원하는것을 말하면,
+      AI가 이미지를 만들기 위한 프롬프트와 네거티브 프롬프트를 생성합니다.
+    hint_1: >-
+      '귀여운 고양이 이미지 생성'과 같은 간단한 지시로 시작하세요.
+    hint_2: >-
+      '수채화 스타일로' 또는 '사실적으로'와 같은 스타일을 지정하는 것이 효과적입니다.
     hint_3: >-
-      "'배경에 산' 또는 '파란 하늘'과 같이 포함하고 싶은 요소를 자세히 설명하세요."
+      '배경의 산' 또는 '파란 하늘'과 같이 포함하고 싶은 요소를 자세히
+      설명하세요.
     hint_4: >-
-      "'고해상도' 또는 '세밀한'과 같은 품질 관련 지시도 효과적입니다."
+      '고해상도' 또는 '세밀한'과 같은 품질 관련 지시도
+      효과적입니다.
     hint_5: >-
-      "'애니메이션 스타일' 또는 '유화 스타일'과 같은 특정 예술적 스타일을 지정할 수도 있습니다."
+      '애니메이션 스타일' 또는 '유화 스타일'과 같은 특정 예술 스타일을
+      지정할 수도 있습니다.
     hint_6: >-
-      복잡한 장면의 경우, 구성, 색상 구성표 등에 대한 구체적인 지시를 제공하세요.
+      복잡한 장면의 경우, 구성, 색상 구성표 등에 대한 구체적인 지시를
+      제공하세요.
     hint_title: 힌트
     input_placeholder: 어떤 이미지를 생성하고 싶으신가요?
     no_style: 스타일 없음
@@ -339,43 +367,6 @@ generateImage:
   detail_parameters: 세부 매개변수
   generate: 생성
   generation_mode: 생성 모드
-  help:
-    cfg_scale: 높은 값은 프롬프트에 더 충실한 이미지를 생성합니다.
-    colors: 미리 설정된 색상 팔레트에서 선택할 수 있습니다
-    control_mode: >-
-      CANNY_EDGE: 참조 이미지에서 가장자리를 추출합니다. 세부 패턴을 반영하는 데 최적입니다.
-      SEGMENTATION: 참조 이미지를 영역으로 나눕니다. 여러 객체의 위치 관계를 반영하는 데 최적입니다.
-    control_strength: >-
-      1에 가까운 값은 참조 이미지의 구성을 더 많이 기반으로 한 이미지를 생성하고,
-      0에 가까운 값은 참조 이미지와 다른 구성의 이미지를 생성합니다.
-    generation_mode: >-
-      TEXT_IMAGE: 텍스트에서 이미지 생성.  IMAGE_VARIATION: 참조에서 유사한 이미지 생성.
-      INPAINTING: 이미지의 일부 편집.  OUTPAINTING: 이미지 확장.
-      IMAGE_CONDITIONING: 구성 반영.  COLOR_GUIDED_GENERATION: 색상 지정으로 생성.
-      BACKGROUND_REMOVAL: 배경 제거.
-    image_samples: >-
-      랜덤 시드를 설정하면서 지정된 수의 이미지를 동시에 생성합니다.
-    image_strength: >-
-      1에 가까운 값은 초기 이미지와 더 유사한 이미지를 생성하고,
-      0에 가까운 값은 초기 이미지와 더 다른 이미지를 생성합니다.
-    init_image: >-
-      생성을 위한 초기 상태로 이미지를 설정합니다. 초기 이미지를 설정하면
-      그와 유사한 이미지를 생성하도록 안내합니다.
-    mask_image: >-
-      이미지에 대한 마스크를 설정합니다. 마스크 이미지를 설정하면
-      마스크된 영역(인페인트) 또는 마스크 외부 영역(아웃페인트)을 생성할 수 있습니다.
-      마스크 프롬프트와 함께 사용할 수 없습니다.
-    mask_prompt: >-
-      마스크/제외하려는 요소(인페인트) 또는 마스크하지 않으려는/유지하려는 요소(아웃페인트)를 설명하세요.
-      문장보다는 키워드를 사용하세요. 마스크 이미지와 함께 사용할 수 없습니다.
-    negative_prompt: >-
-      생성된 이미지에서 원하지 않는 요소를 설명하세요. 문장보다는 키워드를 사용하세요.
-    prompt: >-
-      생성하고 싶은 이미지를 설명하세요. 문장보다는 키워드를 사용하세요.
-    seed: 랜덤 시드 값. 같은 시드를 사용하면 같은 이미지가 생성됩니다.
-    steps: >-
-      이미지 생성을 위한 반복 횟수. 더 많은 단계는 이미지를 개선하지만
-      생성하는 데 더 오래 걸립니다.
   image_samples: 이미지 샘플
   image_strength: 이미지 강도
   init_image: 초기 이미지
@@ -394,180 +385,15 @@ generateText:
   clear: 지우기
   continue_output: 출력 계속
   execute: 실행
-  format_placeholder: 텍스트 형식 지정 (마크다운, 블로그, 비즈니스 이메일 등)
+  format_placeholder: 텍스트 형식을 지정하세요 (마크다운, 블로그, 비즈니스 이메일 등)
   input_placeholder: 텍스트 입력
   result_placeholder: 생성된 텍스트가 여기에 표시됩니다
   source_info: 텍스트의 소스 정보
   title: 텍스트 생성
 landing:
-  alert:
-    description: >-
-      이것은 SA가 내부 데모용으로 사용하는 환경입니다. 고객에게 데모를 제공할 때는 원칙적으로 자신의 AWS 계정에 배포된 것을 사용해주세요. 고객 데이터를 입력하거나 비즈니스 목적으로 사용하지 마세요.
-    title: GenU 데모 환경에 대해
-  demo:
-    agent:
-      content: 더미 데이터로 산점도 차트를 그려주세요.
-    chat:
-      content: >-
-        피보나치 수를 반환하는 Python 함수를 작성해주세요. 또한 구현을 설명해주세요.
-
-        인수는 항이어야 하고, 처리는 재귀적으로 작성되어야 합니다. 마크다운으로 출력해주세요.
-    diagram:
-      content: 색상을 사용하여 일반적인 회사 비용 생산 흐름을 설명해주세요.
-    generate:
-      context: >-
-        프레젠테이션용으로, 각 장에 간결한 설명이 포함된 마크다운 형식으로 정리해주세요.
-      information: >-
-        Amazon Bedrock은 AI21 Labs, Anthropic, Cohere, Meta, Stability AI, Amazon과 같은 선도적인 AI 회사의
-        고성능 파운데이션 모델(FM)을 단일 API를 통해 선택할 수 있게 해주는 완전 관리형 서비스입니다.
-        또한 개인정보 보호와 보안을 유지하면서 개발을 단순화하여 생성형 AI 애플리케이션 구축에 필요한
-        광범위한 기능을 제공합니다. Amazon Bedrock의 포괄적인 기능을 사용하면 다양한 최고의 FM을 쉽게
-        실험하고, 파인튜닝 및 검색 증강 생성(RAG)과 같은 기술을 사용하여 데이터로 개인적으로 사용자 정의하고,
-        여행 예약 및 보험 청구 처리부터 광고 캠페인 생성 및 재고 관리에 이르기까지 복잡한 비즈니스 작업을
-        수행하는 관리형 에이전트를 생성할 수 있습니다. 이 모든 것을 코드 작성 없이 수행할 수 있습니다.
-        Amazon Bedrock은 서버리스이므로 인프라를 관리할 필요가 없습니다. 또한 친숙한 AWS 서비스를 사용하여
-        생성형 AI 기능을 애플리케이션에 안전하게 통합하고 배포할 수 있습니다.
-    image:
-      content: >-
-        스마트폰 광고 디자인 아이디어를 출력해주세요.
-
-        귀엽고, 세련되고, 사용하기 쉽고, POP 문화, 친근하고, 젊은 층 대상, 음악, 사진, 트렌디한 스마트폰, 도시 배경
-    mcp:
-      content: >-
-        Amazon Bedrock 보안에 대해 조사해주세요. 사용자 입력이 모델 훈련에 사용되나요?
-    rag:
-      content: >-
-        Amazon Nova Canvas의 개요를 제공하고 주요 기능을 설명해주세요.
-    summarize:
-      sentence: >-
-        Amazon Bedrock은 Amazon과 선도적인 AI 스타트업의 파운데이션 모델(FM)을 API를 통해 사용할 수 있게 해주는
-        완전 관리형 서비스로, 사용 사례에 가장 적합한 모델을 찾기 위해 다양한 FM 중에서 선택할 수 있습니다.
-        Amazon Bedrock의 서버리스 경험을 통해 FM을 빠르게 시작하고, FM을 쉽게 실험하고, 자체 데이터로
-        FM을 개인적으로 사용자 정의하고, AWS 도구 및 기능을 사용하여 FM을 애플리케이션에 원활하게 통합하고
-        배포할 수 있습니다. Amazon Bedrock Agents는 개발자가 자체 지식 소스를 기반으로 최신 답변을 제공하고
-        광범위한 사용 사례에서 작업을 완료할 수 있는 생성형 AI 애플리케이션을 쉽게 만들 수 있게 해주는
-        완전 관리형 기능입니다. Bedrock의 서버리스 경험을 통해 빠르게 시작하고, 자체 데이터로 FM을 개인적으로
-        사용자 정의하고, 친숙한 AWS 도구 및 기능을 사용하여 애플리케이션에 쉽게 통합하고 배포할 수 있습니다
-        (대규모 FM 관리를 위한 실험 테스트 및 파이프라인과 같은 Amazon SageMaker ML 기능과의 통합 포함).
-    translate:
-      language: ko
-      sentence: >-
-        안녕하세요. 번역을 도와주는 AI 어시스턴트입니다. 번역하고 싶은 텍스트를 입력해주세요.
-    video:
-      content: >-
-        비디오에 표시된 내용을 설명해주세요. 보이는 텍스트가 있다면 그것도 읽어주세요.
-    web_content:
-      url: https://aws.amazon.com/bedrock/
   title: AWS 생성형 AI 애플리케이션
   try: 시도해보기
-  try_message: AWS 생성형 AI 서비스를 사용하는 웹 애플리케이션입니다.
-  use_cases:
-    agent_chat:
-      description: >-
-        에이전트 채팅 사용 사례에서는 Amazon Bedrock용 에이전트를 사용하여 작업을 실행하거나
-        Amazon Bedrock용 지식 베이스의 벡터 데이터베이스를 참조할 수 있습니다.
-      title: 에이전트 채팅
-    agent_core:
-      description: AgentCore 채팅은 Bedrock AgentCore로 생성된 다양한 에이전트를 활용하는 기능입니다.
-      title: AgentCore
-    chat:
-      description: >-
-        채팅 형식으로 LLM과 대화형 대화를 할 수 있습니다. 세부적인 사용 사례와 새로운 사용 사례에
-        빠르게 응답할 수 있습니다. 프롬프트 엔지니어링을 검증하는 환경으로도 효과적입니다.
-      title: 채팅
-    diagram:
-      description: >-
-        자연어 설명, 문서 또는 코드에서 플로우차트, 시퀀스 다이어그램, 마인드맵과 같은 다양한
-        다이어그램을 자동으로 생성합니다. 시스템 설계, 비즈니스 플로우, 프로젝트 계획의 복잡한
-        관계를 시각적으로 표현하고 효율적으로 이해할 수 있습니다.
-      title: 다이어그램 생성
-    flow_chat:
-      description: >-
-        Flow를 사용하여 여러 단계가 있는 대화형 채팅 플로우를 생성합니다. 사용자 입력에 따라
-        다음 단계를 동적으로 결정하여 더 복잡한 대화 시나리오를 실현합니다.
-      title: 플로우 채팅
-    generate_text:
-      description: >-
-        모든 컨텍스트에서 텍스트를 생성하는 것은 LLM이 뛰어난 작업 중 하나입니다.
-        기사, 보고서, 이메일과 같은 다양한 컨텍스트를 지원합니다.
-      title: 텍스트 생성
-    image:
-      description: >-
-        이미지 생성 AI는 텍스트나 이미지를 기반으로 새로운 이미지를 생성할 수 있습니다.
-        아이디어를 즉시 시각화할 수 있으며 디자인 작업의 효율성 향상을 기대할 수 있습니다.
-        이 기능에서는 프롬프트 생성에 LLM 지원을 받을 수 있습니다.
-      title: 이미지 생성
-    mcp_chat:
-      description: >-
-        MCP 채팅은 모델 컨텍스트 프로토콜(MCP)을 통해 Bedrock의 LLM 모델을 외부 데이터 및 외부 도구와
-        원활하게 통합하는 채팅 기능입니다. mcp.json 파일을 편집하여 자유롭게 도구를 추가할 수 있습니다.
-        Strands Agents를 MCP 에이전트로 활용합니다.
-      title: MCP 채팅
-    meeting-minutes:
-      description: >-
-        오디오 녹음이나 실시간 전사에서 회의록을 자동으로 생성합니다.
-        프롬프트를 작성할 필요가 없습니다 - 거의 원본 전사, 신문 스타일 또는 FAQ 형식 중에서 선택하세요.
-      title: 회의록 생성
-    rag_chat:
-      description_kb: >-
-        RAG(검색 증강 생성)는 정보 검색과 LLM 텍스트 생성을 결합한 방법으로, 효과적인 정보 접근을
-        가능하게 합니다. 지식 베이스의 하이브리드 검색을 사용하여 참조 문서를 검색하고, LLM이 응답을 생성합니다.
-      description_kendra: >-
-        RAG(검색 증강 생성)는 정보 검색과 LLM 텍스트 생성을 결합한 방법으로, 효과적인 정보 접근을
-        가능하게 합니다. Amazon Kendra에서 검색된 참조 문서를 기반으로 응답을 생성함으로써
-        "내부 정보에 대응하는 LLM 채팅"을 쉽게 실현할 수 있습니다.
-      sub_kb: 지식 베이스
-      sub_kendra: Amazon Kendra
-      title: RAG 채팅
-    summarize:
-      description: >-
-        LLM은 대량의 텍스트를 요약하는 데 뛰어납니다. 단순한 요약 외에도 "한 줄로" 또는
-        "아이가 이해할 수 있는 말로"와 같은 컨텍스트를 제공하여 요약할 수 있습니다.
-      title: 요약
-    translate:
-      description: >-
-        여러 언어로 훈련된 LLM은 번역을 수행할 수 있습니다. 또한 번역뿐만 아니라
-        캐주얼함과 대상 청중과 같은 다양한 지정된 컨텍스트 정보를 번역에 반영할 수 있습니다.
-      title: 번역
-    video-analysis:
-      description: >-
-        멀티모달 모델을 사용하면 텍스트뿐만 아니라 이미지도 입력할 수 있습니다.
-        이 기능에서는 입력된 비디오 이미지 프레임과 텍스트를 분석하도록 LLM에 요청합니다.
-      title: 비디오 분석
-    video-generation:
-      description: >-
-        비디오 생성 AI는 텍스트나 이미지를 기반으로 짧은 비디오를 생성할 수 있습니다.
-        생성된 비디오는 다양한 장면에서 소재로 사용할 수 있습니다.
-      title: 비디오 생성
-    voice_chat:
-      description: >-
-        음성 채팅에서는 생성형 AI와 양방향 음성 채팅을 할 수 있습니다. 자연스러운 대화와 마찬가지로
-        AI가 말하는 동안 끼어들어 말할 수도 있습니다. 또한 시스템 프롬프트를 설정하여
-        특정 역할을 가진 AI와 음성 대화를 할 수 있습니다.
-      title: 음성 채팅
-    web_content:
-      description: >-
-        블로그나 문서와 같은 웹 콘텐츠를 추출합니다. LLM이 불필요한 정보를 제거하고
-        일관된 텍스트로 형식을 지정합니다. 추출된 콘텐츠는 요약 및 번역과 같은
-        다른 사용 사례에서 사용할 수 있습니다.
-      title: 웹 콘텐츠 추출
-    writer:
-      description: >-
-        글쓰기 지원, 텍스트 개선 및 교정을 위한 도구입니다. AI 지원으로 효율적으로 글을 쓸 수 있습니다.
-      title: 글쓰기
-  use_cases_integration:
-    blog:
-      description: >-
-        여러 사용 사례를 결합하여 블로그 기사를 생성합니다. 기사 개요와 썸네일 이미지를 자동으로
-        생성하여 OGP 설정이 쉬워집니다. 예시로 AWS 공식 사이트의 정보를 바탕으로
-        생성형 AI를 소개하는 블로그 기사를 생성합니다.
-      title: 블로그 기사 작성
-    meeting:
-      description: >-
-        여러 사용 사례를 결합하여 오디오 녹음 데이터에서 회의록을 자동으로 생성합니다.
-        인적 비용을 들이지 않고 전사, 전사 형식 지정, 회의록 생성이 가능합니다.
-      title: 회의록 작성
-    title: 사용 사례 통합
+  try_message: 이것은 AWS 생성형 AI 서비스를 사용하는 웹 애플리케이션입니다.
   use_cases_title: 사용 사례
 language:
   de: 독일어
@@ -580,13 +406,13 @@ language:
   vi: 베트남어
   zh: 중국어
 mcp_chat:
-  loading_message: MCP 서버에 연결 중입니다. 시간이 걸릴 수 있습니다. 잠시 기다려주세요...
+  loading_message: MCP 서버에 연결 중입니다. 시간이 걸릴 수 있습니다. 기다려주세요...
   title: MCP 채팅
 meetingMinutes:
   auto_generate: 자동 생성
   clear_minutes: 회의록 지우기
   custom_prompt: 사용자 정의 프롬프트
-  custom_prompt_placeholder: 회의록 생성을 위한 사용자 정의 프롬프트를 입력하세요...
+  custom_prompt_placeholder: 회의록 생성용 사용자 정의 프롬프트를 입력하세요...
   frequency: 생성 빈도
   frequency_10min: 10분마다
   frequency_1min: 1분마다
@@ -608,11 +434,11 @@ meetingMinutes:
   language_thai: 태국어
   language_vietnamese: 베트남어
   last_generated: 마지막 생성 {{time}}
-  minutes_placeholder: 생성 후 회의록이 여기에 나타납니다
+  minutes_placeholder: 생성 후 여기에 회의록이 표시됩니다
   model: 회의록 생성 모델
   new_recording_session: 새 녹음 세션
   next_generation: 다음 생성
-  next_generation_in: '다음 생성까지 : '
+  next_generation_in: '다음 생성까지: '
   no_transcript: 전사 없음
   partial_indicator: (...)
   record_transcribe: 녹음 및 전사
@@ -620,7 +446,7 @@ meetingMinutes:
   speech_recognition: 음성 인식
   style: 회의록 스타일
   style_custom: 사용자 정의
-  style_detail: 상세
+  style_detail: 세부사항
   style_faq: FAQ
   style_newspaper: 신문
   style_summary: 요약
@@ -657,66 +483,68 @@ optimizePrompt:
   clear: 지우기
   execute: 실행
   input_placeholder: >-
-    현재 프롬프트를 그대로 입력하세요. 출력이 영어인 경우 "한국어로 출력해주세요"와 같은 지시를 추가하세요.
+    현재 프롬프트를 그대로 입력하세요. 출력이 영어로 나오는 경우
+    '한국어로 출력해주세요'와 같은 지시를 추가하세요.
   result_placeholder: 결과가 여기에 표시됩니다
   title: 프롬프트 최적화
 rag:
   can_add_filters: .
   errorRetrieval: >-
-    Kendra에서 참조 문서를 검색하지 못했습니다. 다음 작업을 고려해보세요:
+    Kendra에서 참조 문서를 검색하지 못했습니다. 다음 사항을 확인해주세요:
 
-    - Amazon Kendra 인덱스 생성 예정 시간이 지났고 인덱싱에 충분한 시간이 경과했는지 확인
+    - Amazon Kendra 인덱스 생성 예정 시간이 지났고 인덱싱에 충분한 시간이 경과했는지
 
-    - Amazon Kendra 인덱스 삭제 예정 시간이 지나지 않았는지 확인
+    - Amazon Kendra 인덱스 삭제 예정 시간이 지나지 않았는지
   filter: 필터
-  filter_settings: 필터 설정은 다음을 참조하세요
+  filter_settings: 필터 설정은
   here: 여기
   knowledgeBase:
     noDocuments: >-
-      참조 문서를 찾을 수 없습니다. 다음 작업을 고려해보세요:
+      참조 문서를 찾을 수 없습니다. 다음 사항을 확인해주세요:
 
-      - 대상 문서가 지식 베이스 데이터 소스에 추가되었는지 확인
+      - 대상 문서가 Knowledge Base 데이터 소스에 추가되었는지
 
-      - 지식 베이스 데이터 소스가 동기화되었는지 확인
+      - Knowledge Base 데이터 소스가 동기화되었는지
 
-      - 입력 표현을 변경해보세요
+      - 입력 표현을 바꿔보세요
     retrieveError: >-
-      검색 중 오류가 발생했습니다. 다음 작업을 고려해보세요:
+      검색 중 오류가 발생했습니다. 다음 사항을 확인해주세요:
 
-      - cdk.json에 지정된 embeddingModelId가 Amazon Bedrock ({{region}})에서 활성화되어 있는지 확인
-    retrieving: 지식 베이스에서 참조 문서 검색 중...
+      - cdk.json에 지정된 embeddingModelId가 Amazon Bedrock ({{region}})에서
+      활성화되었는지
+    retrieving: Knowledge Base에서 참조 문서를 검색하는 중...
   noDocuments: >-
-    참조 문서를 찾을 수 없습니다. 다음 작업을 고려해보세요:
+    참조 문서를 찾을 수 없습니다. 다음 사항을 확인해주세요:
 
-    - 대상 문서가 Amazon Kendra 데이터 소스에 추가되었는지 확인
+    - 대상 문서가 Amazon Kendra 데이터 소스에 추가되었는지
 
-    - Amazon Kendra 데이터 소스가 동기화되었는지 확인
+    - Amazon Kendra 데이터 소스가 동기화되었는지
 
-    - 입력 표현을 변경해보세요
-  no_settings_found: '설정을 찾을 수 없습니다. 사용자 정의하여 필터를 추가할 수 있습니다 '
+    - 입력 표현을 바꿔보세요
+  no_settings_found: '설정을 찾을 수 없습니다. 다음을 사용자 정의하여 필터를 추가할 수 있습니다 '
   page: 페이지
   please_refer: .
-  retrieving: Kendra에서 참조 문서 검색 중...
+  retrieving: Kendra에서 참조 문서를 검색하는 중...
   title: RAG 채팅
 setting:
   ai_items:
     agent_name: 에이전트 이름
     image_gen_model: 이미지 생성 모델 이름
     llm_model: LLM 모델 이름
-    model_region: LLM 및 이미지 생성 모델 리전
+    model_region: LLM 및 이미지 생성 모델 지역
     video_gen_model: 비디오 생성 모델 이름
   config_message: >-
-    시스템 설정은 이 화면이 아닌 <0>AWS CDK</0>를 사용하여 변경할 수 있습니다.
-    사용 사례를 실행할 때 오류가 발생하면 {{region}}에서 지정된 모델을 활성화했는지 확인하세요.
-    이를 수행하는 방법에 대한 자세한 내용은 <1>generative-ai-use-cases</1>를 참조하세요.
+    시스템 설정은 이 화면이 아닌 <0>AWS CDK</0>를 사용하여 변경할 수 있습니다. 사용 사례 실행 시 오류가 발생하는 경우
+    {{region}}에서 지정된 모델을 활성화했는지 확인해주세요. 자세한 방법은
+    <1>generative-ai-use-cases</1>를 참조하세요.
   items:
     agent_enabled: 에이전트 활성화
     language: 언어
     language_help: 표시 언어 변경
-    line_break_enter: Enter를 눌러 새 줄 생성
+    line_break_enter: Enter로 줄바꿈
     login_status: 로그인 상태
     rag_enabled: RAG (Amazon Kendra) 활성화
-    rag_kb_enabled: RAG (지식 베이스) 활성화
+    rag_kb_enabled: RAG (Knowledge Base) 활성화
     show_email: 이메일 표시
     show_tools: 도구 표시
     show_use_case_builder: 사용 사례 빌더 표시
@@ -729,7 +557,7 @@ setting:
   system: 시스템 설정
   update:
     message: >-
-      GitHub에서 업데이트를 사용할 수 있습니다. 최신 기능을 사용하려면
+      GitHub에 업데이트가 있습니다. 최신 기능을 사용하려면
       <0>generative-ai-use-cases</0>의 main 브랜치를 pull하고 재배포하세요.
   user: 사용자 설정
   view_all_updates: 모든 업데이트 보기
@@ -754,8 +582,9 @@ stat:
   title: 통계
   usecase_distribution: 사용 사례 분포
 summarize:
-  additional_context: 추가 컨텍스트
-  additional_context_placeholder: 고려할 추가 사항을 입력할 수 있습니다 (e.g., 캐주얼함 등)
+  additional_context: 추가 맥락
+  additional_context_placeholder: >-
+    추가로 고려할 사항을 입력할 수 있습니다 (예: 캐주얼함 등)
   enter_text: 텍스트 입력
   result_placeholder: 요약된 텍스트가 여기에 표시됩니다
   text_to_summarize: 요약할 텍스트
@@ -763,17 +592,18 @@ summarize:
 transcribe:
   detailed_parameters: 세부 매개변수
   direct_input: 직접 입력
-  direct_input_instruction: '아래 "전사" 영역에 회의록용 소스 텍스트를 직접 입력해주세요.'
-  direct_input_placeholder: 회의록용 소스 텍스트를 여기에 입력해주세요...
+  direct_input_instruction: >-
+    아래 "전사" 영역에 회의록의 소스 텍스트를 직접 입력해주세요.
+  direct_input_placeholder: 여기에 회의록의 소스 텍스트를 입력해주세요...
   file_upload: 파일 업로드
   max_speakers: 최대 화자 수
-  max_speakers_help: 인식할 최대 화자 수
+  max_speakers_help: 인식할 화자의 최대 수
   mic_input: 마이크 입력
   result_placeholder: 음성 인식 결과가 여기에 표시됩니다
   screen_audio: 화면 오디오
   screen_audio_error: 화면 오디오 오류
-  screen_audio_notice: 'Windows의 경우: "전체 화면" 탭을 선택하고 "시스템 오디오 공유"를 켜세요.<br/>Mac의 경우: "Chrome 탭"을 선택하고 "탭 오디오도 공유"를 켜세요.<br/>Chrome과 Edge가 작동합니다. Firefox는 작동하지 않습니다.'
-  select_input_method: 마이크 입력 또는 파일 업로드 중에서 선택해주세요
+  screen_audio_notice: 'Windows의 경우: "전체 화면" 탭을 선택하고 "시스템 오디오도 공유"를 켜주세요.<br/>Mac의 경우: "Chrome 탭"을 선택하고 "Also share tab audio"를 켜주세요.<br/>Chrome과 Edge가 작동합니다. Firefox는 작동하지 않습니다.'
+  select_input_method: 마이크 입력 또는 파일 업로드를 선택해주세요
   speaker_names: 화자 이름 (쉼표로 구분)
   speaker_recognition: 화자 인식
   start_recording: 녹음 시작
@@ -781,65 +611,36 @@ transcribe:
   supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a 파일을 사용할 수 있습니다
   title: 음성 인식
 translate:
-  additional_context: 추가 컨텍스트
-  additional_context_placeholder: 고려할 추가 사항을 입력할 수 있습니다 (e.g., 캐주얼함 등)
+  additional_context: 추가 맥락
+  additional_context_placeholder: >-
+    추가로 고려할 사항을 입력할 수 있습니다 (예: 캐주얼함 등)
   auto_detect_language: 언어 자동 감지
   auto_translate: 자동 번역
-  contextHelp: 컨텍스트 정보는 회의에 대한 배경 정보를 제공하여 번역 정확도를 향상시키는 데 도움이 됩니다.
+  contextHelp: 맥락 정보는 회의의 배경 정보를 제공하여 번역 정확도를 향상시킵니다.
   continue_output: 출력 계속
   enter_text: 텍스트 입력
   model: 실시간 번역 모델
   realtimeTranslation: 실시간 번역
   result_placeholder: 번역 결과가 여기에 표시됩니다
-  systemGeneratedContext: 시스템 생성 컨텍스트
-  systemGeneratedContextPlaceholder: 회의 내용을 기반으로 자동 생성된 컨텍스트
+  systemGeneratedContext: 시스템 생성 맥락
+  systemGeneratedContextPlaceholder: 회의 내용을 기반으로 자동 생성된 맥락
   target_language: 실시간 번역 언어
   text_to_translate: 번역할 텍스트
   title: 번역
   translating: 번역 중...
   translation: 번역
-  userDefinedContext: 사용자 정의 컨텍스트
-  userDefinedContextPlaceholder: '번역 정확도를 향상시키기 위한 컨텍스트 입력 (예: 회의 주제, 기술 용어 등)'
+  userDefinedContext: 사용자 정의 맥락
+  userDefinedContextPlaceholder: '번역 정확도 향상을 위한 맥락을 입력하세요 (예: 회의 주제, 전문 용어 등)'
 useCaseBuilder:
-  accessError: 접근 오류
+  accessError: 액세스 오류
   addInputExample: 입력 예시 추가
   attach_file: 파일 첨부
-  blog:
-    generate_article: 기사 생성
-    generate_article_context: >-
-      생성형 AI의 메커니즘과 AWS에서 생성형 AI를 사용하는 이점을 설명하는 블로그 포스트를 생성해주세요.
-      기사를 생성할 때 <rules></rules>를 따라주세요. <rules> - 장별로 마크다운 형식으로 작성하세요.
-      - 생성형 AI와 AWS 초보자를 대상으로 하세요. - IT 초보자가 이해하지 못할 용어는 사용하지 말거나
-      이해하기 쉬운 단어로 바꿔주세요. - 생성형 AI로 무엇을 할 수 있는지 설명하는 기사로 만드세요.
-      - 독자들은 적은 양의 텍스트로는 만족하지 않으므로 일반적인 정보로 보완하여 텍스트 양을 늘려주세요.
-      - 독자들이 흥미를 가질 수 있는 텍스트로 만드세요. </rules>
-    generate_article_description: >-
-      참조 정보를 바탕으로 블로그 기사를 자동으로 생성합니다. 컨텍스트를 자세히 설정하면
-      의도에 맞는 콘텐츠를 생성하기 쉬워집니다.
-    generate_thumbnail: 기사 썸네일 생성
-    generate_thumbnail_content: >-
-      블로그 포스트의 OGP용 썸네일 이미지를 생성해주세요. 한눈에 클라우드와 AI에 관한 기사임을
-      명확히 보여주는 이미지로 만들어주세요. 블로그 포스트 요약이 <article></article>에 설정되어 있습니다.
-      <article> {{summarizedSentence}} </article>
-    generate_thumbnail_description: >-
-      OGP(기사 링크를 공유할 때 표시되는 기사 미리보기)용 썸네일을 생성합니다.
-      OGP에 매력적인 썸네일을 설정하면 독자의 관심을 끌 수 있습니다.
-    reference_info: 참조 정보 가져오기
-    reference_info_context: >-
-      생성형 AI의 개요, 작동 방식을 설명하는 부분과 AWS를 설명하는 부분만 추출해주세요.
-    reference_info_description: >-
-      URL을 지정하여 기사의 참조로 사용할 정보를 자동으로 검색합니다.
-
-      추가 컨텍스트를 설정하면 필요한 정보만 추출할 수 있습니다.
-    summarize_article: 기사 요약
-    summarize_article_description: >-
-      OGP(기사 링크를 공유할 때 표시되는 기사 미리보기)용으로 기사를 요약합니다.
-      OGP를 적절히 설정하면 공유될 때 기사의 개요를 올바르게 전달할 수 있습니다.
   builderMode: 빌더 모드
   cancel: 취소
   create: 생성
   createDescription: >-
-    사용 사례를 생성합니다. 생성하기 전에 미리보기에서 기능을 확인해주세요. 생성 후에도 편집할 수 있습니다.
+    사용 사례를 생성합니다. 생성하기 전에 미리보기에서 기능을 확인해주세요.
+    생성 후에도 편집할 수 있습니다.
   createErrorCondition: '다음 조건을 충족해야 합니다:'
   createNew: 새로 생성
   creating: 생성 중...
@@ -854,178 +655,32 @@ useCaseBuilder:
   enterPromptTemplate: 프롬프트 템플릿을 입력해주세요
   enterTitle: 제목을 입력해주세요
   error:
-    duplicate_select_options: '{{select:{{label}}}}에 중복된 옵션이 있습니다.'
-    empty_select_options: '{{select:{{label}}}}에 빈 옵션이 있습니다.'
+    duplicate_select_options: '{{select:{{label}}}}에 중복된 옵션이 포함되어 있습니다.'
+    empty_select_options: '{{select:{{label}}}}에 빈 옵션이 포함되어 있습니다.'
     missing_kb_text_form: >-
-      지식 베이스 검색 쿼리를 입력하기 위한 {{text{{label}}}} 폼을 프롬프트 템플릿에 포함해주세요.
+      Knowledge Base의 검색 쿼리를 입력하기 위한 양식 {{text{{label}}}}을
+      프롬프트 템플릿에 포함해주세요.
     missing_select_options: >-
-      {{select}}에 옵션이 설정되지 않았습니다. {{select:label:option1,option2}}와 같이 설정해주세요.
+      {{select}}에 옵션이 설정되지 않았습니다. {{select:label:option1,option2}}와 같이 설정해주세요
     missing_text_form: >-
-      Amazon Kendra 검색 쿼리를 입력하기 위한 {{text{{label}}}} 폼을 프롬프트 템플릿에 포함해주세요.
+      Amazon Kendra의 검색 쿼리를 입력하기 위한 양식 {{text{{label}}}}을
+      프롬프트 템플릿에 포함해주세요.
     rag_kendra_not_enabled: >-
-      프롬프트 템플릿에 {{retrieveKendra}}가 지정되어 있지만 GenU에서 RAG 채팅(Amazon Kendra)이 활성화되지 않았습니다.
+      프롬프트 템플릿에 {{retrieveKendra}}가 지정되어 있지만 GenU에서 RAG 채팅
+      (Amazon Kendra)이 활성화되지 않았습니다.
     rag_knowledge_base_not_enabled: >-
-      프롬프트 템플릿에 {{retrieveKnowledgeBase}}가 지정되어 있지만 GenU에서 RAG 채팅(지식 베이스)이 활성화되지 않았습니다.
+      프롬프트 템플릿에 {{retrieveKnowledgeBase}}가 지정되어 있지만 GenU에서 RAG 채팅
+      (Knowledge Base)이 활성화되지 않았습니다.
   favorites: 즐겨찾기
   fileUploadDescription: 사용자가 LLM이 내용을 참조할 수 있도록 파일을 업로드할 수 있습니다.
   fileUploadDisabled: 파일 업로드 비활성화
   fileUploadEnabled: 파일 업로드 활성화
-  help:
-    emailReplyExample: 이메일 답장
-    emailReplyPrompt: >-
-      당신은 이메일 답장을 담당합니다.
-
-      다음 규칙에 따라 답장 이메일을 작성해주세요:
-
-      <규칙>
-
-      - 이것은 비즈니스 파트너에게 보내는 이메일입니다. 정중한 언어를 사용해야 하지만
-      관계가 형성되어 있으므로 텍스트가 지나치게 격식을 차릴 필요는 없습니다.
-
-      - 답장할 이메일의 내용을 이해하고 응답 내용에 해당하는 답장 이메일을 작성하세요.
-
-      - 원본 이메일과 응답 내용에서 이해할 수 없는 내용은 이메일 텍스트에 포함하지 마세요.
-
-      </규칙>
-
-      <원본 이메일>
-
-      {{text:원본 이메일 본문}}
-
-      </원본 이메일>
-
-      <응답 내용>
-
-      {{text:응답 내용}}
-
-      </응답 내용>
-    example: 예시
-    formPlaceholderDescription: >-
-      {{form}}은 입력 폼을 정의하기 위한 플레이스홀더입니다. {{form}} 또는 {{form:label}}로 작성됩니다.
-      {{form}}은 텍스트 입력을 받는 폼을 생성하지만 입력을 프롬프트 템플릿에 임베드하지 않습니다.
-      RAG와 같은 데이터 소스를 쿼리하고 싶지만 쿼리 자체를 프롬프트에 임베드하고 싶지 않은 사용 사례에서 사용됩니다.
-    formPlaceholderExample:
-      prompt: >-
-        당신은 주어진 정보를 바탕으로 퀴즈를 생성하는 AI 어시스턴트입니다.
-
-
-        {{form:퀴즈 기반이 될 정보 검색}}
-
-
-        다음 정보를 읽고 객관식 퀴즈를 만들어주세요.
-
-        정답도 함께 제공해주세요.
-
-
-        <정보>
-
-        {{retrieveKendra:퀴즈 기반이 될 정보 검색}}
-
-        </정보>
-      title: 퀴즈 생성
-    placeholder: 플레이스홀더
-    placeholderDescription: >-
-      플레이스홀더는 {{inputType:label}}과 같이 작성됩니다. 라벨이 식별자가 되므로
-      같은 라벨을 가진 플레이스홀더는 같은 입력으로 간주됩니다. 라벨을 생략하고
-      {{inputType}}로 작성할 수도 있습니다. 이 경우 라벨이 없는 플레이스홀더는
-      같은 입력으로 간주됩니다. 실제 실행된 프롬프트는 GenU의 대화 기록에서 확인할 수 있습니다.
-    placeholderList: 플레이스홀더 유형
-    promptTemplateDescription: >-
-      생성형 AI에게 지시를 주기 위한 일종의 "템플릿"입니다. 목적에 따라 미리 정의된
-      지시 템플릿을 준비할 수 있습니다. 프롬프트 템플릿은 실행 중에 텍스트를 삽입하기 위한
-      플레이스홀더를 정의할 수 있습니다.
-    promptTemplateTitle: 프롬프트 템플릿이란?
-    retrieveKendraDescription: >-
-      {{retrieveKendra}}는 Amazon Kendra에서 검색된 결과를 프롬프트 템플릿에 임베드합니다.
-      {{retrieveKendra}} 또는 {{retrieveKendra:label}}로 작성됩니다. {{retrieveKendra}}는
-      검색 쿼리를 입력하기 위한 별도의 플레이스홀더({{text}})가 필요합니다.
-      같은 라벨을 가져야 합니다. 이 기능을 사용하려면 GenU에서 RAG 채팅(Amazon Kendra)이
-      활성화되어 있어야 합니다. 활성화되지 않은 경우 관리자에게 문의하세요.
-    retrieveKendraExample:
-      prompt: |-
-        당신은 사용자 질문에 답하는 AI 어시스턴트입니다.
-        다음 정보를 읽어주세요:
-
-        <정보>
-        {{retrieveKendra:질문}}
-        </정보>
-
-        위 정보를 바탕으로 다음 질문에 답해주세요:
-
-        <질문>
-        {{text:질문}}
-        </질문>
-      title: 간단한 RAG
-    retrieveKnowledgeBaseDescription: >-
-      {{retrieveKnowledgeBase}}는 지식 베이스에서 검색된 결과를 프롬프트 템플릿에 임베드합니다.
-      {{retrieveKnowledgeBase}} 또는 {{retrieveKnowledgeBase:label}}로 작성할 수 있습니다.
-      {{retrieveKnowledgeBase}}는 검색 쿼리를 입력하기 위한 별도의 플레이스홀더({{text}})가 필요합니다.
-      같은 라벨을 가져야 합니다. 이 기능을 사용하려면 GenU에서 RAG 채팅(지식 베이스)이
-      활성화되어 있어야 합니다. 활성화되지 않은 경우 관리자에게 문의하세요.
-    retrieveKnowledgeBaseExample:
-      prompt: |-
-        당신은 사용자 질문에 답하는 AI 어시스턴트입니다.
-        다음 정보를 읽어주세요:
-
-        <정보>
-        {{retrieveKnowledgeBase:질문}}
-        </정보>
-
-        위 정보를 바탕으로 다음 질문에 답해주세요:
-
-        <질문>
-        {{text:질문}}
-        </질문>
-      title: 간단한 RAG
-    selectPlaceholderDescription: |-
-      당신은 AWS 서비스에 대한 전문 지식을 가진 전문가입니다.
-
-      다음 서비스에 대한 질문에 답해주세요:
-      {{select:AWS 서비스:Amazon Bedrock,Amazon S3,AWS Lambda}}
-
-      질문은 다음과 같습니다:
-      {{text:질문}}
-    selectPlaceholderExample:
-      prompt: >-
-        당신은 AWS 서비스 전문가입니다.
-
-        다음 서비스에 대한 질문에 답해주세요: {{select:AWS 서비스:Amazon Bedrock,Amazon S3,AWS Lambda}}
-
-        질문은 다음과 같습니다: {{text:질문}}
-      title: AWS 서비스에 대한 질문
-    textPlaceholderDescription: >-
-      {{text}}는 가장 기본적인 플레이스홀더입니다. {{text}} 또는 {{text:label}}로 작성할 수 있습니다.
-      {{text}}는 텍스트 입력을 받는 폼을 생성하고 입력된 값을 프롬프트 템플릿에 직접 임베드합니다.
   helpTitle: 도움말
   inputExamples: 입력 예시
-  invalidFileType: 잘못된 파일 유형입니다. JSON 파일을 선택해주세요.
+  invalidFileType: 잘못된 파일 형식입니다. JSON 파일을 선택해주세요.
   invalidJsonFormat: 잘못된 JSON 형식입니다. 파일 내용을 확인해주세요.
   loadMore: 더 보기
   mainMenu: 메인 메뉴
-  meeting:
-    create_minutes: 회의록 생성
-    create_minutes_context: >-
-      회의 발언을 바탕으로 마크다운 형식의 회의록을 작성해주세요.
-
-      회의에서 논의된 주제별로 정리하여 논의 내용, 결정사항, 숙제 항목을 요약해주세요.
-    create_minutes_description: >-
-      "텍스트 생성" 기능을 사용하여 회의록을 생성합니다. 컨텍스트를 자세히 지정하면
-      회의록의 형식과 설명의 세분화 정도를 지시할 수 있습니다.
-    formatting: 형식 지정
-    formatting_context: >-
-      녹음 데이터의 전사 결과가 입력되므로 <rules></rules>에 따라 형식을 지정해주세요.
-
-      <rules> - 추임새를 제거하세요. - 전사에 의해 잘못 인식된 것으로 보이는 내용을
-      올바른 내용으로 다시 작성하세요. - 접속사 등이 생략된 경우 읽기 쉽도록 보완해주세요.
-      - Q&A는 생략하지 말고 포함해주세요. </rules>
-    formatting_description: >-
-      "텍스트 생성" 기능을 사용하여 전사 파일을 형식화합니다. 추임새와 음성 인식으로
-      올바르게 인식되지 않은 부분을 수정하여 사람이 이해하기 쉽게 만듭니다.
-    transcription: 전사
-    transcription_description: >-
-      "음성 인식" 기능을 사용하여 녹음 데이터에서 대화를 전사합니다. 임의의 오디오 파일로 실행해주세요.
-
-      음성 인식이 완료되면 "형식 지정" 버튼을 누르세요(음성 인식 결과가 자동으로 복사됩니다).
   menuCreate: 생성
   menuDelete: 삭제
   menuFileAttachment: 파일 첨부
@@ -1039,9 +694,10 @@ useCaseBuilder:
   modelNotFixedDescription: 사용자는 이 사용 사례에서 사용할 모델을 선택할 수 있습니다.
   myUseCases: 내 사용 사례
   noMyUseCases: 내 사용 사례 없음
-  noUpdateContent: 사용 가능한 업데이트 없음
+  noUpdateContent: 업데이트 내용 없음
   noUserInput: >-
-    사용 사례가 사용자 입력을 받지 않습니다. 프롬프트 템플릿에 플레이스홀더를 추가하거나 파일 첨부를 켜주세요.
+    사용 사례가 사용자 입력을 받지 않습니다. 프롬프트 템플릿에 플레이스홀더를 추가하거나
+    파일 첨부를 켜주세요.
   notExistOrNotShared: 존재하지 않거나 공유되지 않음
   notSharedDescription: 사용 사례가 공유되지 않았습니다.
   ok: 확인
@@ -1049,9 +705,11 @@ useCaseBuilder:
   private: 비공개
   promptTemplate: 프롬프트 템플릿
   promptTemplateHint: >-
-    사용 사례를 생성하려면 사용자 입력 정의가 필요합니다. 프롬프트 템플릿에 플레이스홀더를 정의하거나 파일 첨부를 활성화해주세요.
+    사용 사례를 생성하려면 사용자 입력 정의가 필요합니다. 프롬프트 템플릿에
+    플레이스홀더를 정의하거나 파일 첨부를 활성화해주세요.
   promptTemplatePlaceholder: >-
-    프롬프트 템플릿을 입력하세요. 프롬프트 템플릿 작성 방법은 "도움말" 또는 "샘플 모음"을 참조하세요.
+    프롬프트 템플릿을 입력하세요. 프롬프트 템플릿 작성 방법은
+    "도움말" 또는 "샘플 모음"을 참조하세요.
   recentlyUsed: 최근 사용
   resultPlaceholder: 결과가 여기에 나타납니다
   returnToTop: 맨 위로 돌아가기
@@ -1081,19 +739,20 @@ video:
   generation:
     failed: 비디오 생성 실패 ({{error}})
     started: >-
-      비디오 생성 작업이 시작되었습니다. 생성 중에 이 페이지를 떠날 수 있습니다.
+      비디오 생성 작업이 시작되었습니다. 생성 중에 이 페이지를 떠나도
+      괜찮습니다.
   job:
-    delete_confirm: 정말로 이 작업을 삭제하시겠습니까?
+    delete_confirm: 이 작업을 삭제하시겠습니까?
     delete_failed: 작업 삭제 실패
     delete_success: 작업이 성공적으로 삭제되었습니다
     list: 작업 목록
-    no_jobs: 사용 가능한 생성 작업 없음
+    no_jobs: 생성 작업이 없습니다
   load:
     more: 더 보기
   loading: 로딩 중...
   loop: 루프
   model: 모델
-  no_preview: 미리보기 사용 불가
+  no_preview: 미리보기 없음
   press:
     play: 재생 버튼을 누르세요
   preview_loading: 미리보기 로딩 중...
@@ -1104,7 +763,7 @@ video:
   resolution: 해상도
   seed:
     help: >-
-      랜덤 시드 값. 같은 시드 값으로 같은 비디오가 생성됩니다.
+      랜덤 시드 값입니다. 같은 시드 값으로 같은 비디오가 생성됩니다.
     title: 시드
   status:
     completed: 완료
@@ -1124,7 +783,7 @@ video:
   taskType: 작업 유형
   upload: 업로드
   uploadImage: 이미지 업로드
-  uploadImageHelp: 비디오의 첫 번째 프레임에 사용할 이미지를 지정합니다.
+  uploadImageHelp: 비디오의 첫 번째 프레임에 사용될 이미지를 지정합니다.
 videoAnalyzer:
   camera: 카메라
   clear: 지우기
@@ -1136,21 +795,22 @@ videoAnalyzer:
   stop: 중지
   title: 비디오 분석
 voiceChat:
-  close: 세션 닫기
+  close: 세션 종료
   default_system_prompt: 당신은 AI 어시스턴트입니다.
   im_listening: 듣고 있습니다...
   start: 새 세션 시작
   title: 음성 채팅
 webcontent:
-  additional_context: 추가 컨텍스트
-  additional_context_placeholder: 고려할 추가 사항을 입력할 수 있습니다 (e.g., 요약)
+  additional_context: 추가 맥락
+  additional_context_placeholder: >-
+    추가로 고려할 사항을 입력할 수 있습니다 (예: 요약)
   enter_url: URL 입력
   error_message: >-
-    지정된 URL에 액세스할 때 오류가 발생했습니다. 사이트에서 스크래핑을 금지하거나 URL이 잘못되었을 수 있습니다.
-    일시적인 문제라고 생각되면 다시 시도해주세요.
+    지정된 URL에 액세스할 때 오류가 발생했습니다. 사이트에서 스크래핑을 금지하거나
+    URL이 잘못되었을 수 있습니다. 일시적인 문제라고 생각되면 다시 시도해주세요.
   fetched: 가져옴
   instruction: >-
-    블로그, 기사 또는 문서와 같이 텍스트가 주요 콘텐츠인 웹사이트를 지정해주세요.
+    블로그, 기사, 문서 등 텍스트가 주요 콘텐츠인 웹사이트를 지정해주세요.
     그렇지 않으면 올바르게 출력되지 않을 수 있습니다.
   loading: 로딩 중...
   not_fetched: 가져오지 않음
@@ -1161,13 +821,13 @@ webcontent:
   website_to_extract: 콘텐츠를 추출할 웹사이트
 writer:
   ai:
-    ask_ai: AI에게 묻기
-    continue_instruct: AI 지시 계속
+    ask_ai: AI에게 질문
+    continue_instruct: AI에게 계속 지시
     discard: 버리기
-    edit_selection: 선택 편집
+    edit_selection: 선택 영역 편집
     error: 오류가 발생했습니다
     generate: 생성
-    insert_below: 선택 아래에 삽입
+    insert_below: 선택 영역 아래에 삽입
     instruct_ai: AI에게 지시
     options:
       collect_data: 연구 및 지원 데이터 추가
@@ -1178,19 +838,21 @@ writer:
       longer: 더 길게
       search: 검색 및 작성...
       shorter: 더 짧게
-    replace_selection: 선택 교체
+    replace_selection: 선택 영역 바꾸기
     search_instruct: AI에게 검색 지시
     thinking: 생각 중
     trace: 추적
     use_search_engine: 검색 엔진 사용
   amazonBedrockDescription: >-
-    Amazon Bedrock은 AI21 Labs, Anthropic, Cohere, Meta, Stability AI, Amazon과 같은 선도적인 AI 회사의
-    고성능 파운데이션 모델(FM)을 단일 API를 통해 선택할 수 있게 해주는 완전 관리형 서비스로,
-    보안, 개인정보 보호, 책임감 있는 AI로 생성형 AI 애플리케이션을 구축하는 데 필요한 광범위한 기능을 제공합니다.
-  appearance: 모양
+    Amazon Bedrock은 AI21 Labs, Anthropic, Cohere, Meta, Stability AI, Amazon과 같은
+    주요 AI 회사의 고성능 기반 모델(FM)을 단일 API를 통해 선택할 수 있게 해주는
+    완전 관리형 서비스로, 보안, 개인정보 보호, 책임감 있는 AI로 생성형 AI 애플리케이션을
+    구축하는 데 필요한 광범위한 기능을 제공합니다.
+  appearance: 외관
   autoCompleteDescription: >-
-    선택한 텍스트에 대해 AI에게 지시를 줄 수 있습니다. 예를 들어 "개선", "교정", "더 짧게", "더 길게"와 같은
-    작업이나 사용자 정의 지시를 입력할 수 있습니다.
+    선택한 텍스트에 대해 AI에게 지시를 줄 수 있습니다. 예를 들어,
+    '개선', '교정', '더 짧게', '더 길게' 등의 작업이나
+    사용자 정의 지시를 입력할 수 있습니다.
   autoCompleteFeature: AI 자동 완성 기능
   background: 배경
   characters: 문자
@@ -1200,7 +862,7 @@ writer:
   color: 색상
   colors:
     blue: 파란색
-    default: 기본
+    default: 기본값
     gray: 회색
     green: 녹색
     orange: 주황색
@@ -1210,29 +872,33 @@ writer:
     yellow: 노란색
   dark: 어두운
   description: >-
-    글쓰기 지원, 텍스트 개선 및 교정을 위한 도구입니다. AI 지원으로 효율적으로 글을 쓸 수 있습니다.
-  example1: '예를 들어, AI가 이 문단을 계속 작성하도록 할 수 있습니다:'
+    글쓰기 지원, 텍스트 개선, 교정을 위한 도구입니다.
+    AI의 도움을 받아 효율적으로 글을 쓸 수 있습니다.
+  example1: '예를 들어, AI가 이 단락을 계속 작성하도록 할 수 있습니다:'
   example2: >-
-    텍스트의 사실을 확인할 수도 있습니다. 다음 텍스트를 선택하고 "사실 확인"을 선택하세요:
+    텍스트의 사실을 확인할 수도 있습니다. 다음 텍스트를 선택하고
+    '사실 확인'을 선택해보세요:
   factCheckExample: >-
-    버락 오바마는 미국의 43대 대통령이었습니다. 그는 2001년부터 2009년까지 대통령으로 재직했습니다.
-  incorrectTextExample: 나는 일본에 갔다. 도쿄는 매우 아름다운 도시입니다.
+    버락 오바마는 미국의 43대 대통령이었습니다. 그는 2001년부터 2009년까지
+    대통령을 역임했습니다.
+  incorrectTextExample: 나는 일본에 갔습니다. 도쿄는 매우 아름다운 도시입니다.
   light: 밝은
   link: 링크
   no_issues: 문제를 찾을 수 없습니다
   no_results: 결과 없음
   paste_link: 링크 붙여넣기
-  replace: 교체
+  replace: 바꾸기
   review: 검토
   reviewDescription: >-
-    전체 문서를 검토할 수 있습니다. 오타와 문법 오류를 감지하고 수정을 제안합니다.
+    전체 문서를 검토할 수 있습니다. 오타와 문법 오류를 감지하고
+    수정 제안을 제공합니다.
   reviewFeature: 검토 기능
   saved: 저장됨
   saving: 저장 중...
   system: 시스템
   textEditorDescription: >-
-    이 편집기는 일반 텍스트 편집기로 사용할 수 있습니다. 굵게, 기울임꼴, 목록, 제목과 같은
-    기본 서식을 지원합니다. 또한 작성 중 문자 수를 표시합니다.
+    이 편집기는 일반 텍스트 편집기로 사용할 수 있습니다. 굵게, 기울임꼴,
+    목록, 제목과 같은 기본 서식을 지원합니다. 또한 작성 중 문자 수도 표시됩니다.
   title: 글쓰기
   tutorial: 튜토리얼
   tutorial_success: 튜토리얼이 로드되었습니다

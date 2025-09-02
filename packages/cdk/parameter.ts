@@ -28,13 +28,6 @@ const envs: Record<string, Partial<StackInput>> = {
   },
   prod: {
     // Parameters for production environment
-    modelRegion: 'us-west-2',
-    ragKnowledgeBaseEnabled: true,
-    ragKnowledgeBaseStandbyReplicas: false,
-    ragKnowledgeBaseAdvancedParsing: true,
-    ragKnowledgeBaseAdvancedParsingModelId:
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-    embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
   // If you need other environments, customize them as needed
 };
